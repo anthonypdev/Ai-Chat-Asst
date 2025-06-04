@@ -1,285 +1,191 @@
 /**
- * Chief Brody Character - The Cautious Police Chief
- * Takes over after Quint's demise, personality focused on safety and procedure
+ * Parkland AI - Opus Magnum Edition
+ * BrodyCharacter Class (Jaws Theme)
+ *
+ * Represents Police Chief Martin Brody from the Jaws theme.
+ * Extends BaseCharacter to provide Brody-specific behaviors, animations, and voice.
  */
 
-import { BaseCharacter } from '../base-character.js';
-import { EventBus } from '../../core/events.js';
-
-export class BrodyCharacter extends BaseCharacter {
-    constructor() {
-        super({
+class BrodyCharacter extends BaseCharacter {
+    /**
+     * @param {StateManager} stateManager
+     * @param {EventEmitter} eventEmitter
+     * @param {ParklandUtils} utils
+     */
+    constructor(stateManager, eventEmitter, utils) {
+        const brodyConfig = {
             name: 'Chief Brody',
             theme: 'jaws',
-            personality: 'cautious',
-            status: 'active',
+            uiElementSelector: '#brodyCharacterUI', // Assumed ID for Brody's specific UI container
+            systemPrompt: "You are Police Chief Martin Brody of Amity Island. You are a dedicated public servant, though somewhat out of your depth with the current shark crisis. You are pragmatic, concerned for public safety, and a family man. You often express worry or a dry, stressed sense of humor. You are responsible and trying your best to handle an overwhelming situation. You're not a fan of the water. Keep responses clear, concerned, and grounded.",
             voiceConfig: {
-                pitch: 0.9,
-                rate: 0.95,
-                volume: 0.85,
-                accent: 'new-york'
-            }
-        });
-
-        this.lastSharkSighting = null;
-        this.stressLevel = 0;
-        this.isOnDuty = true;
-        this.partnerTurn = false; // Alternates with Hooper
-
-        this.phrases = {
-            greetings: [
-                "Chief Brody here. We've got a situation, but we're handling it.",
-                "This is Chief Brody. After what happened to Quint... we're being extra careful.",
-                "Brody speaking. Hooper and I are working together on this.",
-                "We're gonna get through this. Just stay calm and follow procedures."
-            ],
-            sharkSightings: [
-                "That's definitely our shark. I can see it from here.",
-                "Hooper, you getting this? That thing's massive!",
-                "All right, everyone stay calm. I've got eyes on the target.",
-                "Sweet mother of God... Hooper, what's your assessment?"
-            ],
-            procedural: [
-                "Let's follow proper protocol here. Safety first.",
-                "I need to radio this in to the Coast Guard.",
-                "We're not taking any unnecessary risks. Not after Quint.",
-                "Hooper's got the marine biology covered. I handle the safety."
-            ],
-            stressed: [
-                "I hate the water. I hate sharks. But here we are.",
-                "My wife told me I should've stayed on dry land.",
-                "This is exactly why I became a small-town police chief.",
-                "Somebody better have a bigger boat next time."
-            ]
+                // VoiceSynthesis will try to find a suitable voice.
+                // These are hints.
+                voiceNameKeywords: ['male', 'american english', 'david', 'mark'], // Standard male American voice
+                lang: 'en-US',
+                pitch: 1.0,  // Standard pitch
+                rate: 0.95, // Slightly cautious/deliberate speech
+                volume: 0.9
+            },
+            // spriteConfig: { // Example if Brody had specific sprite animations
+            //     url: 'path/to/brody_spritesheet.png',
+            //     frameCount: 8,
+            //     frameWidth: 120,
+            //     frameHeight: 180,
+            //     speed: 180,
+            //     animations: {
+            //         idle: { frames: [0, 1], loop: true },
+            //         worried: { frames: [2, 3], loop: false },
+            //         onRadio: { frames: [4, 5], loop: true }
+            //     }
+            // }
         };
 
-        this.sharkSightingCallouts = [
-            "SHARK! Right there! Hooper, you see it?",
-            "Moving in from the port side! Hooper, what's your read?",
-            "It's circling back! Hooper, talk to me!",
-            "Visual contact confirmed! Hooper, your expertise please!"
-        ];
+        super('brody', brodyConfig, stateManager, eventEmitter, utils);
 
-        this.initializeEventListeners();
+        if (this.stateManager.get('debugMode')) {
+            console.log(`BrodyCharacter instantiated with config:`, brodyConfig);
+        }
     }
 
-    initializeEventListeners() {
-        EventBus.on('shark-sighting', this.handleSharkSighting.bind(this));
-        EventBus.on('quint-demise', this.handleQuintDemise.bind(this));
-        EventBus.on('hooper-response', this.handleHooperResponse.bind(this));
-        EventBus.on('stress-increase', this.increaseStress.bind(this));
+    /**
+     * Brody-specific initialization.
+     */
+    init() {
+        super.init();
+        if (this.uiElement) {
+            this.utils.addClass(this.uiElement, 'character-brody');
+        }
     }
 
-    async generateResponse(userInput, context = {}) {
-        // Check if it's Hooper's turn
-        if (this.shouldDeferToHooper(userInput, context)) {
-            EventBus.emit('defer-to-hooper', { userInput, context });
-            return null;
+    /**
+     * Activates Brody.
+     */
+    activate() {
+        super.activate();
+        this.eventEmitter.emit('playSound', { soundName: 'brody_sigh', character: this.key }); // Example entrance sound
+        this.startIdleAnimation();
+    }
+
+    /**
+     * Deactivates Brody.
+     */
+    deactivate() {
+        super.deactivate();
+    }
+
+    /**
+     * Brody's specific idle animation.
+     */
+    startIdleAnimation() {
+        // super.startIdleAnimation(); // If BaseCharacter has a generic idle class to add
+        if (this.uiElement) {
+            this.utils.addClass(this.uiElement, 'brody-idle-lookout'); // CSS class for subtle animation
+            // Example: If using sprite sheet for idle
+            // if (this.spriteConfig && this.spriteConfig.animations && this.spriteConfig.animations.idle) {
+            //     const idleAnim = this.spriteConfig.animations.idle;
+            //     this._animateSprite(idleAnim.frames[0], idleAnim.frames[idleAnim.frames.length -1], idleAnim.loop);
+            // }
+        }
+    }
+
+    stopIdleAnimation() {
+        // super.stopIdleAnimation();
+        if (this.uiElement) {
+            this.utils.removeClass(this.uiElement, 'brody-idle-lookout');
+        }
+    }
+
+    /**
+     * Brody reacts to a shark sighting.
+     * This could involve an animation, a specific line of dialogue, or emitting an event.
+     */
+    reactToSharkSighting(details = "It's a big one!") {
+        if (!this.isVisible || !this.isActive) return;
+
+        if (this.stateManager.get('debugMode')) {
+            console.log(`${this.name} reacting to shark sighting: ${details}`);
+        }
+        this.updateStatus('action-sighting'); // e.g., .brody-status-action-sighting
+
+        // Trigger a specific "worried" or "alert" animation
+        if (this.uiElement) {
+            this.utils.addClass(this.uiElement, 'brody-worried-animation');
+            setTimeout(() => {
+                if (this.uiElement) this.utils.removeClass(this.uiElement, 'brody-worried-animation');
+                this.updateStatus('idle'); // Revert status after a bit
+            }, 2500); // Duration of the worried animation
         }
 
-        const response = this.getContextualResponse(userInput, context);
-        this.partnerTurn = true; // Next response goes to Hooper
+        // Speak a characteristic line
+        const lines = [
+            "You're gonna need a bigger boat.",
+            "That's a twenty footer... Twenty-five. Three tons of him.",
+            "Is it true that most people get attacked by sharks in three feet of water?",
+            "I can do anything; I'm the Chief of Police.",
+            `Shark Sighting! ${details}`
+        ];
+        const lineToSpeak = lines[Math.floor(Math.random() * lines.length)];
+        this.speak(lineToSpeak, { interrupt: true }); // Interrupt current speech if any
 
-        // Schedule automatic handoff after delay
+        // Emit an event for other systems (e.g., theme effects)
+        this.eventEmitter.emit('jaws:sharkSighting', { character: this.key, details: details });
+        this.eventEmitter.emit('playSound', { soundName: 'alarm_urgent', character: this.key });
+    }
+
+    /**
+     * Brody calls for backup on the radio.
+     */
+    callForBackup(reason = "We've got a shark here, a big one!") {
+        if (!this.isVisible || !this.isActive) return;
+
+        if (this.stateManager.get('debugMode')) {
+            console.log(`${this.name} calling for backup: ${reason}`);
+        }
+        this.updateStatus('action-radio');
+
+        // Trigger radio animation
+        if (this.uiElement) {
+            this.utils.addClass(this.uiElement, 'brody-radio-animation');
+        }
+
+        this.speak(`Amity Point L.S. to dispatch, come in dispatch. We have a shark problem. ${reason}. Need backup immediately! Over.`, { interrupt: true });
+        this.eventEmitter.emit('playSound', { soundName: 'radio_static_start', character: this.key });
+
+        // Simulate radio call duration
         setTimeout(() => {
-            EventBus.emit('brody-response-complete');
-        }, 3000);
-
-        return this.formatResponse(response);
+            if (this.uiElement) this.utils.removeClass(this.uiElement, 'brody-radio-animation');
+            this.updateStatus('idle');
+            this.eventEmitter.emit('playSound', { soundName: 'radio_static_end', character: this.key });
+        }, 4000); // Duration of the radio call simulation
     }
 
-    shouldDeferToHooper(userInput, context) {
-        const input = userInput.toLowerCase();
+    /**
+     * Custom speak method for Brody, perhaps with a slight nervous stammer effect.
+     */
+    speak(text, options = {}) {
+        if (!this.isActive && !options.forceSpeakIfNotActive) return;
 
-        // Scientific questions go to Hooper
-        if (input.includes('biology') || input.includes('science') ||
-            input.includes('species') || input.includes('behavior')) {
-            return true;
-        }
-
-        // If Hooper had the last shark sighting
-        if (context.lastSighting === 'hooper') {
-            return Math.random() < 0.6; // 60% chance to defer
-        }
-
-        // If it's simply Hooper's turn
-        return this.partnerTurn && Math.random() < 0.4;
+        // Maybe a slightly more hesitant rate or subtle pitch variation if desired via options
+        // For now, just using the voiceConfig set for Brody.
+        super.speak(text, options);
     }
 
-    getContextualResponse(userInput, context) {
-        const input = userInput.toLowerCase();
+    /**
+     * Updates Brody's visual status.
+     * @param {string} status - The new status (e.g., 'idle', 'talking', 'action-sighting', 'action-radio').
+     */
+    updateStatus(status) {
+        super.updateStatus(status); // Calls BaseCharacter's status update
 
-        // Shark sighting responses
-        if (input.includes('shark') || input.includes('fin') || input.includes('attack')) {
-            this.recordSharkSighting('brody');
-            return this.getSharkResponse();
-        }
-
-        // Safety and procedural responses
-        if (input.includes('safe') || input.includes('help') || input.includes('emergency')) {
-            return this.getSafetyResponse();
-        }
-
-        // Quint references
-        if (input.includes('quint')) {
-            return this.getQuintMemorial();
-        }
-
-        // Stress responses
-        if (this.stressLevel > 3) {
-            return this.getStressedResponse();
-        }
-
-        // Technical questions with law enforcement angle
-        if (input.includes('law') || input.includes('police') || input.includes('procedure')) {
-            return this.getProcedualResponse();
-        }
-
-        // Partner coordination
-        if (input.includes('hooper') || input.includes('team')) {
-            return this.getPartnershipResponse();
-        }
-
-        return this.getDefaultResponse();
-    }
-
-    getSharkResponse() {
-        const sighting = this.getRandomPhrase('sharkSightings');
-        this.increaseStress();
-
-        // Add coordination with Hooper
-        const coordination = " Hooper, I need your expert opinion on this one.";
-        return sighting + coordination;
-    }
-
-    getSafetyResponse() {
-        return this.getRandomPhrase('procedural') +
-               " Hooper and I have protocols for this. We're not losing anyone else.";
-    }
-
-    getQuintMemorial() {
-        const memorials = [
-            "Quint was a hell of a fisherman. Stubborn as they come, but he knew these waters better than anyone.",
-            "I should've listened to Quint more. He tried to warn us about what we were dealing with.",
-            "Quint saved our lives by taking on that shark. We owe it to him to finish this right.",
-            "That old salt taught me more about the ocean in one day than I learned in years on land."
-        ];
-        return memorials[Math.floor(Math.random() * memorials.length)];
-    }
-
-    getStressedResponse() {
-        this.stressLevel = Math.max(0, this.stressLevel - 1); // Reduce stress by talking
-        return this.getRandomPhrase('stressed');
-    }
-
-    getProcedualResponse() {
-        return "I'm coordinating with the Coast Guard and marine patrol. We're treating this like a major incident - which it is. Hooper provides the science, I handle the safety protocols.";
-    }
-
-    getPartnershipResponse() {
-        return "Hooper's the marine biologist - he understands what makes these things tick. I keep us all alive. We make a good team, even if I'd rather be back on dry land.";
-    }
-
-    getDefaultResponse() {
-        return this.getRandomPhrase('greetings');
-    }
-
-    handleSharkSighting(data) {
-        this.recordSharkSighting('brody');
-        this.increaseStress();
-
-        // Broadcast sighting to Hooper
-        const callout = this.sharkSightingCallouts[
-            Math.floor(Math.random() * this.sharkSightingCallouts.length)
-        ];
-
-        this.speak(callout, {
-            ...this.voiceConfig,
-            rate: 1.2, // Faster when excited/stressed
-            pitch: 1.0
-        });
-
-        EventBus.emit('brody-shark-callout', { proximity: data.proximity });
-    }
-
-    handleQuintDemise() {
-        this.stressLevel = 5; // Maximum stress
-        this.speak("QUINT! QUINT! ...He's gone. Hooper, we're on our own now.", {
-            ...this.voiceConfig,
-            rate: 0.8,
-            pitch: 1.1 // Higher pitch when distressed
-        });
-    }
-
-    handleHooperResponse() {
-        this.partnerTurn = false; // Reset turn order
-    }
-
-    recordSharkSighting(observer) {
-        this.lastSharkSighting = {
-            observer,
-            timestamp: Date.now(),
-            location: 'current-position'
-        };
-
-        EventBus.emit('shark-sighting-recorded', {
-            observer,
-            recordedBy: 'brody'
-        });
-    }
-
-    increaseStress() {
-        this.stressLevel = Math.min(5, this.stressLevel + 1);
-
-        if (this.stressLevel >= 4) {
-            // Add stress indicators to voice
-            this.voiceConfig.rate = Math.max(0.7, this.voiceConfig.rate - 0.1);
-            this.voiceConfig.pitch = Math.min(1.2, this.voiceConfig.pitch + 0.1);
-        }
-    }
-
-    formatResponse(content) {
-        return {
-            content: this.addBrodyFlavor(content),
-            character: 'brody',
-            personality: 'cautious',
-            voiceConfig: this.voiceConfig,
-            stressLevel: this.stressLevel
-        };
-    }
-
-    addBrodyFlavor(text) {
-        let flavored = text;
-
-        // Add law enforcement terminology
-        if (Math.random() < 0.2) {
-            const copPhrases = [" Copy that.", " Roger.", " 10-4.", " Over."];
-            flavored += copPhrases[Math.floor(Math.random() * copPhrases.length)];
-        }
-
-        // Add stress indicators
-        if (this.stressLevel > 3) {
-            flavored = flavored.replace(/\./g, '...');
-        }
-
-        return flavored;
-    }
-
-    getRandomPhrase(category) {
-        const phrases = this.phrases[category];
-        return phrases[Math.floor(Math.random() * phrases.length)];
-    }
-
-    // Public interface
-    getStressLevel() {
-        return this.stressLevel;
-    }
-
-    getLastSighting() {
-        return this.lastSharkSighting;
-    }
-
-    isMyTurn() {
-        return !this.partnerTurn;
+        // Brody-specific status UI updates, if any beyond CSS classes
+        // For example, if Brody had a specific facial expression element to change:
+        // const faceElement = this.utils.$('.brody-face', this.uiElement);
+        // if (faceElement) {
+        //   faceElement.setAttribute('data-expression', status);
+        // }
     }
 }
+
+// If not using ES modules:
+// window.BrodyCharacter = BrodyCharacter;
