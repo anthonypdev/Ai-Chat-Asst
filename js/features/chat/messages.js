@@ -1,514 +1,435 @@
 /**
- * Message Handler - Manages chat messages with theming and characters
- * Handles rendering, animations, and character integration
+ * Parkland AI - Opus Magnum Edition
+ * ChatMessages Module
+ *
+ * Handles rendering and management of chat messages in the UI,
+ * including markdown processing, syntax highlighting, and user interactions.
  */
 
-import { EventBus } from '../../core/events.js';
-import { AppState } from '../../core/state.js';
-import { MarkdownRenderer } from './markdown.js';
+class ChatMessages {
+    /**
+     * @param {HTMLElement} container - The DOM element to render messages into.
+     * @param {ParklandUtils} utils - Instance of ParklandUtils.
+     * @param {MarkdownProcessor} markdownProcessor - Instance of MarkdownProcessor.
+     * @param {StateManager} stateManager - Instance of StateManager.
+     */
+    constructor(container, utils, markdownProcessor, stateManager) {
+        if (!container || !utils || !markdownProcessor || !stateManager) {
+            throw new Error("ChatMessages requires container, utils, markdownProcessor, and stateManager.");
+        }
+        this.container = container;
+        this.utils = utils;
+        this.markdownProcessor = markdownProcessor;
+        this.stateManager = stateManager;
+        this.typingIndicatorElement = null;
 
-export class MessageHandler {
-    constructor() {
-        this.markdownRenderer = new MarkdownRenderer();
-        this.messageContainer = null;
-        this.messagesInner = null;
-        this.typingIndicator = null;
-        this.messageQueue = [];
-        this.isProcessingQueue = false;
-
-        this.animationConfig = {
-            messageAppear: { duration: 500, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' },
-            messageExit: { duration: 300, easing: 'cubic-bezier(0.6, 0, 0.4, 1)' },
-            typingBounce: { duration: 1500, easing: 'ease-in-out' }
-        };
-
-        this.init();
+        this.stateManager.subscribe('typingIndicator', ({ show }) => this.showTypingIndicator(show));
+        console.log('💬 ChatMessages initialized.');
     }
 
-    init() {
-        this.messageContainer = document.getElementById('messagesContainer');
-        this.messagesInner = document.getElementById('messagesInner');
+    /**
+     * Clears the message container and renders all messages from history.
+     * @param {Array<Object>} chatHistory - Array of message objects.
+     */
+    renderHistory(chatHistory) {
+        this.container.innerHTML = ''; // Clear existing messages
+        if (Array.isArray(chatHistory)) {
+            const fragment = document.createDocumentFragment();
+            chatHistory.forEach(message => {
+                if (message && message.role && message.content) {
+                    const messageEl = this._createMessageElement(message);
+                    fragment.appendChild(messageEl);
+                }
+            });
+            this.container.appendChild(fragment);
+        }
+        this.scrollToBottom(true); // Force scroll on history render
+    }
 
-        if (!this.messageContainer || !this.messagesInner) {
-            console.error('Message container elements not found');
+    /**
+     * Adds a single message to the UI, or updates an existing one if streaming.
+     * @param {Object} message - The message object { id?, role, content, timestamp, character?, isError? }.
+     * @param {boolean} [isStreaming=false] - True if this is a streaming update to an existing message.
+     */
+    addMessage(message, isStreaming = false) {
+        if (!message || typeof message.role !== 'string' || typeof message.content !== 'string') {
+            console.error('Invalid message object:', message);
             return;
         }
 
-        this.setupEventListeners();
-        this.setupIntersectionObserver();
-    }
+        let messageElement;
+        const messageId = message.id || `msg-${message.timestamp}-${message.role}`;
 
-    setupEventListeners() {
-        EventBus.on('chat:add-message', this.addMessage.bind(this));
-        EventBus.on('chat:add-system-message', this.addSystemMessage.bind(this));
-        EventBus.on('chat:show-typing', this.showTypingIndicator.bind(this));
-        EventBus.on('chat:hide-typing', this.hideTypingIndicator.bind(this));
-        EventBus.on('chat:clear-messages', this.clearMessages.bind(this));
-        EventBus.on('theme:changed', this.updateThemeElements.bind(this));
-        EventBus.on('character:message', this.handleCharacterMessage.bind(this));
-    }
+        if (isStreaming && message.role === 'assistant') {
+            messageElement = this.utils.$(`#${messageId}`, this.container);
+        }
 
-    setupIntersectionObserver() {
-        // Observe messages for animations and read status
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const message = entry.target;
-                    message.classList.add('visible');
-
-                    // Trigger character reactions for themed messages
-                    const role = message.classList.contains('assistant') ? 'assistant' : 'user';
-                    if (role === 'user') {
-                        this.triggerCharacterReaction(message);
-                    }
-                }
+        if (messageElement) { // Update existing streaming message
+            const bubble = this.utils.$('.message-bubble', messageElement);
+            if (bubble) {
+                bubble.innerHTML = this.markdownProcessor.process(message.content);
+                this._addCodeCopyButtons(bubble); // Re-add for updated content
+            }
+        } else { // Create new message element
+            messageElement = this._createMessageElement(message, messageId);
+            // If typing indicator is present, insert message before it
+            if (this.typingIndicatorElement && this.container.contains(this.typingIndicatorElement)) {
+                this.container.insertBefore(messageElement, this.typingIndicatorElement);
+            } else {
+                this.container.appendChild(messageElement);
+            }
+             // Add fade-in animation class after appending
+            this.utils.requestFrame(() => {
+                messageElement.classList.add('animate-in');
             });
-        }, { threshold: 0.3 });
-    }
+        }
 
-    async addMessage(data) {
-        const { role, content, timestamp, ticketId, isIntro, error } = data;
-
-        this.messageQueue.push({
-            role,
-            content,
-            timestamp: timestamp || new Date().toISOString(),
-            ticketId,
-            isIntro: isIntro || false,
-            error: error || false
-        });
-
-        if (!this.isProcessingQueue) {
-            await this.processMessageQueue();
+        if (this.stateManager.get('userPreferences.autoScroll') !== false) {
+            this.scrollToBottom();
         }
     }
 
-    async addSystemMessage(data) {
-        await this.addMessage({
-            ...data,
-            role: 'assistant',
-            isSystem: true
-        });
-    }
+    /**
+     * Creates the DOM structure for a single message.
+     * @param {Object} message - The message object.
+     * @param {string} [elementId] - Optional ID for the message element.
+     * @returns {HTMLElement} The created message element.
+     * @private
+     */
+    _createMessageElement(message, elementId) {
+        const messageRole = message.role.toLowerCase(); // user, assistant, system (system usually not displayed)
+        const uniqueId = elementId || `msg-${message.timestamp}-${messageRole}-${this.utils.generateId('')}`;
 
-    async processMessageQueue() {
-        if (this.messageQueue.length === 0) return;
-
-        this.isProcessingQueue = true;
-
-        while (this.messageQueue.length > 0) {
-            const messageData = this.messageQueue.shift();
-            await this.renderMessage(messageData);
-
-            // Small delay between messages for natural feel
-            if (this.messageQueue.length > 0) {
-                await this.delay(150);
-            }
-        }
-
-        this.isProcessingQueue = false;
-    }
-
-    async renderMessage(messageData) {
-        const messageEl = this.createMessageElement(messageData);
-
-        // Hide empty state if visible
-        const emptyState = document.getElementById('emptyState');
-        if (emptyState && emptyState.style.display !== 'none') {
-            emptyState.style.display = 'none';
-        }
-
-        // Add to DOM with initial hidden state
-        messageEl.style.opacity = '0';
-        messageEl.style.transform = 'translateY(20px) scale(0.95)';
-        this.messagesInner.appendChild(messageEl);
-
-        // Set up intersection observer
-        this.observer.observe(messageEl);
-
-        // Animate in
-        await this.animateMessageIn(messageEl);
-
-        // Scroll to show new message
-        this.scrollToBottom();
-
-        // Trigger any post-render effects
-        this.handlePostRenderEffects(messageEl, messageData);
-
-        EventBus.emit('message:rendered', { element: messageEl, data: messageData });
-    }
-
-    createMessageElement(messageData) {
-        const { role, content, timestamp, ticketId, isIntro, error, isSystem } = messageData;
-
-        const messageEl = document.createElement('div');
-        messageEl.className = this.getMessageClasses(role, isIntro, error, isSystem);
-        messageEl.setAttribute('role', 'article');
-        messageEl.setAttribute('aria-roledescription', `chat message from ${role}`);
-
-        const time = new Date(timestamp).toLocaleTimeString([], {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
+        const messageDiv = this.utils.createElement('div', {
+            className: `message ${messageRole}`,
+            id: uniqueId,
+            role: 'log', // ARIA role for chat messages
+            'aria-live': messageRole === 'assistant' ? 'polite' : 'off',
+            'aria-atomic': 'false' // Content may change, but usually whole new message
         });
 
-        // Create avatar
-        const avatarEl = this.createMessageAvatar(role);
+        const wrapperDiv = this.utils.createElement('div', { className: 'message-wrapper' });
 
-        // Create content with markdown rendering
-        const contentEl = this.createMessageContent(content, error);
+        // Avatar
+        const avatarDiv = this.utils.createElement('div', {
+            className: `message-avatar character-avatar ${message.character || messageRole}`,
+            title: message.character ?
+                   (window.parklandApp && window.parklandApp.characterManager ?
+                    window.parklandApp.characterManager.getCharacterData(message.character)?.name : message.character)
+                   : (messageRole === 'user' ? 'You' : 'Assistant')
+        });
+        // Avatar content (e.g., initials, SVG, or theme-specific through CSS)
+        const avatarInitial = message.character ?
+                              (window.parklandApp && window.parklandApp.characterManager ?
+                               window.parklandApp.characterManager.getCharacterData(message.character)?.name[0].toUpperCase() : message.character[0].toUpperCase())
+                              : (messageRole === 'user' ? 'U' : 'A');
+        avatarDiv.textContent = avatarInitial;
 
-        // Create metadata
-        const metaEl = this.createMessageMeta(time, ticketId, role);
 
-        // Assemble message structure
-        const wrapperEl = document.createElement('div');
-        wrapperEl.className = 'message-wrapper';
+        // Message Content (Bubble, Meta, Actions)
+        const contentDiv = this.utils.createElement('div', { className: 'message-content' });
+        const bubbleDiv = this.utils.createElement('div', { className: 'message-bubble' });
 
-        wrapperEl.appendChild(avatarEl);
-
-        const contentContainer = document.createElement('div');
-        contentContainer.className = 'message-content';
-        contentContainer.appendChild(contentEl);
-        contentContainer.appendChild(metaEl);
-
-        wrapperEl.appendChild(contentContainer);
-        messageEl.appendChild(wrapperEl);
-
-        // Store raw content for copy functionality
-        messageEl.dataset.rawContent = content;
-
-        return messageEl;
-    }
-
-    getMessageClasses(role, isIntro, error, isSystem) {
-        const classes = ['message', role];
-
-        if (isIntro) classes.push('message-intro');
-        if (error) classes.push('message-error');
-        if (isSystem) classes.push('message-system');
-
-        return classes.join(' ');
-    }
-
-    createMessageAvatar(role) {
-        const avatarEl = document.createElement('div');
-        avatarEl.className = `message-avatar ${role}`;
-        avatarEl.setAttribute('aria-hidden', 'true');
-
-        if (role === 'user') {
-            avatarEl.innerHTML = `
-                <svg class="icon" viewBox="0 0 24 24" fill="currentColor" style="width:1.2em; height:1.2em;">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                </svg>
-            `;
+        if (message.content.trim() === '' && message.role === 'assistant' && !message.isError) {
+            // Placeholder for empty assistant messages (e.g., during initial stream or error)
+             const placeholder = this.utils.createElement('div', {className: 'empty-bubble-placeholder'});
+             bubbleDiv.appendChild(placeholder);
         } else {
-            // Get current theme's brand icon
-            const theme = AppState.currentTheme || 'default';
-            const iconMap = {
-                default: 'parkland-default-brand-icon-path',
-                jaws: 'jaws-brand-fin-def',
-                jurassic: 'jurassic-brand-amber-def'
-            };
-
-            const iconId = iconMap[theme];
-            avatarEl.innerHTML = `
-                <svg width="26" height="26" viewBox="0 0 100 100" fill="currentColor">
-                    <use href="#${iconId}"/>
-                </svg>
-            `;
+            bubbleDiv.innerHTML = this.markdownProcessor.process(message.content);
+            this._addCodeCopyButtons(bubbleDiv);
         }
 
-        return avatarEl;
-    }
 
-    createMessageContent(content, isError) {
-        const bubbleEl = document.createElement('div');
-        bubbleEl.className = `message-bubble ${isError ? 'error-bubble' : ''}`;
-
-        if (content && content.trim()) {
-            const renderedContent = this.markdownRenderer.render(content);
-            bubbleEl.innerHTML = renderedContent;
-        } else {
-            bubbleEl.innerHTML = '<span class="empty-bubble-placeholder"> </span>';
+        if (message.isError) {
+            this.utils.addClass(messageDiv, 'error'); // Specific styling for error messages
         }
 
-        return bubbleEl;
-    }
-
-    createMessageMeta(time, ticketId, role) {
-        const metaEl = document.createElement('div');
-        metaEl.className = 'message-meta';
-
-        const timeSpan = document.createElement('span');
-        timeSpan.textContent = time;
-        metaEl.appendChild(timeSpan);
-
-        // Add ticket ID if present
-        if (ticketId && role === 'assistant') {
-            const ticketEl = document.createElement('span');
-            ticketEl.className = 'message-ticket';
-            ticketEl.title = `Support Ticket ID ${ticketId}`;
-            ticketEl.innerHTML = `
-                <svg class="icon icon-xs" viewBox="0 0 24 24">
-                    <use href="#icon-ticket"/>
-                </svg>
-                ${ticketId}
-            `;
-            metaEl.appendChild(ticketEl);
-        }
-
-        // Add action buttons
-        const actionsEl = this.createMessageActions();
-        metaEl.appendChild(actionsEl);
-
-        return metaEl;
-    }
-
-    createMessageActions() {
-        const actionsEl = document.createElement('div');
-        actionsEl.className = 'message-actions';
-
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'message-action-btn';
-        copyBtn.setAttribute('data-no-sound', 'true');
-        copyBtn.title = 'Copy Message Text';
-        copyBtn.setAttribute('aria-label', 'Copy message to clipboard');
-        copyBtn.innerHTML = `
-            <svg class="icon icon-xs" viewBox="0 0 24 24">
-                <use href="#icon-copy"/>
-            </svg>
-        `;
-
-        copyBtn.addEventListener('click', (e) => {
-            this.copyMessageContent(e.target.closest('.message-action-btn'));
+        // Metadata (Timestamp, Ticket ID, etc.)
+        const metaDiv = this.utils.createElement('div', { className: 'message-meta' });
+        const timestampSpan = this.utils.createElement('span', {
+            className: 'message-timestamp',
+            textContent: this._formatTimestamp(message.timestamp)
         });
+        metaDiv.appendChild(timestampSpan);
 
-        actionsEl.appendChild(copyBtn);
-        return actionsEl;
+        // Optional: Ticket ID (example, if messages have unique IDs from a backend)
+        if (message.ticketId) {
+            const ticketSpan = this.utils.createElement('span', { className: 'message-ticket' });
+            ticketSpan.innerHTML = `<span class="icon">${this.utils.getIconSVG('ticket')}</span> ${message.ticketId}`;
+            metaDiv.appendChild(ticketSpan);
+        }
+
+        // Message Actions (Copy, Retry, Edit)
+        const actionsDiv = this._addMessageActions(message);
+        
+        // Assemble message
+        contentDiv.appendChild(bubbleDiv);
+        contentDiv.appendChild(metaDiv);
+
+        if (messageRole === 'user') {
+            metaDiv.insertBefore(actionsDiv, timestampSpan); // Actions before timestamp for user
+            wrapperDiv.appendChild(contentDiv);
+            wrapperDiv.appendChild(avatarDiv);
+        } else { // Assistant
+            metaDiv.appendChild(actionsDiv); // Actions after timestamp for assistant
+            wrapperDiv.appendChild(avatarDiv);
+            wrapperDiv.appendChild(contentDiv);
+        }
+        messageDiv.appendChild(wrapperDiv);
+
+        return messageDiv;
     }
 
-    async animateMessageIn(messageEl) {
-        const animation = messageEl.animate([
-            {
-                opacity: 0,
-                transform: 'translateY(20px) scale(0.95)'
-            },
-            {
-                opacity: 1,
-                transform: 'translateY(0px) scale(1)'
+    /**
+     * Finds all <pre> elements within a rendered message bubble and adds a "Copy Code" button.
+     * @param {HTMLElement} bubbleElement - The message bubble element.
+     * @private
+     */
+    _addCodeCopyButtons(bubbleElement) {
+        const pres = this.utils.$$('pre', bubbleElement);
+        pres.forEach(preElement => {
+            // Avoid adding multiple buttons if content is re-rendered
+            if (this.utils.$('.code-copy-btn', preElement.parentElement)) {
+                return;
             }
-        ], this.animationConfig.messageAppear);
 
-        await new Promise(resolve => {
-            animation.addEventListener('finish', resolve);
+            const copyButton = this.utils.createElement('button', {
+                className: 'code-copy-btn btn btn-xs btn-ghost', // Use existing button styles
+                title: 'Copy code',
+                innerHTML: `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('copy') : 'Copy'}</span>` // Use utility for icons
+            });
+
+            copyButton.addEventListener('click', () => {
+                const codeElement = this.utils.$('code', preElement);
+                const codeToCopy = codeElement ? codeElement.textContent : preElement.textContent;
+                this._handleCopyCode(codeToCopy, copyButton);
+            });
+            
+            // Insert button: Some themes might want it inside the pre, some outside.
+            // Let's place it conceptually "with" the pre block.
+            // If 'pre' is wrapped by a 'figure' or another div, adjust.
+            if (preElement.parentElement && preElement.parentElement !== bubbleElement) {
+                 // If pre is wrapped (e.g. by a figure for a caption), add button to wrapper
+                preElement.parentElement.style.position = 'relative'; // Ensure wrapper can position button
+                preElement.parentElement.appendChild(copyButton);
+            } else {
+                preElement.style.position = 'relative'; // Ensure pre can position button
+                preElement.appendChild(copyButton);
+            }
+
         });
     }
 
-    async showTypingIndicator() {
-        if (this.typingIndicator) {
-            return; // Already showing
+    /**
+     * Handles copying code to the clipboard.
+     * @param {string} codeText - The text to copy.
+     * @param {HTMLElement} buttonElement - The button that was clicked.
+     * @private
+     */
+    async _handleCopyCode(codeText, buttonElement) {
+        if (!navigator.clipboard) {
+            console.warn('Clipboard API not available.');
+            // Fallback or error message
+            buttonElement.innerHTML = `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('error') : 'Error'}</span>`;
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(codeText);
+            buttonElement.innerHTML = `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('check') : 'Copied!'}</span>`;
+            this.utils.addClass(buttonElement, 'copied-feedback');
+
+            setTimeout(() => {
+                buttonElement.innerHTML = `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('copy') : 'Copy'}</span>`;
+                this.utils.removeClass(buttonElement, 'copied-feedback');
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy code: ', err);
+            buttonElement.innerHTML = `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('error') : 'Error'}</span>`;
+        }
+    }
+
+
+    /**
+     * Formats a timestamp into a human-readable string.
+     * @param {number} timestamp - The Unix timestamp (milliseconds).
+     * @returns {string} Formatted time string.
+     * @private
+     */
+    _formatTimestamp(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+
+    /**
+     * Creates and appends action buttons (Copy, Retry, Edit) to a message.
+     * @param {Object} message - The message object.
+     * @returns {HTMLElement} The div containing action buttons.
+     * @private
+     */
+    _addMessageActions(message) {
+        const actionsDiv = this.utils.createElement('div', { className: 'message-actions' });
+
+        // Copy Button
+        const copyBtn = this.utils.createElement('button', {
+            className: 'message-action-btn copy-btn',
+            title: 'Copy message',
+            innerHTML: `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('copy') : 'Copy'}</span>`
+        });
+        copyBtn.addEventListener('click', () => this._handleCopyMessage(message.content, copyBtn));
+        actionsDiv.appendChild(copyBtn);
+
+        // Retry Button (e.g., for user messages that failed or to regenerate assistant response)
+        if (message.role === 'user' || (message.role === 'assistant' && !message.isError)) { // Allow retry for user or regen for assistant
+            const retryBtn = this.utils.createElement('button', {
+                className: 'message-action-btn retry-btn',
+                title: message.role === 'user' ? 'Retry sending' : 'Regenerate response',
+                innerHTML: `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('refresh') : 'Retry'}</span>`
+            });
+            retryBtn.addEventListener('click', () => this._handleRetryMessage(message));
+            actionsDiv.appendChild(retryBtn);
         }
 
-        this.typingIndicator = this.createTypingIndicator();
-        this.messagesInner.appendChild(this.typingIndicator);
-
-        // Animate in
-        await this.animateMessageIn(this.typingIndicator);
-        this.scrollToBottom();
+        // Edit Button (typically for user messages)
+        if (message.role === 'user') {
+            const editBtn = this.utils.createElement('button', {
+                className: 'message-action-btn edit-btn',
+                title: 'Edit message',
+                innerHTML: `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('edit') : 'Edit'}</span>`
+            });
+            editBtn.addEventListener('click', () => this._handleEditMessage(message));
+            actionsDiv.appendChild(editBtn);
+        }
+        return actionsDiv;
     }
 
-    hideTypingIndicator() {
-        if (!this.typingIndicator) return;
-
-        const indicator = this.typingIndicator;
-        this.typingIndicator = null;
-
-        // Animate out
-        const animation = indicator.animate([
-            { opacity: 1, transform: 'scale(1)' },
-            { opacity: 0, transform: 'scale(0.8)' }
-        ], this.animationConfig.messageExit);
-
-        animation.addEventListener('finish', () => {
-            if (indicator.parentNode) {
-                indicator.parentNode.removeChild(indicator);
+    async _handleCopyMessage(content, buttonElement) {
+        try {
+            await navigator.clipboard.writeText(content);
+            // Visual feedback
+            const originalHTML = buttonElement.innerHTML;
+            buttonElement.innerHTML = `<span class="icon">${this.utils.getIconSVG ? this.utils.getIconSVG('check') : 'Copied!'}</span>`;
+            this.utils.addClass(buttonElement, 'copied-feedback');
+            setTimeout(() => {
+                buttonElement.innerHTML = originalHTML;
+                this.utils.removeClass(buttonElement, 'copied-feedback');
+            }, 2000);
+            if (this.stateManager.get('userPreferences.soundEffectsEnabled') && window.parklandApp && window.parklandApp.soundEffects) {
+                window.parklandApp.soundEffects.playSoundEffect('actionSuccess');
             }
-        });
-    }
-
-    createTypingIndicator() {
-        const theme = AppState.currentTheme || 'default';
-        const iconMap = {
-            default: 'parkland-default-brand-icon-path',
-            jaws: 'jaws-brand-fin-def',
-            jurassic: 'jurassic-brand-amber-def'
-        };
-
-        const indicatorEl = document.createElement('div');
-        indicatorEl.className = 'message assistant typing-indicator-wrapper fade-in-element';
-
-        indicatorEl.innerHTML = `
-            <div class="message-wrapper">
-                <div class="message-avatar assistant">
-                    <svg width="26" height="26" viewBox="0 0 100 100">
-                        <use href="#${iconMap[theme]}"/>
-                    </svg>
-                </div>
-                <div class="message-content">
-                    <div class="typing-bubble">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        return indicatorEl;
-    }
-
-    clearMessages() {
-        if (!this.messagesInner) return;
-
-        // Animate out all messages
-        const messages = this.messagesInner.querySelectorAll('.message');
-        const animations = Array.from(messages).map(message => {
-            return message.animate([
-                { opacity: 1, transform: 'scale(1)' },
-                { opacity: 0, transform: 'scale(0.9) translateY(-10px)' }
-            ], { duration: 200, easing: 'ease-in' });
-        });
-
-        Promise.all(animations.map(anim =>
-            new Promise(resolve => anim.addEventListener('finish', resolve))
-        )).then(() => {
-            this.messagesInner.innerHTML = '';
-
-            // Show empty state
-            const emptyState = document.getElementById('emptyState');
-            if (emptyState) {
-                emptyState.style.display = 'flex';
+        } catch (err) {
+            console.error('Failed to copy message: ', err);
+            this.stateManager.set('lastError', { message: 'Failed to copy message.', type: 'clipboard' });
+            if (this.stateManager.get('userPreferences.soundEffectsEnabled') && window.parklandApp && window.parklandApp.soundEffects) {
+                window.parklandApp.soundEffects.playSoundEffect('error');
             }
-        });
+        }
     }
 
-    copyMessageContent(buttonElement) {
-        EventBus.emit('audio:play-ui-sound', { sound: 'click' });
+    _handleRetryMessage(message) {
+        // Logic depends on whether it's a user message or assistant response
+        // For user message: Resend to API
+        // For assistant: Request regeneration
+        console.log('Retry/Regenerate message:', message);
+        this.stateManager.emit('messageRetryRequested', message); // App.js can listen to this
+        if (this.stateManager.get('userPreferences.soundEffectsEnabled') && window.parklandApp && window.parklandApp.soundEffects) {
+            window.parklandApp.soundEffects.playSoundEffect('actionInitiated');
+        }
+    }
 
-        const messageEl = buttonElement.closest('.message');
-        if (messageEl && messageEl.dataset.rawContent) {
-            navigator.clipboard.writeText(messageEl.dataset.rawContent).then(() => {
-                this.showCopyFeedback(buttonElement);
-            }).catch(err => {
-                console.error('Failed to copy message content:', err);
-                EventBus.emit('audio:play-ui-sound', { sound: 'error' });
-                alert('Could not copy text to clipboard. Your browser might not support this feature.');
+    _handleEditMessage(message) {
+        // Populate chat input with message content for editing
+        console.log('Edit message:', message);
+        this.stateManager.set('userInput', message.content);
+        this.stateManager.emit('messageEditRequested', message); // App.js can focus input
+        if (window.parklandApp && window.parklandApp.ui && window.parklandApp.ui.chatInput) {
+            window.parklandApp.ui.chatInput.focus();
+        }
+    }
+
+
+    /**
+     * Scrolls the message container to the bottom.
+     * @param {boolean} [force=false] - If true, scrolls even if auto-scroll is off.
+     */
+    scrollToBottom(force = false) {
+        if (force || this.stateManager.get('userPreferences.autoScroll')) {
+            this.utils.requestFrame(() => {
+                this.container.scrollTop = this.container.scrollHeight;
             });
         }
     }
 
-    showCopyFeedback(buttonElement) {
-        const originalTitle = buttonElement.title;
-        buttonElement.title = 'Copied!';
-        buttonElement.classList.add('copied-feedback');
+    /**
+     * Creates the DOM structure for the typing indicator.
+     * @returns {HTMLElement} The typing indicator element.
+     * @private
+     */
+    _createTypingIndicator() {
+        const indicatorDiv = this.utils.createElement('div', {
+            className: 'message assistant typing-indicator-wrapper', // Reuse message structure
+            role: 'status',
+            'aria-live': 'polite'
+        });
 
-        const iconEl = buttonElement.querySelector('svg use');
-        if (iconEl) {
-            iconEl.setAttribute('href', '#icon-check-simple');
+        const wrapperDiv = this.utils.createElement('div', { className: 'message-wrapper' });
+        const avatarDiv = this.utils.createElement('div', { className: 'message-avatar assistant' }); // Use assistant avatar
+        // Avatar styling could be character-specific if known
+        const activeCharacter = this.stateManager.get('activeCharacter');
+        if (activeCharacter && window.parklandApp && window.parklandApp.characterManager) {
+            const charData = window.parklandApp.characterManager.getCharacterData(activeCharacter);
+            this.utils.addClass(avatarDiv, activeCharacter);
+            avatarDiv.textContent = charData ? charData.name[0].toUpperCase() : 'A';
+            if(charData && charData.avatarUrl) { // If avatar URL is available
+                avatarDiv.style.backgroundImage = `url('${charData.avatarUrl}')`;
+                avatarDiv.textContent = ''; // Clear initial if image is used
+            }
+        } else {
+            avatarDiv.textContent = 'A';
         }
 
-        setTimeout(() => {
-            buttonElement.title = originalTitle;
-            buttonElement.classList.remove('copied-feedback');
-            if (iconEl) {
-                iconEl.setAttribute('href', '#icon-copy');
-            }
-        }, 1500);
+
+        const contentDiv = this.utils.createElement('div', { className: 'message-content' });
+        const bubbleDiv = this.utils.createElement('div', { className: 'typing-bubble' });
+
+        for (let i = 0; i < 3; i++) {
+            bubbleDiv.appendChild(this.utils.createElement('div', { className: 'typing-dot' }));
+        }
+
+        contentDiv.appendChild(bubbleDiv);
+        wrapperDiv.appendChild(avatarDiv);
+        wrapperDiv.appendChild(contentDiv);
+        indicatorDiv.appendChild(wrapperDiv);
+
+        return indicatorDiv;
     }
 
-    scrollToBottom() {
-        if (!this.messageContainer) return;
-
-        this.messageContainer.scrollTo({
-            top: this.messageContainer.scrollHeight,
-            behavior: 'smooth'
-        });
-    }
-
-    updateThemeElements(data) {
-        // Update existing message avatars with new theme
-        const assistantAvatars = this.messagesInner.querySelectorAll('.message.assistant .message-avatar svg use');
-        const iconMap = {
-            default: 'parkland-default-brand-icon-path',
-            jaws: 'jaws-brand-fin-def',
-            jurassic: 'jurassic-brand-amber-def'
-        };
-
-        const newIconId = iconMap[data.theme];
-        assistantAvatars.forEach(use => {
-            use.setAttribute('href', `#${newIconId}`);
-        });
-    }
-
-    triggerCharacterReaction(messageEl) {
-        const theme = AppState.currentTheme;
-        if (!theme || theme === 'default') return;
-
-        const content = messageEl.dataset.rawContent?.toLowerCase() || '';
-
-        // Theme-specific reaction triggers
-        if (theme === 'jaws') {
-            if (content.includes('shark') || content.includes('bigger boat')) {
-                EventBus.emit('character:trigger-reaction', {
-                    type: 'shark-mention',
-                    theme: 'jaws'
+    /**
+     * Shows or hides the typing indicator.
+     * @param {boolean} show - True to show, false to hide.
+     */
+    showTypingIndicator(show) {
+        if (show) {
+            if (!this.typingIndicatorElement || !this.container.contains(this.typingIndicatorElement)) {
+                this.typingIndicatorElement = this._createTypingIndicator();
+                this.container.appendChild(this.typingIndicatorElement);
+                this.utils.requestFrame(() => { // Ensure it's rendered before animating
+                    this.typingIndicatorElement.classList.add('animate-in');
                 });
             }
-        } else if (theme === 'jurassic') {
-            if (content.includes('raptor') || content.includes('clever girl')) {
-                EventBus.emit('character:trigger-reaction', {
-                    type: 'raptor-mention',
-                    theme: 'jurassic'
-                });
+        } else {
+            if (this.typingIndicatorElement && this.container.contains(this.typingIndicatorElement)) {
+                this.typingIndicatorElement.classList.remove('animate-in'); // Optional: animate out
+                // A fade-out animation could be added here via CSS or JS
+                this.container.removeChild(this.typingIndicatorElement);
+                this.typingIndicatorElement = null;
             }
         }
-    }
-
-    handleCharacterMessage(data) {
-        // Handle messages from characters with special styling
-        this.addMessage({
-            role: 'assistant',
-            content: data.content,
-            timestamp: data.timestamp,
-            character: data.character
-        });
-    }
-
-    handlePostRenderEffects(messageEl, messageData) {
-        // Add theme-specific visual effects after message renders
-        const theme = AppState.currentTheme;
-
-        if (theme === 'jaws' && messageData.role === 'assistant') {
-            // Add subtle wave effect to assistant messages
-            messageEl.style.animation = 'subtleWave 3s ease-in-out infinite';
-        } else if (theme === 'jurassic' && messageData.role === 'assistant') {
-            // Add amber glow effect
-            messageEl.style.filter = 'drop-shadow(0 0 5px rgba(212, 172, 90, 0.3))';
+        if (show && this.stateManager.get('userPreferences.autoScroll') !== false) {
+            this.scrollToBottom();
         }
-    }
-
-    // Utility methods
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    getMessageCount() {
-        return this.messagesInner.querySelectorAll('.message').length;
-    }
-
-    getLastMessage() {
-        const messages = this.messagesInner.querySelectorAll('.message');
-        return messages[messages.length - 1] || null;
     }
 }
+
+// If not using ES modules:
+// window.ChatMessages = ChatMessages;
