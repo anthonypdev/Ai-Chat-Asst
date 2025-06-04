@@ -1,525 +1,470 @@
 /**
- * Speech Synthesis - Text-to-speech with character voices
- * Handles voice selection and themed audio effects
+ * Parkland AI - Opus Magnum Edition
+ * VoiceSynthesis Module
+ *
+ * Handles text-to-speech (TTS) synthesis using the browser's Web Speech API.
+ * Manages voice selection, speech queue, and applies character-specific voice effects.
  */
 
-import { EventBus } from '../../core/events.js';
-import { AppState } from '../../core/state.js';
+class VoiceSynthesis {
+    /**
+     * @param {StateManager} stateManager
+     * @param {EventEmitter} eventEmitter
+     * @param {ParklandUtils} utils
+     */
+    constructor(stateManager, eventEmitter, utils) {
+        if (!stateManager || !eventEmitter || !utils) {
+            throw new Error("VoiceSynthesis requires StateManager, EventEmitter, and Utils instances.");
+        }
+        this.stateManager = stateManager;
+        this.eventEmitter = eventEmitter;
+        this.utils = utils;
 
-export class SpeechSynthesisManager {
-    constructor() {
-        this.synthesis = window.speechSynthesis;
-        this.voices = [];
-        this.currentVoice = null;
-        this.isSupported = !!this.synthesis;
-        this.isSpeaking = false;
-        this.queue = [];
-        this.isProcessingQueue = false;
+        this.synth = window.speechSynthesis;
+        this._voices = [];
+        this._currentUtterance = null;
+        this._speechQueue = [];
+        this._isSpeaking = false;
+        this._isPaused = false;
+        this._initialized = false;
 
-        this.voicePreferences = {
-            default: { gender: 'female', lang: 'en-US', names: ['zira', 'samantha', 'ava', 'google'] },
-            jaws: { gender: 'male', lang: 'en-AU', names: ['russell', 'lee', 'australian'] },
-            jurassic: { gender: 'male', lang: 'en-GB', names: ['daniel', 'david', 'british'] }
+        this._characterVoiceMap = {}; // To store preferred voice URIs for characters
+
+        // Default voice parameters (can be overridden by character effects)
+        this._defaultParams = {
+            pitch: 1.0, // 0.0 to 2.0
+            rate: 1.0,  // 0.1 to 10.0
+            volume: 1.0 // 0.0 to 1.0
         };
 
-        this.characterVoices = {
-            quint: { pitch: 0.7, rate: 0.85, volume: 1.0 },
-            brody: { pitch: 0.9, rate: 0.95, volume: 0.9 },
-            hooper: { pitch: 1.1, rate: 1.1, volume: 0.85 },
-            muldoon: { pitch: 0.8, rate: 0.8, volume: 1.0 },
-            'mr-dna': { pitch: 1.3, rate: 1.2, volume: 0.9 }
-        };
+        // Debounce populateVoiceList for safety, as 'voiceschanged' can fire multiple times
+        this._debouncedPopulateVoiceList = this.utils.debounce(this._populateVoiceList.bind(this), 200);
 
-        this.audioEffects = {
-            radio: {
-                filterNode: null,
-                gainNode: null,
-                audioContext: null
-            },
-            ambient: {
-                sounds: new Map(),
-                currentTheme: null
-            }
-        };
-
-        this.init();
+        console.log('🗣️ VoiceSynthesis initialized.');
     }
 
+    /**
+     * Initializes the voice synthesis system.
+     * Must be called, preferably after a user interaction on some browsers.
+     */
     init() {
-        if (!this.isSupported) {
-            console.warn('Speech synthesis not supported');
+        if (this._initialized || !this.synth) {
+            if (!this.synth) console.warn("VoiceSynthesis: Web Speech API not available.");
             return;
         }
 
-        this.loadVoices();
-        this.setupEventListeners();
-        this.initializeAudioContext();
-
-        // Listen for voices loaded event
-        if (this.synthesis.onvoiceschanged !== undefined) {
-            this.synthesis.onvoiceschanged = () => this.loadVoices();
+        this._populateVoiceList();
+        if (this.synth.onvoiceschanged !== undefined) {
+            this.synth.onvoiceschanged = this._debouncedPopulateVoiceList;
         }
-    }
 
-    setupEventListeners() {
-        EventBus.on('voice:speak', this.speak.bind(this));
-        EventBus.on('voice:speak-as-character', this.speakAsCharacter.bind(this));
-        EventBus.on('voice:stop', this.stopSpeaking.bind(this));
-        EventBus.on('voice:pause', this.pauseSpeaking.bind(this));
-        EventBus.on('voice:resume', this.resumeSpeaking.bind(this));
-        EventBus.on('theme:changed', this.onThemeChanged.bind(this));
-        EventBus.on('settings:auto-speak-changed', this.onAutoSpeakChanged.bind(this));
-    }
-
-    loadVoices() {
-        try {
-            this.voices = this.synthesis.getVoices();
-
-            if (this.voices.length === 0) {
-                // Retry after a short delay for browsers that load voices asynchronously
-                setTimeout(() => this.loadVoices(), 500);
-                return;
+        this.stateManager.subscribe('change:userPreferences.voiceOutputEnabled', ({ newValue }) => {
+            if (!newValue && this._isSpeaking) {
+                this.cancel(); // Stop speaking if disabled
             }
-
-            this.selectOptimalVoice();
-            console.log(`Loaded ${this.voices.length} voices, selected: ${this.currentVoice ? this.currentVoice.name : 'none'}`);
-
-        } catch (error) {
-            console.error('Error loading voices:', error);
-        }
-    }
-
-    selectOptimalVoice() {
-        const theme = AppState.currentTheme || 'default';
-        const preferences = this.voicePreferences[theme] || this.voicePreferences.default;
-
-        let selectedVoice = null;
-
-        // Try to find voice by name keywords
-        for (const nameKeyword of preferences.names) {
-            selectedVoice = this.voices.find(voice =>
-                voice.name.toLowerCase().includes(nameKeyword) &&
-                voice.lang.startsWith(preferences.lang.substring(0, 2))
-            );
-            if (selectedVoice) break;
-        }
-
-        // Fallback to language and gender
-        if (!selectedVoice) {
-            selectedVoice = this.voices.find(voice =>
-                voice.lang.startsWith(preferences.lang) &&
-                (voice.gender === preferences.gender ||
-                 voice.name.toLowerCase().includes(preferences.gender))
-            );
-        }
-
-        // Fallback to language only
-        if (!selectedVoice) {
-            selectedVoice = this.voices.find(voice =>
-                voice.lang.startsWith(preferences.lang.substring(0, 2))
-            );
-        }
-
-        // Final fallback to default voice
-        if (!selectedVoice) {
-            selectedVoice = this.voices.find(voice => voice.default) || this.voices[0];
-        }
-
-        this.currentVoice = selectedVoice;
-
-        if (selectedVoice) {
-            console.log(`Selected voice for ${theme} theme:`, {
-                name: selectedVoice.name,
-                lang: selectedVoice.lang,
-                gender: selectedVoice.gender || 'unknown'
-            });
-        }
-    }
-
-    async speak(data) {
-        const { text, character, options = {} } = data;
-
-        if (!AppState.autoSpeak || !this.isSupported || !text) {
-            return false;
-        }
-
-        const processedText = this.preprocessText(text);
-        if (!processedText.trim()) return false;
-
-        const utterance = this.createUtterance(processedText, character, options);
-
-        return new Promise((resolve) => {
-            utterance.onend = () => resolve(true);
-            utterance.onerror = () => resolve(false);
-
-            this.addToQueue(utterance);
         });
+        
+        this.stateManager.subscribe('change:userPreferences.voiceCharacter', ({ newValue }) => {
+            // If a new preferred voice character is set, we might want to re-evaluate queued speech
+            // or apply it to the next utterance. For now, it affects new `speak` calls.
+            if (this.stateManager.get('debugMode')) {
+                 console.log('VoiceSynthesis: Preferred character voice changed to', newValue);
+            }
+        });
+
+
+        this._initialized = true;
+        console.log('VoiceSynthesis system ready.');
     }
 
-    async speakAsCharacter(data) {
-        const { text, character, theme } = data;
-        const characterConfig = this.characterVoices[character];
+    /**
+     * Populates the list of available system voices.
+     * @private
+     */
+    _populateVoiceList() {
+        if (!this.synth) return;
+        try {
+            this._voices = this.synth.getVoices();
+            if (this._voices.length > 0) {
+                if (this.stateManager.get('debugMode')) {
+                    console.log('Available voices:', this._voices.map(v => ({ name: v.name, lang: v.lang, default: v.default })));
+                }
+                this.eventEmitter.emit('voices:loaded', this._voices);
+                // Attempt to pre-map some known character voice preferences if not already set
+                this._setDefaultCharacterVoicePreferences();
+            } else {
+                console.warn("VoiceSynthesis: No voices available from synth.getVoices(). Retrying might be needed on some browsers.");
+            }
+        } catch (error) {
+            console.error("VoiceSynthesis: Error getting voices:", error);
+        }
+    }
+    
+    /**
+     * Sets some default voice preferences for characters if specific voices are found.
+     * This is a basic approach; a more robust system might involve user selection.
+     * @private
+     */
+    _setDefaultCharacterVoicePreferences() {
+        // Example: If a user previously selected a voice for "Mr. DNA" and it's stored, load it.
+        // For now, just demonstrating a placeholder for potential pre-selection.
+        // Actual character voice preferences are mostly handled by 'findVoiceForCharacter' at speak time.
+        // This could be used to prime this._characterVoiceMap if we had stored URI preferences.
+    }
 
-        if (!characterConfig) {
-            // Fallback to regular speech
-            return this.speak({ text, options: { theme } });
+
+    /**
+     * Speaks the given text.
+     * @param {string} text - The text to speak.
+     * @param {string} [characterKey=null] - Optional character key to apply voice effects.
+     * @param {Object} [options={}] - Optional SpeechSynthesisUtterance properties (pitch, rate, volume, voice).
+     */
+    speak(text, characterKey = null, options = {}) {
+        if (!this.synth || !this._initialized) {
+            console.warn('VoiceSynthesis not ready or not available.');
+            return;
+        }
+        if (!this.stateManager.get('userPreferences.voiceOutputEnabled')) {
+            if (this.stateManager.get('debugMode')) console.log('VoiceSynthesis: Output is disabled.');
+            return;
+        }
+        if (typeof text !== 'string' || text.trim() === '') {
+            console.warn('VoiceSynthesis: No text provided to speak.');
+            return;
         }
 
-        const options = {
-            ...characterConfig,
-            character,
-            theme,
-            applyEffects: true
-        };
+        // If currently speaking, add to queue, unless it's an interruption/cancel scenario
+        // For simplicity, new speak calls will cancel existing and queue the new one if busy.
+        if (this._isSpeaking || this._speechQueue.length > 0) {
+            if (options.interrupt !== false) { // Default to interrupt and queue
+                this.cancel(true); // Cancel current but keep queue to add this new one
+            }
+        }
 
-        return this.speak({ text, character, options });
-    }
 
-    createUtterance(text, character, options) {
         const utterance = new SpeechSynthesisUtterance(text);
 
-        // Set voice
-        if (this.currentVoice) {
-            utterance.voice = this.currentVoice;
-        }
+        // Apply base defaults
+        utterance.pitch = options.pitch || this._defaultParams.pitch;
+        utterance.rate = options.rate || this._defaultParams.rate;
+        utterance.volume = options.volume || this._defaultParams.volume;
 
-        // Apply character-specific settings
-        if (character && this.characterVoices[character]) {
-            const charConfig = this.characterVoices[character];
-            utterance.pitch = charConfig.pitch;
-            utterance.rate = charConfig.rate;
-            utterance.volume = charConfig.volume;
+        // Attempt to find and set a specific voice
+        const preferredVoiceURI = this._characterVoiceMap[characterKey || this.stateManager.get('userPreferences.voiceCharacter')] || options.voiceURI;
+        let voiceToUse = null;
+
+        if (preferredVoiceURI) {
+            voiceToUse = this._voices.find(v => v.voiceURI === preferredVoiceURI);
+        }
+        if (!voiceToUse && characterKey) {
+            voiceToUse = this._findVoiceForCharacter(characterKey);
+        }
+        if (!voiceToUse && options.voice && typeof options.voice === 'object') { // If a voice object is passed
+             voiceToUse = options.voice;
+        }
+        if (!voiceToUse) { // Fallback to default or first available English voice
+            voiceToUse = this._voices.find(v => v.default && v.lang.startsWith('en')) ||
+                         this._voices.find(v => v.lang.startsWith('en')) ||
+                         this._voices[0];
+        }
+        
+        if (voiceToUse) {
+            utterance.voice = voiceToUse;
+            if (this.stateManager.get('debugMode')) console.log(`Using voice: ${voiceToUse.name} (${voiceToUse.lang}) for character: ${characterKey || 'default'}`);
         } else {
-            // Apply theme-specific defaults
-            const theme = options.theme || AppState.currentTheme || 'default';
-            this.applyThemeSettings(utterance, theme);
+            if (this.stateManager.get('debugMode')) console.log('No specific voice found, using browser default.');
         }
+        
 
-        // Override with custom options
-        if (options.pitch !== undefined) utterance.pitch = options.pitch;
-        if (options.rate !== undefined) utterance.rate = options.rate;
-        if (options.volume !== undefined) utterance.volume = options.volume;
+        // Apply character-specific audio effects (pitch, rate, volume adjustments)
+        this.applyAudioEffects(utterance, characterKey);
 
-        // Set up event handlers
-        this.setupUtteranceEvents(utterance, character, options);
 
-        return utterance;
-    }
-
-    applyThemeSettings(utterance, theme) {
-        switch (theme) {
-            case 'jaws':
-                utterance.pitch = 0.7;
-                utterance.rate = 0.88;
-                utterance.volume = 1.0;
-                break;
-            case 'jurassic':
-                utterance.pitch = 0.85;
-                utterance.rate = 0.8;
-                utterance.volume = 1.0;
-                break;
-            default:
-                utterance.pitch = 1.05;
-                utterance.rate = 1.0;
-                utterance.volume = 1.0;
-        }
-    }
-
-    setupUtteranceEvents(utterance, character, options) {
         utterance.onstart = () => {
-            this.isSpeaking = true;
-
-            // Apply audio effects if needed
-            if (options.applyEffects) {
-                this.applyAudioEffects(character, options.theme);
-            }
-
-            EventBus.emit('voice:speech-started', {
-                character,
-                text: utterance.text.substring(0, 50) + '...'
-            });
-
-            console.log(`Speech started: ${character || 'default'} - "${utterance.text.substring(0, 50)}..."`);
+            this._isSpeaking = true;
+            this._isPaused = false;
+            this._currentUtterance = utterance;
+            this.eventEmitter.emit('speech:start', { text, characterKey });
+            if (this.stateManager.get('debugMode')) console.log('Speech started.');
         };
 
         utterance.onend = () => {
-            this.isSpeaking = false;
-            this.removeAudioEffects();
-
-            EventBus.emit('voice:speech-ended', { character });
-            console.log('Speech ended');
-
-            // Process next item in queue
-            this.processQueue();
+            this._isSpeaking = false;
+            this._isPaused = false;
+            this._currentUtterance = null;
+            this.eventEmitter.emit('speech:end', { text, characterKey });
+            if (this.stateManager.get('debugMode')) console.log('Speech ended.');
+            this._speechQueue.shift(); // Remove completed utterance
+            this._processQueue();      // Process next in queue
         };
 
         utterance.onerror = (event) => {
-            console.error('Speech synthesis error:', event.error);
-            this.isSpeaking = false;
-            this.removeAudioEffects();
-
-            this.handleSpeechError(event.error, utterance);
-
-            // Continue with queue even after error
-            this.processQueue();
+            console.error('Speech synthesis error:', event.error, event);
+            this._isSpeaking = false;
+            this._isPaused = false;
+            this._currentUtterance = null;
+            this.eventEmitter.emit('speech:error', { text, characterKey, error: event.error });
+            this.stateManager.set('lastError', {message: `Speech error: ${event.error}`, type: 'tts'});
+            this._speechQueue.shift();
+            this._processQueue();
         };
 
         utterance.onpause = () => {
-            EventBus.emit('voice:speech-paused');
+            this._isPaused = true;
+            this.eventEmitter.emit('speech:pause', { text, characterKey });
+            if (this.stateManager.get('debugMode')) console.log('Speech paused.');
         };
 
         utterance.onresume = () => {
-            EventBus.emit('voice:speech-resumed');
+            this._isPaused = false;
+            this.eventEmitter.emit('speech:resume', { text, characterKey });
+            if (this.stateManager.get('debugMode')) console.log('Speech resumed.');
         };
-    }
-
-    preprocessText(text) {
-        if (typeof text !== 'string') return '';
-
-        // Remove markdown formatting for cleaner speech
-        let processed = text
-            .replace(/\*\*(.*?)\*\*/g, '$1.') // Bold to emphasis
-            .replace(/\*(.*?)\*/g, '$1.') // Italic to emphasis
-            .replace(/`([^`]+)`/g, '$1') // Remove code formatting
-            .replace(/```[\s\S]*?```/g, '[code block]') // Replace code blocks
-            .replace(/<br\s*\/?>/gi, '\n') // BR tags to newlines
-            .replace(/<\/?[^>]+(>|$)/g, '') // Strip HTML tags
-            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links to text only
-            .replace(/\n{2,}/g, '. ') // Multiple newlines to periods
-            .replace(/\n/g, '. ') // Single newlines to periods
-            .replace(/\.{2,}/g, '.') // Multiple periods to single
-            .trim();
-
-        // Add pauses for better speech rhythm
-        processed = processed
-            .replace(/([.!?])\s+/g, '$1 ... ') // Add pauses after sentences
-            .replace(/:\s*/g, ': ... ') // Add pauses after colons
-            .replace(/;\s*/g, '; ... '); // Add pauses after semicolons
-
-        return processed;
-    }
-
-    addToQueue(utterance) {
-        this.queue.push(utterance);
-
-        if (!this.isProcessingQueue) {
-            this.processQueue();
+        
+        this._speechQueue.push(utterance);
+        if (!this._isSpeaking) {
+             this._processQueue();
         }
     }
 
-    processQueue() {
-        if (this.queue.length === 0 || this.isSpeaking) {
-            this.isProcessingQueue = false;
-            return;
-        }
-
-        this.isProcessingQueue = true;
-        const utterance = this.queue.shift();
-
-        try {
-            this.synthesis.speak(utterance);
-        } catch (error) {
-            console.error('Error speaking utterance:', error);
-            this.isSpeaking = false;
-            // Continue with next item
-            setTimeout(() => this.processQueue(), 100);
-        }
-    }
-
-    stopSpeaking() {
-        if (this.synthesis) {
-            this.synthesis.cancel();
-        }
-
-        this.queue = [];
-        this.isSpeaking = false;
-        this.isProcessingQueue = false;
-        this.removeAudioEffects();
-
-        EventBus.emit('voice:speech-stopped');
-    }
-
-    pauseSpeaking() {
-        if (this.synthesis && this.isSpeaking) {
-            this.synthesis.pause();
-        }
-    }
-
-    resumeSpeaking() {
-        if (this.synthesis && this.synthesis.paused) {
-            this.synthesis.resume();
-        }
-    }
-
-    initializeAudioContext() {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (AudioContext) {
-                this.audioEffects.radio.audioContext = new AudioContext();
+    _processQueue() {
+        if (this._speechQueue.length > 0 && !this._isSpeaking && this.synth) {
+            const utteranceToSpeak = this._speechQueue[0];
+            try {
+                this.synth.speak(utteranceToSpeak);
+            } catch (error) {
+                console.error("Error calling synth.speak:", error);
+                // Handle error, perhaps remove from queue and try next
+                this._speechQueue.shift();
+                this._processQueue();
             }
-        } catch (error) {
-            console.warn('Could not initialize audio context for effects:', error);
         }
     }
+    
+    /**
+     * Finds a suitable voice based on character key or preferences.
+     * @param {string} characterKey
+     * @returns {SpeechSynthesisVoice|null}
+     * @private
+     */
+    _findVoiceForCharacter(characterKey) {
+        if (!this._voices || this._voices.length === 0) return null;
 
-    applyAudioEffects(character, theme) {
-        if (!this.audioEffects.radio.audioContext) return;
+        const characterData = window.parklandApp && window.parklandApp.characterManager ?
+                              window.parklandApp.characterManager.getCharacterData(characterKey) : null;
 
-        try {
-            const context = this.audioEffects.radio.audioContext;
-
-            // Create audio processing chain for radio effect (Muldoon)
-            if (character === 'muldoon') {
-                // Create nodes for radio effect
-                const gainNode = context.createGain();
-                const filterNode = context.createBiquadFilter();
-
-                // Configure filter for radio effect
-                filterNode.type = 'bandpass';
-                filterNode.frequency.value = 1000; // Center frequency
-                filterNode.Q.value = 5; // Narrow band
-
-                // Reduce gain for radio effect
-                gainNode.gain.value = 0.7;
-
-                // Store references
-                this.audioEffects.radio.gainNode = gainNode;
-                this.audioEffects.radio.filterNode = filterNode;
-
-                // Note: Actual connection to speech synthesis audio stream
-                // would require more complex audio routing that's not easily
-                // achievable with the current Web Speech API
+        let voiceCriteria = [];
+        if (characterData && characterData.voiceConfig) {
+            if (characterData.voiceConfig.voiceName) { // Prioritize specific voice name
+                const foundByName = this._voices.find(v => v.name.toLowerCase().includes(characterData.voiceConfig.voiceName.toLowerCase()));
+                if (foundByName) return foundByName;
             }
-        } catch (error) {
-            console.warn('Could not apply audio effects:', error);
+            if (characterData.voiceConfig.lang) {
+                voiceCriteria.push(v => v.lang.toLowerCase().startsWith(characterData.voiceConfig.lang.toLowerCase()));
+            }
+            if (characterData.voiceConfig.gender) { // 'male', 'female' - no standard API way to get this directly
+                // This is heuristic, voice names might indicate gender
+                if(characterData.voiceConfig.gender === 'male') voiceCriteria.push(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('mark'));
+                if(characterData.voiceConfig.gender === 'female') voiceCriteria.push(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('susan'));
+            }
+        } else {
+            // Default heuristics for some known characters if no explicit config
+            if (characterKey === 'mr-dna') voiceCriteria.push(v => v.name.toLowerCase().includes('daniel') || v.lang.startsWith('en-GB')); // Example
+            if (characterKey === 'quint') voiceCriteria.push(v => v.name.toLowerCase().includes('male') && (v.lang.startsWith('en-US') || v.lang.startsWith('en-IE')));
         }
+
+        // Try to find a voice matching all criteria
+        if (voiceCriteria.length > 0) {
+            const filteredVoices = this._voices.filter(v => voiceCriteria.every(crit => crit(v)));
+            if (filteredVoices.length > 0) return filteredVoices.find(v => v.default) || filteredVoices[0];
+        }
+        
+        // Fallback: User's preferred general voice character if set
+        const preferredCharVoiceKey = this.stateManager.get('userPreferences.voiceCharacter');
+        if(preferredCharVoiceKey && preferredCharVoiceKey !== 'default' && preferredCharVoiceKey !== characterKey) {
+            const prefCharData = window.parklandApp && window.parklandApp.characterManager ?
+                                  window.parklandApp.characterManager.getCharacterData(preferredCharVoiceKey) : null;
+            if (prefCharData && prefCharData.voiceConfig && prefCharData.voiceConfig.voiceName) {
+                const foundPref = this._voices.find(v => v.name.toLowerCase().includes(prefCharData.voiceConfig.voiceName.toLowerCase()));
+                if(foundPref) return foundPref;
+            }
+        }
+
+        return null; // No specific voice found
     }
 
-    removeAudioEffects() {
-        if (this.audioEffects.radio.gainNode) {
-            this.audioEffects.radio.gainNode.disconnect();
-            this.audioEffects.radio.gainNode = null;
-        }
 
-        if (this.audioEffects.radio.filterNode) {
-            this.audioEffects.radio.filterNode.disconnect();
-            this.audioEffects.radio.filterNode = null;
-        }
-    }
+    /**
+     * Applies character-specific voice effects (pitch, rate, volume) to an utterance.
+     * This method fulfills the placeholder requirement from the Transformation Report.
+     * @param {SpeechSynthesisUtterance} utterance - The utterance to modify.
+     * @param {string|null} characterKey - The key of the character speaking.
+     */
+    applyAudioEffects(utterance, characterKey) {
+        if (!utterance) return;
 
-    handleSpeechError(error, utterance) {
-        let userMessage = "Speech synthesis encountered an error.";
+        const basePitch = this._defaultParams.pitch;
+        const baseRate = this._defaultParams.rate;
+        const baseVolume = this._defaultParams.volume;
+        
+        // Reset to base defaults before applying character specifics
+        utterance.pitch = basePitch;
+        utterance.rate = baseRate;
+        utterance.volume = baseVolume;
 
-        switch (error) {
-            case 'not-allowed':
-                userMessage = "Audio playback was blocked. Please interact with the page or check browser sound permissions.";
-                break;
-            case 'voice-unavailable':
-                userMessage = "Selected voice is unavailable. Trying alternative voice.";
-                this.selectFallbackVoice();
-                break;
-            case 'synthesis-failed':
-                userMessage = "Speech synthesis failed. Retrying...";
-                // Retry once
-                setTimeout(() => {
-                    try {
-                        this.synthesis.speak(utterance);
-                    } catch (retryError) {
-                        console.error('Retry failed:', retryError);
+        const characterData = window.parklandApp && window.parklandApp.characterManager ?
+                              window.parklandApp.characterManager.getCharacterData(characterKey) : null;
+
+        if (characterData && characterData.voiceConfig) {
+            utterance.pitch = characterData.voiceConfig.pitch !== undefined ? characterData.voiceConfig.pitch : basePitch;
+            utterance.rate = characterData.voiceConfig.rate !== undefined ? characterData.voiceConfig.rate : baseRate;
+            utterance.volume = characterData.voiceConfig.volume !== undefined ? characterData.voiceConfig.volume : baseVolume;
+        } else {
+            // Apply generic effects based on key if no specific config
+            switch (characterKey) {
+                case 'quint':
+                    utterance.pitch = basePitch * 0.8;  // Lower pitch
+                    utterance.rate = baseRate * 0.9;   // Slightly slower
+                    utterance.volume = baseVolume * 0.95;
+                    break;
+                case 'mr-dna':
+                    utterance.pitch = basePitch * 1.3;  // Higher pitch
+                    utterance.rate = baseRate * 1.15;  // Slightly faster
+                    break;
+                case 'muldoon':
+                    utterance.pitch = basePitch * 0.9;
+                    utterance.rate = baseRate * 0.95;
+                    utterance.volume = baseVolume * 1.0; // Slightly louder/gruff could be simulated with careful params
+                    break;
+                case 'brody':
+                case 'hooper':
+                    // Closer to default, maybe minor adjustments
+                    utterance.pitch = basePitch * 1.0;
+                    utterance.rate = baseRate * 1.0;
+                    break;
+                default:
+                    // Use defaults or global user preferences for pitch/rate/volume if set
+                    const userPrefs = this.stateManager.get('userPreferences');
+                    if(userPrefs) {
+                        // utterance.pitch = userPrefs.ttsPitch || basePitch; // If such settings exist
+                        // utterance.rate = userPrefs.ttsRate || baseRate;
+                        // utterance.volume = userPrefs.ttsVolume || baseVolume;
                     }
-                }, 500);
-                break;
-            case 'audio-busy':
-                userMessage = "Audio system is busy. Retrying...";
-                setTimeout(() => this.processQueue(), 1000);
-                break;
-        }
-
-        console.warn('Speech error:', userMessage);
-        EventBus.emit('voice:synthesis-error', { error, message: userMessage });
-    }
-
-    selectFallbackVoice() {
-        if (this.voices.length === 0) return;
-
-        // Try to find any English voice as fallback
-        const fallbackVoice = this.voices.find(voice =>
-            voice.lang.startsWith('en') && voice !== this.currentVoice
-        ) || this.voices[0];
-
-        if (fallbackVoice) {
-            console.log('Switching to fallback voice:', fallbackVoice.name);
-            this.currentVoice = fallbackVoice;
-        }
-    }
-
-    onThemeChanged(data) {
-        // Reload optimal voice for new theme
-        this.selectOptimalVoice();
-
-        // Update any playing audio effects
-        if (this.isSpeaking) {
-            this.applyAudioEffects(null, data.theme);
-        }
-    }
-
-    onAutoSpeakChanged(data) {
-        if (!data.enabled) {
-            this.stopSpeaking();
-        }
-    }
-
-    // Public API methods
-    isSupported() {
-        return this.isSupported;
-    }
-
-    isSpeakingNow() {
-        return this.isSpeaking;
-    }
-
-    getAvailableVoices() {
-        return this.voices.map(voice => ({
-            name: voice.name,
-            lang: voice.lang,
-            gender: voice.gender || 'unknown',
-            default: voice.default || false
-        }));
-    }
-
-    getCurrentVoice() {
-        return this.currentVoice ? {
-            name: this.currentVoice.name,
-            lang: this.currentVoice.lang,
-            gender: this.currentVoice.gender || 'unknown'
-        } : null;
-    }
-
-    setVoice(voiceName) {
-        const voice = this.voices.find(v => v.name === voiceName);
-        if (voice) {
-            this.currentVoice = voice;
-            return true;
-        }
-        return false;
-    }
-
-    getQueueLength() {
-        return this.queue.length;
-    }
-
-    clearQueue() {
-        this.queue = [];
-    }
-
-    testVoice(text = "Hello, this is a voice test.") {
-        return this.speak({
-            text,
-            options: {
-                pitch: 1.0,
-                rate: 1.0,
-                volume: 1.0
+                    break;
             }
-        });
+        }
+        
+        // Clamp values to valid ranges
+        utterance.pitch = Math.max(0, Math.min(2, utterance.pitch));
+        utterance.rate = Math.max(0.1, Math.min(10, utterance.rate));
+        utterance.volume = Math.max(0, Math.min(1, utterance.volume));
+
+
+        if (this.stateManager.get('debugMode')) {
+            console.log(`Applied audio effects for ${characterKey || 'default'}:`,
+                { pitch: utterance.pitch, rate: utterance.rate, volume: utterance.volume });
+        }
+        // No complex reverb/echo simulation as per TR focus on parameters.
+        // If sound effects were to be added AFTER speech, it would be handled by
+        // the 'speech:end' event listener elsewhere, potentially calling audioProcessor.playSoundEffect.
+    }
+
+
+    pause() {
+        if (this.synth && this._isSpeaking && !this._isPaused) {
+            try {
+                this.synth.pause();
+            } catch (error) {
+                console.error("Error calling synth.pause():", error);
+            }
+        }
+    }
+
+    resume() {
+        if (this.synth && this._isPaused) {
+            try {
+                this.synth.resume();
+            } catch (error) {
+                console.error("Error calling synth.resume():", error);
+            }
+        }
+    }
+
+    /**
+     * Stops the current speech and clears the queue.
+     * @param {boolean} keepQueue - If true, current speech is cancelled but queue is preserved.
+     */
+    cancel(keepQueue = false) {
+        if (this.synth) {
+            if (!keepQueue) {
+                this._speechQueue = [];
+            }
+            try {
+                if (this._isSpeaking || this._isPaused || this.synth.pending || this.synth.speaking) {
+                    // synth.cancel() stops current and clears synth's internal queue.
+                    // Our own queue needs to be managed based on 'keepQueue'.
+                    this.synth.cancel();
+                }
+            } catch (error) {
+                console.error("Error calling synth.cancel():", error);
+            }
+            // Reset internal state regardless of synth.cancel() success,
+            // as it might have already stopped due to an error or natural end.
+            this._isSpeaking = false;
+            this._isPaused = false;
+            this._currentUtterance = null;
+            this.eventEmitter.emit('speech:cancel'); // Notify that speech was cancelled
+            if (this.stateManager.get('debugMode')) console.log('Speech cancelled. Queue ' + (keepQueue ? 'preserved.' : 'cleared.'));
+        }
+    }
+
+    getAvailableVoices(lang = null) {
+        if (!this._voices || this._voices.length === 0) {
+            // Attempt to populate if empty, might happen if accessed before voiceschanged
+            this._populateVoiceList();
+        }
+        if (lang && typeof lang === 'string') {
+            return this._voices.filter(voice => voice.lang.toLowerCase().startsWith(lang.toLowerCase()));
+        }
+        return [...this._voices]; // Return a copy
+    }
+
+    /**
+     * Sets a preferred voice by its URI for a specific character or globally.
+     * @param {string} voiceURI - The URI of the voice to set.
+     * @param {string} [characterKey=null] - If provided, sets preference for this character. Otherwise, sets a general default.
+     */
+    setPreferredVoice(voiceURI, characterKey = null) {
+        const voice = this._voices.find(v => v.voiceURI === voiceURI);
+        if (voice) {
+            if (characterKey) {
+                this._characterVoiceMap[characterKey] = voiceURI;
+                 if (this.stateManager.get('debugMode')) console.log(`Preferred voice for ${characterKey} set to: ${voice.name}`);
+            } else {
+                // This could update a global default preference in StateManager userPreferences
+                this.stateManager.setUserPreference('ttsPreferredVoiceURI', voiceURI);
+                 if (this.stateManager.get('debugMode')) console.log(`Global preferred voice set to: ${voice.name}`);
+            }
+        } else {
+            console.warn(`VoiceSynthesis: Voice with URI "${voiceURI}" not found.`);
+        }
+    }
+
+    // Getters for state
+    isSpeaking() { return this._isSpeaking; }
+    isPaused() { return this._isPaused; }
+
+    destroy() {
+        this.cancel(); // Stop any ongoing speech and clear queue
+        if (this.synth && this.synth.onvoiceschanged) {
+            this.synth.onvoiceschanged = null; // Remove listener
+        }
+        this._voices = [];
+        this._speechQueue = [];
+        this._initialized = false;
+        console.log('🗣️ VoiceSynthesis destroyed.');
     }
 }
+
+// If not using ES modules:
+// window.VoiceSynthesis = VoiceSynthesis;
