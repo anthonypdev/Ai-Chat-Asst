@@ -1,367 +1,288 @@
 /**
- * Theme Manager - Orchestrates theme switching with cinematic transitions
- * Handles theme state, character management, and environmental changes
+ * Parkland AI - Opus Magnum Edition
+ * ThemeManager Module
+ *
+ * Handles loading, applying, and persisting themes, including orchestrating
+ * visual transitions between themes.
  */
 
-import { TransitionController } from './transitions.js';
-import { ThemePersistence } from './persistence.js';
-import { EventBus } from '../../core/events.js';
-import { AppState } from '../../core/state.js';
+class ThemeManager {
+    /**
+     * @param {StateManager} stateManager
+     * @param {ParklandUtils} utils
+     * @param {EventEmitter} eventEmitter
+     * @param {ThemePersistence} themePersistence - Handles saving/loading theme name
+     * @param {ThemeTransition} themeTransition - Handles visual transition effects
+     * @param {CharacterManager} characterManager
+     */
+    constructor(stateManager, utils, eventEmitter, themePersistence, themeTransition, characterManager) {
+        if (!stateManager || !utils || !eventEmitter || !themePersistence || !themeTransition || !characterManager) {
+            throw new Error("ThemeManager requires StateManager, Utils, EventEmitter, ThemePersistence, ThemeTransition, and CharacterManager.");
+        }
+        this.stateManager = stateManager;
+        this.utils = utils;
+        this.eventEmitter = eventEmitter;
+        this.persistence = themePersistence; // Instance of ThemePersistence
+        this.transition = themeTransition;   // Instance of ThemeTransition
+        this.characterManager = characterManager;
 
-export class ThemeManager {
-    constructor() {
-        this.currentTheme = 'default';
-        this.availableThemes = ['default', 'jaws', 'jurassic'];
-        this.isTransitioning = false;
-        this.transitionController = new TransitionController();
-        this.persistence = new ThemePersistence();
+        this.THEME_STYLESHEET_ID_PREFIX = 'parkland-theme-style-';
 
-        this.themeConfigs = {
+        this._themeConfig = {
             default: {
-                name: 'Parkland AI',
-                brandIcon: 'parkland-default-brand-icon-path',
-                emptyTitle: 'Parkland AI Assistant',
-                emptySubtitle: 'Welcome to the Parkland AI Opus Magnum Edition. Your advanced digital assistant is primed and ready. How may I elevate your experience today?',
-                loginTitle: 'Parkland AI',
-                loginSubtitle: 'Sign in to Your Personal AI Concierge',
-                characters: [],
-                environmentalEffects: false,
-                backgroundAudio: null
+                name: 'Default',
+                cssFiles: [ // Order might matter: theme base, then animations
+                    { id: 'default-main', path: 'css/themes/default/theme.css' },
+                    { id: 'default-animations', path: 'css/themes/default/animations.css' }
+                ],
+                characterKey: null, // Or your default character if any
+                soundPackKey: 'default'
             },
             jaws: {
-                name: 'SharkByte AI',
-                brandIcon: 'jaws-brand-fin-def',
-                emptyTitle: 'ABYSSAL OPS CENTER',
-                emptySubtitle: 'Captain SharkByte at your command! Spill the beans, or walk the plank... of technical solutions!',
-                loginTitle: 'SharkByte AI',
-                loginSubtitle: 'Dangerously Smart. Wickedly Helpful. Totally Not Going To Eat Your Data.',
-                characters: ['quint', 'brody', 'hooper'],
-                environmentalEffects: true,
-                backgroundAudio: 'ocean-ambience'
+                name: 'Jaws',
+                cssFiles: [
+                    { id: 'jaws-main', path: 'css/themes/jaws/theme.css' },
+                    { id: 'jaws-animations', path: 'css/themes/jaws/animations.css' },
+                    { id: 'jaws-characters', path: 'css/themes/jaws/characters.css' },
+                    // transitions.css for Jaws is expected to be loaded if its overlay is shown
+                    // If ThemeTransition.js manages its own DOM elements that are always present and styled by this:
+                    { id: 'jaws-transitions', path: 'css/themes/jaws/transitions.css' }
+                ],
+                characterKey: 'quint', // Default character for Jaws theme
+                soundPackKey: 'jaws'
             },
             jurassic: {
-                name: 'RaptorLogic AI',
-                brandIcon: 'jurassic-brand-amber-def',
-                emptyTitle: 'INGEN GENETICS LAB',
-                emptySubtitle: 'RaptorLogic systems online. All park assets are... accounted for. Mostly. State your query, and try not to tap on the glass. It agitates the code.',
-                loginTitle: 'RaptorLogic AI',
-                loginSubtitle: 'Intelligence. Evolved. Sometimes Escapes. Use With Caution.',
-                characters: ['muldoon', 'mr-dna'],
-                environmentalEffects: true,
-                backgroundAudio: 'jungle-ambience'
+                name: 'Jurassic Park',
+                cssFiles: [
+                    { id: 'jurassic-main', path: 'css/themes/jurassic/theme.css' },
+                    { id: 'jurassic-animations', path: 'css/themes/jurassic/animations.css' },
+                    { id: 'jurassic-characters', path: 'css/themes/jurassic/characters.css' },
+                    { id: 'jurassic-transitions', path: 'css/themes/jurassic/transitions.css' }
+                ],
+                characterKey: 'muldoon', // Default character for Jurassic theme
+                soundPackKey: 'jurassic'
             }
         };
-
-        this.init();
+        this._currentThemeLoadedCSS = []; // To keep track of currently loaded theme CSS files (their IDs)
+        console.log('🎨 ThemeManager initialized.');
     }
 
+    /**
+     * Initializes the theme system: loads saved theme or default, applies it.
+     */
     async init() {
-        // Load saved theme or default
-        const savedTheme = this.persistence.getTheme();
-        if (savedTheme && this.availableThemes.includes(savedTheme)) {
-            await this.setTheme(savedTheme, true); // Silent initial load
+        const savedThemeName = this.persistence.loadTheme();
+        let effectiveThemeName = 'default'; // Default theme
+
+        if (savedThemeName && this._themeConfig[savedThemeName]) {
+            effectiveThemeName = savedThemeName;
+        } else if (savedThemeName) {
+            console.warn(`Saved theme "${savedThemeName}" not found in config. Falling back to default.`);
+        }
+        
+        this.stateManager.set('currentTheme', effectiveThemeName, true); // Silent update for initial load
+        this.applyThemeToBody(effectiveThemeName);
+
+        try {
+            const themeConfig = this.getThemeConfig(effectiveThemeName);
+            if (themeConfig) {
+                await this._loadThemeCSS(themeConfig.cssFiles);
+                this.characterManager.switchCharacter(themeConfig.characterKey); // Set initial character
+                this.eventEmitter.emit('soundPackChange', themeConfig.soundPackKey);
+            }
+        } catch (error) {
+            console.error(`Error loading initial theme CSS for "${effectiveThemeName}":`, error);
+            // Potentially fall back to a very basic default if critical CSS fails
+        }
+        if (this.stateManager.get('debugMode')) {
+            console.log(`Initial theme set to: ${effectiveThemeName}`);
+        }
+    }
+
+    /**
+     * Sets the current application theme.
+     * @param {string} themeName - The name of the theme to apply.
+     * @param {boolean} [forceReload=false] - If true, forces reload even if themeName is current.
+     */
+    async setCurrentTheme(themeName, forceReload = false) {
+        if (!this._themeConfig[themeName]) {
+            console.warn(`ThemeManager: Theme "${themeName}" not found in configuration.`);
+            return;
+        }
+        const currentThemeName = this.stateManager.get('currentTheme');
+        if (currentThemeName === themeName && !forceReload) {
+            if (this.stateManager.get('debugMode')) {
+                console.log(`ThemeManager: Theme "${themeName}" is already active.`);
+            }
+            return;
         }
 
-        // Set up event listeners
-        this.setupEventListeners();
+        if (this.transition.isTransitioning()) {
+            console.warn("ThemeManager: Theme change requested while a transition is already in progress.");
+            return;
+        }
 
-        // Initialize UI state
-        this.updateThemeSelectors();
+        if (this.stateManager.get('debugMode')) {
+            console.log(`ThemeManager: Changing theme from "${currentThemeName}" to "${themeName}"`);
+        }
+        
+        this.eventEmitter.emit('themeChangeInitiated', { from: currentThemeName, to: themeName });
+
+        try {
+            // 1. Start the "cover screen" phase of the transition
+            const { coveredTime } = await this.transition.setActiveTransition(themeName, currentThemeName);
+            
+            // 2. Screen is covered, now swap assets
+            const oldThemeConfig = this.getThemeConfig(currentThemeName);
+            const newThemeConfig = this.getThemeConfig(themeName);
+
+            if (oldThemeConfig) {
+                this._unloadThemeCSS(oldThemeConfig.cssFiles);
+            }
+            await this._loadThemeCSS(newThemeConfig.cssFiles);
+
+            this.applyThemeToBody(themeName);
+            this.stateManager.set('currentTheme', themeName); // Update state
+            this.persistence.saveTheme(themeName); // Persist choice
+
+            this.characterManager.switchCharacter(newThemeConfig.characterKey);
+            this.eventEmitter.emit('soundPackChange', newThemeConfig.soundPackKey);
+            this.eventEmitter.emit('themeChanged', { themeName });
+
+
+            // Give a brief moment for CSS to apply if coveredTime is very short.
+            // The promise from _loadThemeCSS should ensure CSS is loaded, but paints can take a moment.
+            await this.utils.wait(Math.max(50, coveredTime / 4));
+
+
+            // 3. Complete the "reveal screen" phase of the transition
+            await this.transition.completeTransition(themeName, currentThemeName);
+
+            if (this.stateManager.get('debugMode')) {
+                console.log(`ThemeManager: Theme successfully changed to "${themeName}"`);
+            }
+
+        } catch (error) {
+            console.error(`ThemeManager: Error during theme transition to "${themeName}":`, error);
+            // Attempt to revert or reset to a stable state if possible
+            this.applyThemeToBody(currentThemeName || 'default'); // Revert body attribute
+            this.stateManager.set('lastError', {message: `Failed to switch theme to ${themeName}.`, type: 'theme', originalError: error});
+            // Ensure transition state is reset even on error
+            if (this.transition.isTransitioning()) {
+                this.transition._resetTransitionState(); // Use internal reset if available or a public one
+            }
+        }
     }
 
-    setupEventListeners() {
-        // Theme selection events
-        document.addEventListener('click', (e) => {
-            if (e.target.hasAttribute('data-theme-control')) {
-                const themeName = e.target.getAttribute('data-theme-control');
-                this.switchTheme(themeName);
-            }
-        });
+    /**
+     * Dynamically loads theme-specific CSS files.
+     * Each CSS file object in the array should have an `id` and `path`.
+     * @param {Array<Object>} cssFileObjects - Array of objects like { id: string, path: string }.
+     * @returns {Promise<void>} Resolves when all stylesheets are loaded or errored.
+     * @private
+     */
+    _loadThemeCSS(cssFileObjects) {
+        if (!Array.isArray(cssFileObjects)) {
+            return Promise.reject("cssFileObjects must be an array.");
+        }
+        const head = document.head;
+        const loadPromises = [];
+        this._currentThemeLoadedCSS = []; // Reset for the new theme
 
-        // Keyboard shortcuts for theme switching
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.shiftKey) {
-                switch (e.code) {
-                    case 'Digit1':
-                        e.preventDefault();
-                        this.switchTheme('default');
-                        break;
-                    case 'Digit2':
-                        e.preventDefault();
-                        this.switchTheme('jaws');
-                        break;
-                    case 'Digit3':
-                        e.preventDefault();
-                        this.switchTheme('jurassic');
-                        break;
+        cssFileObjects.forEach(fileObj => {
+            if (this.utils.$(`#${this.THEME_STYLESHEET_ID_PREFIX + fileObj.id}`)) {
+                if (this.stateManager.get('debugMode')) {
+                    console.log(`ThemeManager: Stylesheet ${fileObj.id} already seems to be loaded. Skipping.`);
+                }
+                this._currentThemeLoadedCSS.push(this.THEME_STYLESHEET_ID_PREFIX + fileObj.id); // Assume it's correctly loaded
+                return; // Skip if already exists (idempotency)
+            }
+
+            const link = this.utils.createElement('link', {
+                id: this.THEME_STYLESHEET_ID_PREFIX + fileObj.id,
+                rel: 'stylesheet',
+                type: 'text/css',
+                href: fileObj.path,
+                media: 'screen' // Apply immediately
+            });
+
+            const promise = new Promise((resolve, reject) => {
+                link.onload = () => {
+                    if (this.stateManager.get('debugMode')) {
+                        console.log(`ThemeManager: Loaded CSS "${fileObj.path}"`);
+                    }
+                    this._currentThemeLoadedCSS.push(link.id);
+                    resolve();
+                };
+                link.onerror = (err) => {
+                    console.error(`ThemeManager: Failed to load CSS "${fileObj.path}"`, err);
+                    reject(new Error(`Failed to load stylesheet: ${fileObj.path}`));
+                };
+            });
+            loadPromises.push(promise);
+            head.appendChild(link);
+        });
+        return Promise.allSettled(loadPromises).then(results => {
+            results.forEach(result => {
+                if (result.status === 'rejected') console.error(result.reason);
+            });
+            // Even if some fail, we proceed. Critical CSS failure should be handled.
+        });
+    }
+
+    /**
+     * Dynamically unloads previously loaded theme-specific CSS files.
+     * Uses the stored IDs in this._currentThemeLoadedCSS.
+     * @private
+     */
+    _unloadThemeCSS() {
+        this._currentThemeLoadedCSS.forEach(stylesheetId => {
+            const linkElement = this.utils.$(`#${stylesheetId}`);
+            if (linkElement) {
+                linkElement.parentNode.removeChild(linkElement);
+                if (this.stateManager.get('debugMode')) {
+                    console.log(`ThemeManager: Unloaded CSS (id: "${stylesheetId}")`);
                 }
             }
         });
-
-        // Listen for character events
-        EventBus.on('character:speak', this.handleCharacterSpeak.bind(this));
-        EventBus.on('theme:transition:complete', this.onTransitionComplete.bind(this));
+        this._currentThemeLoadedCSS = []; // Clear the list
     }
 
-    async switchTheme(themeName) {
-        if (themeName === this.currentTheme || this.isTransitioning) {
-            return false;
-        }
 
-        if (!this.availableThemes.includes(themeName)) {
-            console.error(`Theme "${themeName}" not available`);
-            return false;
-        }
-
-        try {
-            this.isTransitioning = true;
-            EventBus.emit('theme:switch:start', { from: this.currentTheme, to: themeName });
-
-            // Execute transition animation
-            await this.transitionController.execute(this.currentTheme, themeName);
-
-            // Apply theme changes
-            await this.setTheme(themeName);
-
-            // Save preference
-            this.persistence.setTheme(themeName);
-
-            EventBus.emit('theme:switch:complete', { from: this.currentTheme, to: themeName });
-
-            return true;
-        } catch (error) {
-            console.error('Theme switch failed:', error);
-            EventBus.emit('theme:switch:error', { theme: themeName, error });
-            return false;
-        } finally {
-            this.isTransitioning = false;
-        }
+    /**
+     * Applies the theme name to the document body's data attribute.
+     * @param {string} themeName - The name of the theme.
+     */
+    applyThemeToBody(themeName) {
+        document.body.dataset.theme = themeName;
     }
 
-    async setTheme(themeName, isInitial = false) {
-        const previousTheme = this.currentTheme;
-        this.currentTheme = themeName;
-        const config = this.themeConfigs[themeName];
-
-        // Update CSS data attribute
-        document.documentElement.setAttribute('data-theme', themeName);
-
-        // Update brand elements
-        this.updateBrandElements(config);
-
-        // Update empty state
-        this.updateEmptyState(config);
-
-        // Update login screen
-        this.updateLoginScreen(config);
-
-        // Handle character transitions
-        if (!isInitial) {
-            await this.handleCharacterTransition(previousTheme, themeName);
-        }
-
-        // Update environmental effects
-        this.updateEnvironmentalEffects(config);
-
-        // Play sound effect if not initial load
-        if (!isInitial) {
-            this.playThemeSound(themeName);
-        }
-
-        // Update theme selector UI
-        this.updateThemeSelectors();
-
-        EventBus.emit('theme:changed', { theme: themeName, config });
+    /**
+     * Retrieves the configuration object for a specific theme.
+     * @param {string} themeName - The name of the theme.
+     * @returns {Object|null} The theme configuration object or null if not found.
+     */
+    getThemeConfig(themeName) {
+        return this._themeConfig[themeName] || null;
     }
 
-    updateBrandElements(config) {
-        const brandIcon = document.getElementById('brandIcon');
-        const brandName = document.getElementById('brandName');
-
-        if (brandIcon && config.brandIcon) {
-            const viewBox = config.brandIcon.includes('amber') ? '0 0 100 100' : '0 0 100 100';
-            brandIcon.innerHTML = `<svg width="30" height="30" viewBox="${viewBox}" aria-hidden="true"><use href="#${config.brandIcon}"/></svg>`;
-        }
-
-        if (brandName) {
-            brandName.textContent = config.name;
-        }
-    }
-
-    updateEmptyState(config) {
-        const emptyIcon = document.getElementById('emptyIcon');
-        const emptyTitle = document.getElementById('emptyTitle');
-        const emptySubtitle = document.getElementById('emptySubtitle');
-
-        if (emptyIcon && config.brandIcon) {
-            const size = config.brandIcon.includes('fin') ? '70" height="50' : '65" height="65';
-            emptyIcon.innerHTML = `<svg width="${size}" fill="currentColor" aria-hidden="true"><use href="#${config.brandIcon}"/></svg>`;
-        }
-
-        if (emptyTitle) {
-            emptyTitle.textContent = config.emptyTitle;
-        }
-
-        if (emptySubtitle) {
-            emptySubtitle.textContent = config.emptySubtitle;
-        }
-    }
-
-    updateLoginScreen(config) {
-        const loginLogo = document.getElementById('loginScreenLogo');
-        const loginTitle = document.getElementById('loginScreenTitle');
-        const loginSubtitle = document.getElementById('loginScreenSubtitle');
-
-        if (loginLogo) {
-            if (config.brandIcon === 'parkland-default-brand-icon-path') {
-                loginLogo.innerHTML = 'P';
-            } else if (config.brandIcon === 'jaws-brand-fin-def') {
-                loginLogo.innerHTML = '<svg width="55" height="45" fill="var(--text-inverse)"><use href="#jaws-brand-fin-def"/></svg>';
-            } else if (config.brandIcon === 'jurassic-brand-amber-def') {
-                loginLogo.innerHTML = '<svg width="60" height="60"><use href="#jurassic-brand-amber-def"/></svg>';
-            }
-        }
-
-        if (loginTitle) {
-            loginTitle.textContent = config.loginTitle;
-        }
-
-        if (loginSubtitle) {
-            loginSubtitle.textContent = config.loginSubtitle;
-        }
-    }
-
-    async handleCharacterTransition(fromTheme, toTheme) {
-        const fromConfig = this.themeConfigs[fromTheme];
-        const toConfig = this.themeConfigs[toTheme];
-
-        // Dismiss old characters
-        if (fromConfig.characters && fromConfig.characters.length > 0) {
-            EventBus.emit('characters:dismiss', { theme: fromTheme });
-        }
-
-        // Introduce new characters with themed intro
-        if (toConfig.characters && toConfig.characters.length > 0) {
-            setTimeout(() => {
-                EventBus.emit('characters:introduce', {
-                    theme: toTheme,
-                    characters: toConfig.characters
-                });
-            }, 500); // Brief delay for transition to settle
-        }
-
-        // Add themed intro message to current chat
-        const introMessage = this.getThemeIntroMessage(toTheme);
-        if (introMessage && AppState.currentChatId) {
-            EventBus.emit('chat:add-system-message', {
-                content: introMessage,
-                isIntro: true,
-                timestamp: new Date().toISOString()
-            });
-        }
-    }
-
-    getThemeIntroMessage(themeName) {
-        switch (themeName) {
-            case 'jaws':
-                return "AHOY THERE, SCALLYWAG! Welcome to the S.S. Problem Solver! Captain SharkByte reporting for duty! What digital kraken are we wrangling today? Lay it on me, and let's make some waves!";
-            case 'jurassic':
-                return "ACCESS GRANTED: RaptorLogic Mainframe. Ranger, welcome to the digital jungle. I trust your query doesn't involve... *unauthorized asset relocation*. Proceed. And remember... clever girl.";
-            case 'default':
-                return "Reverting to standard Parkland AI protocols. Efficiency, precision, and unparalleled service are now engaged. How may I be of assistance?";
-            default:
-                return null;
-        }
-    }
-
-    updateEnvironmentalEffects(config) {
-        if (config.environmentalEffects) {
-            this.enableEnvironmentalEffects(this.currentTheme);
-        } else {
-            this.disableEnvironmentalEffects();
-        }
-    }
-
-    enableEnvironmentalEffects(theme) {
-        const chatArea = document.querySelector('.chat-area');
-        if (!chatArea) return;
-
-        // Add theme-specific environmental classes
-        chatArea.classList.add(`env-${theme}`);
-
-        // Start background audio if available
-        if (this.themeConfigs[theme].backgroundAudio) {
-            EventBus.emit('audio:start-ambient', {
-                track: this.themeConfigs[theme].backgroundAudio,
-                theme: theme
-            });
-        }
-    }
-
-    disableEnvironmentalEffects() {
-        const chatArea = document.querySelector('.chat-area');
-        if (!chatArea) return;
-
-        // Remove all environmental classes
-        chatArea.classList.remove('env-jaws', 'env-jurassic');
-
-        // Stop background audio
-        EventBus.emit('audio:stop-ambient');
-    }
-
-    updateThemeSelectors() {
-        document.querySelectorAll('[data-theme-control]').forEach(selector => {
-            const themeName = selector.getAttribute('data-theme-control');
-            selector.setAttribute('aria-checked', String(themeName === this.currentTheme));
-        });
-    }
-
-    playThemeSound(themeName) {
-        if (!AppState.soundEnabled) return;
-
-        const soundMap = {
-            default: 'success',
-            jaws: 'jawsChomp',
-            jurassic: 'foliageRustle'
-        };
-
-        const soundName = soundMap[themeName] || 'click';
-        EventBus.emit('audio:play-ui-sound', { sound: soundName });
-    }
-
-    handleCharacterSpeak(data) {
-        // Coordinate with voice synthesis for character-specific voices
-        EventBus.emit('voice:speak-as-character', {
-            text: data.text,
-            character: data.character,
-            theme: this.currentTheme
-        });
-    }
-
-    onTransitionComplete(data) {
-        // Post-transition cleanup and effects
-        document.body.classList.remove('theme-transitioning');
-
-        // Trigger any post-transition animations
-        setTimeout(() => {
-            EventBus.emit('ui:refresh-animations');
-        }, 100);
-    }
-
-    // Public API methods
-    getCurrentTheme() {
-        return this.currentTheme;
-    }
-
-    getThemeConfig(themeName = this.currentTheme) {
-        return this.themeConfigs[themeName];
-    }
-
-    isThemeTransitioning() {
-        return this.isTransitioning;
-    }
-
+    /**
+     * Gets a list of available theme names and their display names.
+     * @returns {Array<Object>} Example: [{ key: 'default', name: 'Default Theme' }, ...]
+     */
     getAvailableThemes() {
-        return [...this.availableThemes];
+        return Object.keys(this._themeConfig).map(key => ({
+            key: key,
+            name: this._themeConfig[key].name
+        }));
+    }
+
+    destroy() {
+        // Clean up if necessary, e.g., remove dynamically added stylesheets if app is fully closing
+        this._unloadThemeCSS();
+        console.log('🎨 ThemeManager destroyed.');
     }
 }
+
+// If not using ES modules:
+// window.ThemeManager = ThemeManager;
