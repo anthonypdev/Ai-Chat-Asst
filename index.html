@@ -8,10 +8,7 @@
     <meta name="author" content="Adept Architect AI">
     <meta name="theme-color" content="#7A77FF" id="metaThemeColor">
 
-    <link rel="icon" href="assets/icons/favicon.ico" sizes="any" id="faviconIco">
-    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" id="faviconSvg">
-    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" id="appleTouchIcon"/>
-
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%237A77FF'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='60px' fill='%23FFF'%3EPA%3C/text%3E%3C/svg%3E" type="image/svg+xml" id="faviconSvg">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
 
@@ -25,7 +22,7 @@
         <div class="progress-bar-container">
             <div class="progress-bar" id="loadingProgressBar"></div>
         </div>
-        <div class="loading-tip" id="loadingTip">Did you know? AI is transforming industries!</div>
+        <div class="loading-tip" id="loadingTip">Loading assets... please wait.</div>
     </div>
 
     <div id="appContainer" class="app-container sidebar-open">
@@ -153,8 +150,8 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/14.1.0/markdown-it.min.js" defer></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/14.1.0/markdown-it.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js" defer></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 
     <script src="js/core/utils.js" defer></script>
@@ -163,9 +160,7 @@
 
     <script src="js/features/api/errors.js" defer></script>
     <script src="js/features/api/claude.js" defer></script>
-    <script src="js/features/chat/markdown.js" defer></script>
-    <script src="js/features/chat/messages.js" defer></script>
-    <script src="js/features/chat/history.js" defer></script>
+    <script src="js/features/chat/markdown.js" defer></script> <script src="js/features/chat/messages.js" defer></script>   <script src="js/features/chat/history.js" defer></script>
     <script src="js/features/themes/persistence.js" defer></script>
     <script src="js/features/voice/synthesis.js" defer></script>
     <script src="js/features/voice/recognition.js" defer></script>
@@ -179,10 +174,7 @@
     <script src="js/characters/jaws/brody.js" defer></script>
     <script src="js/characters/jaws/hooper.js" defer></script>
     <script src="js/characters/jurassic/muldoon.js" defer></script>
-    <script src="js/characters/jurassic/mr-dna.js" defer></script>
-
-    <script src="js/features/voice/characters.js" defer></script>
-    <script src="js/features/themes/transitions.js" defer></script>
+    <script src="js/characters/jurassic/mr-dna.js" defer></script> <script src="js/features/voice/characters.js" defer></script> <script src="js/features/themes/transitions.js" defer></script>
     <script src="js/features/themes/manager.js" defer></script>
 
     <script src="js/core/app.js" defer></script>
