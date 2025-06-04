@@ -1,0 +1,427 @@
+/* css/themes/base-theme.css */
+/* Parkland AI - Opus Magnum: Base Theme Architecture */
+/* Shared foundational styles for all themes */
+
+/* === THEME ARCHITECTURE === */
+
+/* Theme root container - provides isolation and switching context */
+[data-theme] {
+  /* Theme transition timing */
+  --theme-transition-duration: 1200ms;
+  --theme-transition-easing: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* Character system positioning */
+  --character-primary-x: 20px;
+  --character-primary-y: 20px;
+  --character-secondary-x: 20px;
+  --character-secondary-y: 20px;
+
+  /* Environmental effect layers */
+  --env-layer-base: 1;
+  --env-layer-ambient: 2;
+  --env-layer-particles: 3;
+  --env-layer-characters: 10;
+  --env-layer-transitions: 100;
+
+  /* Animation performance optimizations */
+  --gpu-acceleration: translateZ(0);
+
+  /* Theme-aware component states */
+  --component-transition: all var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* Global theme transition state */
+.theme-transitioning {
+  pointer-events: none;
+  user-select: none;
+}
+
+.theme-transitioning * {
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-easing),
+              color var(--theme-transition-duration) var(--theme-transition-easing),
+              border-color var(--theme-transition-duration) var(--theme-transition-easing),
+              box-shadow var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* === TRANSITION OVERLAY SYSTEM === */
+
+.theme-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-animation-overlay, 1100);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease-out, visibility 0s 300ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-transition-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 300ms ease-out, visibility 0s;
+}
+
+/* Base transition containers for theme-specific animations */
+.transition-animation-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transform: var(--gpu-acceleration);
+}
+
+/* === CHARACTER SYSTEM BASE === */
+
+.character-container {
+  position: fixed;
+  z-index: var(--env-layer-characters);
+  pointer-events: none;
+  user-select: none;
+  transform: var(--gpu-acceleration);
+  transition: opacity 500ms ease-out, transform 500ms ease-out;
+}
+
+.character-container.hidden {
+  opacity: 0;
+  transform: translateY(20px) var(--gpu-acceleration);
+}
+
+/* Primary character positioning (typically bottom-right) */
+.character-primary {
+  bottom: var(--character-primary-y);
+  right: var(--character-primary-x);
+}
+
+/* Secondary character positioning (typically bottom-left) */
+.character-secondary {
+  bottom: var(--character-secondary-y);
+  left: var(--character-secondary-x);
+}
+
+/* Character speech bubble base */
+.character-speech {
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: 10px;
+  max-width: 280px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  transition: opacity 300ms ease-out, transform 300ms var(--ease-spring);
+  pointer-events: auto;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-tight);
+}
+
+.character-speech.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.character-speech::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--bg-elevated);
+}
+
+/* Character animation states */
+.character-idle {
+  animation: characterIdle 3s ease-in-out infinite;
+}
+
+.character-talking {
+  animation: characterTalking 0.3s ease-in-out infinite alternate;
+}
+
+.character-listening {
+  animation: characterListening 2s ease-in-out infinite;
+}
+
+@keyframes characterIdle {
+  0%, 100% { transform: translateY(0) var(--gpu-acceleration); }
+  50% { transform: translateY(-2px) var(--gpu-acceleration); }
+}
+
+@keyframes characterTalking {
+  0% { transform: scale(1) var(--gpu-acceleration); }
+  100% { transform: scale(1.05) var(--gpu-acceleration); }
+}
+
+@keyframes characterListening {
+  0%, 100% { transform: rotate(-1deg) var(--gpu-acceleration); }
+  50% { transform: rotate(1deg) var(--gpu-acceleration); }
+}
+
+/* === ENVIRONMENTAL EFFECTS BASE === */
+
+.environment-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: var(--env-blend-mode, normal);
+  opacity: var(--env-opacity, 1);
+  z-index: var(--env-z-index, var(--env-layer-base));
+}
+
+.environment-base {
+  --env-z-index: var(--env-layer-base);
+  --env-blend-mode: multiply;
+  --env-opacity: 0.3;
+}
+
+.environment-ambient {
+  --env-z-index: var(--env-layer-ambient);
+  --env-blend-mode: soft-light;
+  --env-opacity: 0.6;
+}
+
+.environment-particles {
+  --env-z-index: var(--env-layer-particles);
+  --env-blend-mode: screen;
+  --env-opacity: 0.4;
+}
+
+/* Particle system base */
+.particle-system {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* === THEMED UI COMPONENT BASES === */
+
+/* Brand icon theming */
+.brand-icon-themed {
+  transition: all var(--component-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-icon-themed::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  border-radius: inherit;
+}
+
+/* Message bubble theming */
+.message-bubble-themed {
+  position: relative;
+  overflow: visible;
+}
+
+.message-bubble-themed::before,
+.message-bubble-themed::after {
+  content: '';
+  position: absolute;
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  pointer-events: none;
+}
+
+/* Button theming */
+.btn-themed {
+  position: relative;
+  overflow: hidden;
+  transition: var(--component-transition);
+}
+
+.btn-themed::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  border-radius: inherit;
+}
+
+/* Sidebar theming */
+.sidebar-themed {
+  position: relative;
+  transition: var(--component-transition);
+}
+
+.sidebar-themed::before,
+.sidebar-themed::after {
+  content: '';
+  position: absolute;
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+  pointer-events: none;
+}
+
+/* === AUDIO VISUAL FEEDBACK === */
+
+.audio-indicator {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-popover);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.audio-indicator.active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* === RESPONSIVE THEME FOUNDATIONS === */
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .character-container {
+    --character-primary-x: 10px;
+    --character-primary-y: 10px;
+    --character-secondary-x: 10px;
+    --character-secondary-y: 10px;
+  }
+
+  .character-speech {
+    max-width: 240px;
+    font-size: var(--font-size-xs);
+  }
+
+  .environment-layer {
+    --env-opacity: calc(var(--env-opacity, 1) * 0.7);
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .environment-layer {
+    --env-opacity: calc(var(--env-opacity, 1) * 0.3);
+  }
+
+  .character-speech {
+    border-width: 2px;
+    box-shadow: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transitioning,
+  .theme-transitioning * {
+    transition: none !important;
+  }
+
+  .character-idle,
+  .character-talking,
+  .character-listening {
+    animation: none !important;
+  }
+
+  .environment-layer {
+    animation: none !important;
+  }
+
+  .particle {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
+
+/* === ACCESSIBILITY ENHANCEMENTS === */
+
+/* Screen reader content for theme changes */
+.theme-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus management during transitions */
+.theme-transitioning :focus {
+  outline: none !important;
+}
+
+/* Ensure character containers don't interfere with navigation */
+.character-container {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* === PERFORMANCE OPTIMIZATIONS === */
+
+/* GPU layer promotion for smooth animations */
+.gpu-accelerated {
+  transform: var(--gpu-acceleration);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Contain layout and paint for theme containers */
+[data-theme] {
+  contain: layout style paint;
+}
+
+.environment-layer {
+  contain: layout paint;
+}
+
+.character-container {
+  contain: layout paint;
+}
+
+/* === THEME DEBUGGING (Development only) === */
+.debug-theme-info {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.debug-mode .debug-theme-info {
+  opacity: 1;
+}

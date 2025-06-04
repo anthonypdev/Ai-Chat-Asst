@@ -1,0 +1,563 @@
+/* ===========================================
+   PARKLAND AI - DEFAULT THEME STYLES
+   Modern, Professional, Dynamic Interface
+   =========================================== */
+
+/* Theme-Specific Variable Overrides */
+[data-theme="default"] {
+  /* Primary Color System */
+  --primary: #7A77FF;
+  --primary-rgb: 122, 119, 255;
+  --primary-dark: #5A57E0;
+  --primary-darker: #403EBA;
+  --primary-light: #9C9AFF;
+  --primary-lighter: #BFBDFF;
+  --primary-lighter-rgb: 191, 189, 255;
+
+  /* Enhanced Glow System */
+  --primary-glow-strong: rgba(var(--primary-rgb), 0.55);
+  --primary-glow-medium: rgba(var(--primary-rgb), 0.35);
+  --primary-glow-soft: rgba(var(--primary-rgb), 0.15);
+
+  /* Gradient System */
+  --primary-gradient: linear-gradient(145deg, var(--primary) 0%, var(--primary-light) 100%);
+  --primary-gradient-hover: linear-gradient(145deg, var(--primary-dark) 0%, var(--primary) 100%);
+  --primary-gradient-active: linear-gradient(145deg, var(--primary-darker) 0%, var(--primary-dark) 100%);
+
+  /* Accent Colors */
+  --accent: #FF4DA8;
+  --accent-rgb: 255, 77, 168;
+  --accent-light: #FF85C2;
+  --accent-dark: #E63995;
+
+  /* Status Colors */
+  --success: #00D15B;
+  --success-rgb: 0, 209, 91;
+  --warning: #FFAA00;
+  --warning-rgb: 255, 170, 0;
+  --error: #E60000;
+  --error-rgb: 230, 0, 0;
+  --info: #00B8FF;
+  --info-rgb: 0, 184, 255;
+
+  /* Background System */
+  --bg-primary: #FFFFFF;
+  --bg-primary-rgb: 255, 255, 255;
+  --bg-secondary: #F9FAFD;
+  --bg-secondary-rgb: 249, 250, 253;
+  --bg-tertiary: #F4F6FA;
+  --bg-tertiary-rgb: 244, 246, 250;
+  --bg-elevated: #FFFFFF;
+  --bg-elevated-rgb: 255, 255, 255;
+  --bg-overlay: rgba(9, 11, 13, 0.92);
+  --bg-backdrop: rgba(9, 11, 13, 0.98);
+
+  /* Text System */
+  --text-primary: #16191E;
+  --text-primary-rgb: 22, 25, 30;
+  --text-secondary: #3D4550;
+  --text-tertiary: #747C89;
+  --text-muted: #A9B0BC;
+  --text-inverse: #FFFFFF;
+
+  /* Border System */
+  --border: #EBEDF2;
+  --border-rgb: 235, 237, 242;
+  --border-light: #F3F4F8;
+  --border-dark: #D9DCE4;
+
+  /* Enhanced Shadow System */
+  --shadow-xs: 0 1.5px 3px rgba(22, 25, 30, 0.03);
+  --shadow-sm: 0 3px 7px rgba(22, 25, 30, 0.04), 0 2px 4px rgba(22, 25, 30, 0.03);
+  --shadow-md: 0 6px 14px rgba(22, 25, 30, 0.05), 0 4px 8px rgba(22, 25, 30, 0.04);
+  --shadow-lg: 0 14px 28px rgba(22, 25, 30, 0.06), 0 8px 14px rgba(22, 25, 30, 0.05);
+  --shadow-xl: 0 25px 45px rgba(22, 25, 30, 0.08), 0 14px 22px rgba(22, 25, 30, 0.06);
+  --shadow-2xl: 0 35px 65px rgba(22, 25, 30, 0.15), 0 0 15px rgba(22, 25, 30, 0.05);
+  --shadow-inner: inset 0 2.5px 7px 0 rgba(22, 25, 30, 0.06);
+  --shadow-glow: 0 0 55px var(--primary-glow-medium), 0 0 25px var(--primary-glow-soft);
+
+  /* Glass Morphism */
+  --glass-backdrop: blur(15px) saturate(180%) brightness(1.1);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+}
+
+/* ===========================================
+   LOADING SCREEN - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] #loadingOverlay {
+  background: linear-gradient(135deg,
+    #0A0C1A 0%,
+    #1A1D2E 25%,
+    #2A2D3F 50%,
+    #1A1D2E 75%,
+    #0A0C1A 100%
+  );
+  background-size: 400% 400%;
+  animation: loadingBackgroundShift 8s ease-in-out infinite;
+}
+
+@keyframes loadingBackgroundShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+[data-theme="default"] .loading-logo {
+  background: var(--primary-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px var(--primary-glow-medium));
+}
+
+[data-theme="default"] .progress-bar {
+  background: var(--primary-gradient);
+  box-shadow:
+    0 0 20px var(--primary-glow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="default"] .loading-text {
+  color: var(--primary-lighter);
+  text-shadow: 0 0 10px var(--primary-glow-soft);
+}
+
+[data-theme="default"] .loading-tip {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ===========================================
+   BRAND IDENTITY - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .brand-icon {
+  background: var(--primary-gradient);
+  box-shadow: var(--shadow-md), 0 0 15px var(--primary-glow-soft);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="default"] .brand-icon:hover {
+  transform: scale(1.15) rotate(-8deg) translateY(-2px);
+  box-shadow: var(--shadow-xl), 0 0 25px var(--primary-glow-medium);
+}
+
+[data-theme="default"] .brand-name {
+  background: var(--primary-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="default"] .brand:hover .brand-name {
+  filter: drop-shadow(0 0 8px var(--primary-glow-soft));
+}
+
+/* ===========================================
+   CHAT INTERFACE - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .chat-header {
+  background: linear-gradient(180deg,
+    var(--bg-elevated) 0%,
+    rgba(var(--bg-elevated-rgb), 0.95) 100%
+  );
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="default"] .chat-area {
+  background: linear-gradient(135deg,
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-primary) 100%
+  );
+  background-size: 200% 200%;
+  animation: subtleBackgroundShift 30s ease-in-out infinite;
+}
+
+@keyframes subtleBackgroundShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Message Bubbles */
+[data-theme="default"] .message.user .message-bubble {
+  background: var(--primary-gradient);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-md), 0 0 10px var(--primary-glow-soft);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="default"] .message.assistant .message-bubble {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Enhanced Message Hover Effects */
+[data-theme="default"] .message:hover .message-bubble {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-xl);
+}
+
+[data-theme="default"] .message.user:hover .message-bubble {
+  box-shadow: var(--shadow-xl), 0 0 20px var(--primary-glow-medium);
+}
+
+/* ===========================================
+   BUTTONS - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .btn-primary {
+  background: var(--primary-gradient);
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-lg), 0 0 15px var(--primary-glow-soft);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="default"] .btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.6s ease-out;
+}
+
+[data-theme="default"] .btn-primary:hover::before {
+  left: 100%;
+}
+
+[data-theme="default"] .btn-primary:hover {
+  background: var(--primary-gradient-hover);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-xl), 0 0 25px var(--primary-glow-medium);
+}
+
+[data-theme="default"] .btn-primary:active {
+  background: var(--primary-gradient-active);
+  transform: translateY(0) scale(0.98);
+}
+
+[data-theme="default"] .btn-secondary {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="default"] .btn-secondary:hover {
+  background: var(--bg-elevated);
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+  color: var(--primary);
+}
+
+/* ===========================================
+   FORMS - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .form-input {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-inner);
+}
+
+[data-theme="default"] .form-input:focus {
+  border-color: var(--primary);
+  box-shadow:
+    var(--shadow-inner),
+    0 0 0 3px var(--primary-glow-soft),
+    var(--shadow-md);
+  background: var(--bg-elevated);
+}
+
+[data-theme="default"] .input-wrapper {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="default"] .input-wrapper:focus-within {
+  border-color: var(--primary);
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 3px var(--primary-glow-soft);
+}
+
+/* ===========================================
+   SIDEBAR - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .sidebar {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border-right: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="default"] .chat-history-item {
+  border: 1px solid transparent;
+  background: rgba(var(--bg-elevated-rgb), 0.5);
+}
+
+[data-theme="default"] .chat-history-item:hover {
+  background: var(--bg-elevated);
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+  transform: translateX(4px);
+}
+
+[data-theme="default"] .chat-history-item.active {
+  background: var(--primary-gradient);
+  border-color: var(--primary-dark);
+  box-shadow: var(--shadow-lg), 0 0 15px var(--primary-glow-soft);
+}
+
+/* ===========================================
+   MODALS - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .modal {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-2xl);
+}
+
+[data-theme="default"] .modal-header {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg,
+    rgba(var(--primary-rgb), 0.05) 0%,
+    transparent 100%
+  );
+}
+
+[data-theme="default"] .modal-footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+}
+
+/* ===========================================
+   SETTINGS DROPDOWN - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .settings-dropdown {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-xl);
+}
+
+[data-theme="default"] .settings-item:hover {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+}
+
+[data-theme="default"] .settings-item[aria-checked="true"] {
+  background: var(--primary-gradient);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===========================================
+   EMPTY STATE - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .empty-state-icon {
+  background: var(--primary-gradient);
+  box-shadow: var(--shadow-xl), 0 0 20px var(--primary-glow-soft);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="default"] .suggestion-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="default"] .suggestion-card:hover {
+  background: var(--bg-elevated);
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-xl), 0 0 15px var(--primary-glow-soft);
+  transform: translateY(-4px) scale(1.02);
+}
+
+[data-theme="default"] .suggestion-icon {
+  background: var(--primary-gradient);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===========================================
+   TYPING INDICATOR - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .typing-bubble {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="default"] .typing-dot {
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow-soft);
+}
+
+/* ===========================================
+   VOICE INDICATOR - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .voice-indicator {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="default"] .voice-bar {
+  background: var(--primary-gradient);
+  box-shadow: 0 0 5px var(--primary-glow-soft);
+}
+
+/* ===========================================
+   SCROLLBAR - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] ::-webkit-scrollbar-thumb {
+  background: var(--primary-gradient);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="default"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-gradient-hover);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="default"] ::-webkit-scrollbar-track {
+  background: rgba(var(--border-rgb), 0.3);
+}
+
+/* ===========================================
+   MICRO ANIMATIONS - DEFAULT THEME
+   =========================================== */
+
+[data-theme="default"] .message-action-btn:hover {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  transform: scale(1.1);
+}
+
+[data-theme="default"] .btn .icon {
+  transition: all 0.3s var(--ease-out);
+}
+
+[data-theme="default"] .btn:hover .icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 5px var(--primary-glow-soft));
+}
+
+/* Sparkle effect for premium feel */
+[data-theme="default"] .btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: all 0.6s ease-out;
+}
+
+[data-theme="default"] .btn-primary:hover::after {
+  width: 100px;
+  height: 100px;
+  opacity: 0.3;
+}
+
+/* ===========================================
+   RESPONSIVE ADJUSTMENTS - DEFAULT THEME
+   =========================================== */
+
+@media (max-width: 768px) {
+  [data-theme="default"] .chat-header {
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+  }
+
+  [data-theme="default"] .sidebar {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+}
+
+/* ===========================================
+   ACCESSIBILITY ENHANCEMENTS - DEFAULT THEME
+   =========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="default"] * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  [data-theme="default"] {
+    --primary: #0000FF;
+    --border: #000000;
+    --text-primary: #000000;
+    --bg-primary: #FFFFFF;
+  }
+}
+
+/* ===========================================
+   PERFORMANCE OPTIMIZATIONS
+   =========================================== */
+
+[data-theme="default"] .message,
+[data-theme="default"] .chat-history-item,
+[data-theme="default"] .suggestion-card,
+[data-theme="default"] .btn {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+[data-theme="default"] .chat-area,
+[data-theme="default"] .sidebar,
+[data-theme="default"] .chat-header {
+  contain: layout style paint;
+}

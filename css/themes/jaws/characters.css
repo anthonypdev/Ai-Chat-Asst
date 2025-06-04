@@ -1,0 +1,617 @@
+/* === JAWS THEME CHARACTER UI ELEMENTS === */
+/* Character system for Quint, Brody, and Hooper with nautical theming */
+
+/* === CHARACTER CONTAINER SYSTEM === */
+.character-interface {
+  position: fixed;
+  z-index: var(--z-character-ui, 1200);
+  pointer-events: none;
+  transition: all 0.4s var(--ease-out);
+}
+
+[data-theme="jaws"] .character-interface {
+  filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.6))
+          drop-shadow(0 0 10px rgba(0, 153, 221, 0.3));
+}
+
+/* === WALKIE-TALKIE RADIO INTERFACE === */
+.walkie-talkie {
+  position: fixed;
+  bottom: 120px;
+  right: 25px;
+  width: 85px;
+  height: 180px;
+  background: linear-gradient(135deg, #2C3E50 0%, #34495E 50%, #1A252F 100%);
+  border-radius: 8px 8px 4px 4px;
+  border: 2px solid #1A252F;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 8px 25px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(0, 153, 221, 0.2);
+  transform-style: preserve-3d;
+  transition: all 0.3s var(--ease-out);
+}
+
+.walkie-talkie:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 12px 35px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 153, 221, 0.3);
+}
+
+/* Radio Antenna */
+.walkie-talkie::before {
+  content: '';
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 30px;
+  background: linear-gradient(to top, #555, #888, #AAA);
+  border-radius: 1.5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  animation: antennaSwayJaws 4s ease-in-out infinite;
+}
+
+@keyframes antennaSwayJaws {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(2deg); }
+  75% { transform: translateX(-50%) rotate(-2deg); }
+}
+
+/* Radio Speaker Grille */
+.radio-speaker {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 45px;
+  background: radial-gradient(circle at center, #1A1A1A 30%, #2C2C2C 100%);
+  border-radius: 8px;
+  border: 1px solid #444;
+  overflow: hidden;
+}
+
+.radio-speaker::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(255, 255, 255, 0.1) 2px,
+      rgba(255, 255, 255, 0.1) 3px
+    );
+}
+
+/* Visual Audio Bars */
+.audio-visualization {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+  padding: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.walkie-talkie.transmitting .audio-visualization {
+  opacity: 1;
+}
+
+.audio-bar {
+  width: 3px;
+  background: linear-gradient(to top, #0099DD, #00DDFF);
+  border-radius: 1px;
+  animation: audioBarJaws 0.8s ease-in-out infinite;
+}
+
+.audio-bar:nth-child(1) { animation-delay: 0s; }
+.audio-bar:nth-child(2) { animation-delay: 0.1s; }
+.audio-bar:nth-child(3) { animation-delay: 0.2s; }
+.audio-bar:nth-child(4) { animation-delay: 0.3s; }
+.audio-bar:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes audioBarJaws {
+  0%, 100% { height: 2px; opacity: 0.3; }
+  50% { height: 12px; opacity: 1; }
+}
+
+/* Status LED Indicator */
+.status-led {
+  position: absolute;
+  top: 70px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #333;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.status-led.off {
+  background: #1A1A1A;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.status-led.standby {
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    0 0 10px rgba(255, 215, 0, 0.6);
+  animation: ledPulseJaws 2s ease-in-out infinite;
+}
+
+.status-led.active {
+  background: radial-gradient(circle at 30% 30%, #FF4444, #CC0000);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    0 0 15px rgba(255, 68, 68, 0.8);
+  animation: ledActiveJaws 0.5s ease-in-out infinite;
+}
+
+@keyframes ledPulseJaws {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes ledActiveJaws {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Radio Brand Label */
+.radio-brand {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  font-weight: bold;
+  color: #888;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+/* === CHARACTER AVATAR SYSTEM === */
+.character-avatars {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.character-avatar {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s var(--ease-out);
+  opacity: 0.7;
+  transform: scale(0.9);
+}
+
+.character-avatar.active {
+  opacity: 1;
+  transform: scale(1);
+  border-color: #0099DD;
+  box-shadow:
+    0 0 20px rgba(0, 153, 221, 0.6),
+    0 0 40px rgba(0, 153, 221, 0.3),
+    inset 0 0 20px rgba(0, 153, 221, 0.2);
+  animation: activeCharacterGlow 2s ease-in-out infinite;
+}
+
+.character-avatar.deceased {
+  opacity: 0.3;
+  filter: grayscale(100%) brightness(0.5);
+  transform: scale(0.8);
+  border-color: #666;
+}
+
+@keyframes activeCharacterGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(0, 153, 221, 0.6),
+      0 0 40px rgba(0, 153, 221, 0.3),
+      inset 0 0 20px rgba(0, 153, 221, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(0, 153, 221, 0.8),
+      0 0 60px rgba(0, 153, 221, 0.5),
+      inset 0 0 30px rgba(0, 153, 221, 0.3);
+  }
+}
+
+/* Character Specific Avatars */
+.character-avatar.quint {
+  background-image: linear-gradient(135deg,
+    rgba(139, 69, 19, 0.9) 0%,
+    rgba(160, 82, 45, 0.9) 100%
+  );
+}
+
+.character-avatar.quint::before {
+  content: '🦈';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.character-avatar.brody {
+  background-image: linear-gradient(135deg,
+    rgba(25, 25, 112, 0.9) 0%,
+    rgba(65, 105, 225, 0.9) 100%
+  );
+}
+
+.character-avatar.brody::before {
+  content: '👮';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.character-avatar.hooper {
+  background-image: linear-gradient(135deg,
+    rgba(34, 139, 34, 0.9) 0%,
+    rgba(50, 205, 50, 0.9) 100%
+  );
+}
+
+.character-avatar.hooper::before {
+  content: '🔬';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Character Status Indicator */
+.character-status {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #0A0C0F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.character-status.alive {
+  background: radial-gradient(circle, #00FF00, #00AA00);
+  color: #FFF;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.character-status.speaking {
+  background: radial-gradient(circle, #FFD700, #FF8C00);
+  color: #000;
+  animation: speakingPulse 1s ease-in-out infinite;
+}
+
+.character-status.deceased {
+  background: radial-gradient(circle, #FF4444, #AA0000);
+  color: #FFF;
+}
+
+@keyframes speakingPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* === CHARACTER NAMEPLATE === */
+.character-nameplate {
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #0099DD;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  min-width: 60px;
+  border: 1px solid rgba(0, 153, 221, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.character-avatar:hover .character-nameplate,
+.character-avatar.active .character-nameplate {
+  opacity: 1;
+}
+
+/* === BOAT DASHBOARD ELEMENTS === */
+.boat-controls {
+  position: fixed;
+  top: 50%;
+  right: -150px;
+  transform: translateY(-50%);
+  width: 140px;
+  height: 200px;
+  background: linear-gradient(135deg, #2C3E50 0%, #1A252F 100%);
+  border-radius: 8px 0 0 8px;
+  border: 2px solid #34495E;
+  border-right: none;
+  transition: right 0.4s var(--ease-out);
+  z-index: var(--z-character-ui);
+}
+
+.boat-controls.active {
+  right: 0;
+}
+
+.depth-gauge {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0A0A0A 30%, #1A1A1A 100%);
+  border: 3px solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #0099DD;
+}
+
+.depth-gauge::before {
+  content: attr(data-depth) ' FT';
+  position: absolute;
+  font-weight: bold;
+  text-shadow: 0 0 5px currentColor;
+}
+
+.sonar-ping {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #003300 0%, #001100 100%);
+  border: 2px solid #0099DD;
+  overflow: hidden;
+}
+
+.sonar-ping::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle,
+    transparent 0%,
+    transparent 40%,
+    rgba(0, 153, 221, 0.2) 50%,
+    transparent 60%
+  );
+  animation: sonarSweep 3s linear infinite;
+}
+
+@keyframes sonarSweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* === OCEAN AMBIENCE EFFECTS === */
+.ocean-bubbles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-character-ui);
+  opacity: 0.3;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(255, 255, 255, 0.8),
+    rgba(255, 255, 255, 0.1)
+  );
+  animation: bubbleRise 8s linear infinite;
+}
+
+.bubble:nth-child(1) {
+  left: 10%;
+  width: 8px;
+  height: 8px;
+  animation-delay: 0s;
+  animation-duration: 6s;
+}
+
+.bubble:nth-child(2) {
+  left: 30%;
+  width: 12px;
+  height: 12px;
+  animation-delay: 2s;
+  animation-duration: 8s;
+}
+
+.bubble:nth-child(3) {
+  left: 70%;
+  width: 6px;
+  height: 6px;
+  animation-delay: 4s;
+  animation-duration: 7s;
+}
+
+.bubble:nth-child(4) {
+  left: 90%;
+  width: 10px;
+  height: 10px;
+  animation-delay: 6s;
+  animation-duration: 9s;
+}
+
+@keyframes bubbleRise {
+  0% {
+    bottom: -20px;
+    opacity: 0;
+    transform: translateX(0) scale(0.5);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(5px) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(-5px) scale(1.2);
+  }
+  100% {
+    bottom: 100vh;
+    opacity: 0;
+    transform: translateX(10px) scale(0.8);
+  }
+}
+
+/* === EMERGENCY ALERT SYSTEM === */
+.shark-alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #CC0000 0%, #FF4444 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 2px solid #AA0000;
+  box-shadow: 0 4px 20px rgba(204, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateX(-50%) translateY(-100px);
+  transition: all 0.5s var(--ease-out);
+  z-index: calc(var(--z-character-ui) + 100);
+}
+
+.shark-alert.active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  animation: alertFlash 1s ease-in-out infinite;
+}
+
+@keyframes alertFlash {
+  0%, 100% {
+    background: linear-gradient(135deg, #CC0000 0%, #FF4444 100%);
+    box-shadow: 0 4px 20px rgba(204, 0, 0, 0.5);
+  }
+  50% {
+    background: linear-gradient(135deg, #FF6666 0%, #FF8888 100%);
+    box-shadow: 0 4px 30px rgba(255, 102, 102, 0.8);
+  }
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+  .walkie-talkie {
+    width: 70px;
+    height: 150px;
+    bottom: 100px;
+    right: 15px;
+  }
+
+  .character-avatars {
+    bottom: 15px;
+    left: 15px;
+  }
+
+  .character-avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .character-avatar::before {
+    font-size: 22px;
+  }
+
+  .boat-controls {
+    width: 120px;
+    height: 160px;
+  }
+
+  .depth-gauge {
+    width: 60px;
+    height: 60px;
+    font-size: 8px;
+  }
+
+  .sonar-ping {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+/* === ACCESSIBILITY === */
+@media (prefers-reduced-motion: reduce) {
+  .walkie-talkie,
+  .character-avatar,
+  .status-led,
+  .bubble,
+  .shark-alert {
+    animation: none !important;
+  }
+
+  .walkie-talkie::before {
+    animation: none !important;
+  }
+}
+
+/* === THEME ACTIVATION === */
+[data-theme="jaws"] .character-interface {
+  opacity: 1;
+  visibility: visible;
+}
+
+[data-theme]:not([data-theme="jaws"]) .character-interface {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}

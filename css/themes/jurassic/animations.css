@@ -1,0 +1,623 @@
+/* ==========================================================================
+   JURASSIC PARK THEME - ANIMATIONS
+   Production-Ready AAA Quality Implementation
+   ========================================================================== */
+
+/* CSS Custom Properties for Animation Control */
+:root {
+  --jp-foliage-sway-duration: 8s;
+  --jp-tremor-intensity: 2px;
+  --jp-electric-pulse-speed: 1.5s;
+  --jp-dna-rotation-speed: 3s;
+  --jp-amber-glow-speed: 4s;
+  --jp-pterodactyl-flight-duration: 45s;
+  --jp-rain-fall-speed: 2s;
+  --jp-lightning-duration: 0.3s;
+}
+
+/* ==========================================================================
+   ENVIRONMENTAL ANIMATIONS
+   ========================================================================== */
+
+/* Jungle Foliage Sway Animation */
+@keyframes jp-foliage-sway {
+  0% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    filter: brightness(0.9) hue-rotate(0deg);
+  }
+  25% {
+    transform: translateX(-8px) rotate(-2deg) scale(1.02);
+    filter: brightness(1.1) hue-rotate(5deg);
+  }
+  50% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    filter: brightness(0.95) hue-rotate(0deg);
+  }
+  75% {
+    transform: translateX(8px) rotate(2deg) scale(0.98);
+    filter: brightness(1.05) hue-rotate(-3deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    filter: brightness(0.9) hue-rotate(0deg);
+  }
+}
+
+/* Dense Jungle Background Animation */
+@keyframes jp-jungle-depth {
+  0% {
+    background-position: 0% 0%, 50% 50%, 100% 0%;
+    opacity: 0.7;
+  }
+  33% {
+    background-position: -20% 10%, 60% 40%, 80% 15%;
+    opacity: 0.85;
+  }
+  66% {
+    background-position: -40% 20%, 70% 30%, 60% 30%;
+    opacity: 0.75;
+  }
+  100% {
+    background-position: 0% 0%, 50% 50%, 100% 0%;
+    opacity: 0.7;
+  }
+}
+
+/* Tremor/Earthquake Effects */
+@keyframes jp-ground-tremor {
+  0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+  10% { transform: translateX(-1px) translateY(-1px) rotate(-0.2deg); }
+  20% { transform: translateX(2px) translateY(1px) rotate(0.3deg); }
+  30% { transform: translateX(-2px) translateY(-1px) rotate(-0.1deg); }
+  40% { transform: translateX(1px) translateY(2px) rotate(0.2deg); }
+  50% { transform: translateX(-1px) translateY(-2px) rotate(-0.3deg); }
+  60% { transform: translateX(2px) translateY(1px) rotate(0.1deg); }
+  70% { transform: translateX(-2px) translateY(-1px) rotate(-0.2deg); }
+  80% { transform: translateX(1px) translateY(1px) rotate(0.3deg); }
+  90% { transform: translateX(-1px) translateY(-1px) rotate(-0.1deg); }
+}
+
+/* Intense Tremor for Raptor Approach */
+@keyframes jp-raptor-tremor {
+  0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+  5% { transform: translateX(-3px) translateY(-2px) rotate(-0.5deg); }
+  10% { transform: translateX(4px) translateY(2px) rotate(0.6deg); }
+  15% { transform: translateX(-4px) translateY(-2px) rotate(-0.3deg); }
+  20% { transform: translateX(3px) translateY(3px) rotate(0.4deg); }
+  25% { transform: translateX(-2px) translateY(-3px) rotate(-0.6deg); }
+  30% { transform: translateX(4px) translateY(2px) rotate(0.2deg); }
+  35% { transform: translateX(-4px) translateY(-2px) rotate(-0.4deg); }
+  40% { transform: translateX(2px) translateY(2px) rotate(0.5deg); }
+  45% { transform: translateX(-3px) translateY(-2px) rotate(-0.3deg); }
+  50% { transform: translateX(0) translateY(0) rotate(0deg); }
+}
+
+/* ==========================================================================
+   ELECTRIC FENCE ANIMATIONS
+   ========================================================================== */
+
+/* Electric Fence Spark Effect */
+@keyframes jp-electric-spark {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+    filter: brightness(1);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1.2) rotate(45deg);
+    filter: brightness(2) hue-rotate(30deg);
+  }
+  20% {
+    opacity: 0.7;
+    transform: scale(0.8) rotate(90deg);
+    filter: brightness(1.5) hue-rotate(-15deg);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.5) rotate(180deg);
+    filter: brightness(2.5) hue-rotate(60deg);
+  }
+  40% {
+    opacity: 0.3;
+    transform: scale(0.6) rotate(270deg);
+    filter: brightness(1) hue-rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.1) rotate(360deg);
+    filter: brightness(0.5);
+  }
+}
+
+/* Fence Warning Light Pulse */
+@keyframes jp-fence-warning {
+  0%, 100% {
+    background-color: #1A1A1A;
+    box-shadow: none;
+    text-shadow: none;
+  }
+  50% {
+    background-color: #FFDD00;
+    box-shadow: 0 0 20px #FFDD00, 0 0 40px #FFAA00;
+    text-shadow: 0 0 10px #FFDD00;
+  }
+}
+
+/* Electric Current Flow */
+@keyframes jp-electric-current {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(2);
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   DNA AND AMBER ANIMATIONS
+   ========================================================================== */
+
+/* DNA Double Helix Rotation */
+@keyframes jp-dna-helix {
+  0% {
+    transform: rotateY(0deg) rotateX(0deg);
+    filter: hue-rotate(0deg) brightness(1);
+  }
+  25% {
+    transform: rotateY(90deg) rotateX(10deg);
+    filter: hue-rotate(90deg) brightness(1.2);
+  }
+  50% {
+    transform: rotateY(180deg) rotateX(0deg);
+    filter: hue-rotate(180deg) brightness(1);
+  }
+  75% {
+    transform: rotateY(270deg) rotateX(-10deg);
+    filter: hue-rotate(270deg) brightness(1.2);
+  }
+  100% {
+    transform: rotateY(360deg) rotateX(0deg);
+    filter: hue-rotate(360deg) brightness(1);
+  }
+}
+
+/* Amber Preservation Glow */
+@keyframes jp-amber-glow {
+  0% {
+    filter: brightness(1) saturate(1) drop-shadow(0 0 5px rgba(212, 172, 90, 0.3));
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 25px rgba(255, 200, 100, 0.8));
+    transform: scale(1.05);
+  }
+  100% {
+    filter: brightness(1) saturate(1) drop-shadow(0 0 5px rgba(212, 172, 90, 0.3));
+    transform: scale(1);
+  }
+}
+
+/* Mosquito in Amber Float */
+@keyframes jp-mosquito-float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-2px) rotate(2deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-1px) rotate(0deg);
+    opacity: 0.7;
+  }
+  75% {
+    transform: translateY(1px) rotate(-2deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+}
+
+/* ==========================================================================
+   CREATURE ANIMATIONS
+   ========================================================================== */
+
+/* Pterodactyl Flight Path */
+@keyframes jp-pterodactyl-flight {
+  0% {
+    left: -150px;
+    top: 15%;
+    transform: scale(0.8) rotateZ(-5deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+    transform: scale(0.9) rotateZ(0deg);
+  }
+  25% {
+    top: 10%;
+    transform: scale(1) rotateZ(3deg);
+    opacity: 0.9;
+  }
+  50% {
+    top: 8%;
+    transform: scale(1.1) rotateZ(-2deg);
+    opacity: 1;
+  }
+  75% {
+    top: 12%;
+    transform: scale(1.05) rotateZ(4deg);
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.5;
+    transform: scale(0.9) rotateZ(-3deg);
+  }
+  100% {
+    left: calc(100% + 150px);
+    top: 18%;
+    transform: scale(0.7) rotateZ(-8deg);
+    opacity: 0;
+  }
+}
+
+/* Pterodactyl Wing Flap */
+@keyframes jp-wing-flap {
+  0%, 100% {
+    transform: scaleY(1) skewX(0deg);
+  }
+  25% {
+    transform: scaleY(0.7) skewX(-5deg);
+  }
+  50% {
+    transform: scaleY(0.4) skewX(0deg);
+  }
+  75% {
+    transform: scaleY(0.7) skewX(5deg);
+  }
+}
+
+/* ==========================================================================
+   MR. DNA CHARACTER ANIMATIONS
+   ========================================================================== */
+
+/* Mr. DNA Idle Bobbing */
+@keyframes jp-dna-idle-bob {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg) scale(1.02);
+    filter: brightness(1.1);
+  }
+}
+
+/* Mr. DNA Talking Animation */
+@keyframes jp-dna-talk {
+  0% { transform: scale(1) rotate(0deg); }
+  10% { transform: scale(1.05) rotate(-2deg); }
+  20% { transform: scale(0.98) rotate(2deg); }
+  30% { transform: scale(1.03) rotate(-1deg); }
+  40% { transform: scale(0.99) rotate(1deg); }
+  50% { transform: scale(1.02) rotate(0deg); }
+  60% { transform: scale(1.01) rotate(-1deg); }
+  70% { transform: scale(0.97) rotate(2deg); }
+  80% { transform: scale(1.04) rotate(-2deg); }
+  90% { transform: scale(1.01) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Mr. DNA Helix Body Undulation */
+@keyframes jp-dna-undulate {
+  0% {
+    transform: scaleX(1) skewY(0deg);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: scaleX(1.1) skewY(2deg);
+    filter: hue-rotate(30deg);
+  }
+  50% {
+    transform: scaleX(0.9) skewY(0deg);
+    filter: hue-rotate(60deg);
+  }
+  75% {
+    transform: scaleX(1.1) skewY(-2deg);
+    filter: hue-rotate(30deg);
+  }
+  100% {
+    transform: scaleX(1) skewY(0deg);
+    filter: hue-rotate(0deg);
+  }
+}
+
+/* DNA Particle Effects */
+@keyframes jp-dna-particles {
+  0% {
+    transform: translateY(20px) scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(10px) scale(0.5) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-5px) scale(1) rotate(180deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-15px) scale(0.7) rotate(270deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-25px) scale(0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   WALKIE-TALKIE AND COMMUNICATION EFFECTS
+   ========================================================================== */
+
+/* Walkie-Talkie Antenna Sway */
+@keyframes jp-antenna-sway {
+  0%, 100% {
+    transform: rotate(0deg);
+    transform-origin: bottom center;
+  }
+  50% {
+    transform: rotate(3deg);
+    transform-origin: bottom center;
+  }
+}
+
+/* Static Visual Effect */
+@keyframes jp-static-noise {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.3;
+  }
+  25% {
+    background-position: 25% 25%;
+    opacity: 0.6;
+  }
+  50% {
+    background-position: 50% 50%;
+    opacity: 0.4;
+  }
+  75% {
+    background-position: 75% 25%;
+    opacity: 0.7;
+  }
+  100% {
+    background-position: 100% 0%;
+    opacity: 0.3;
+  }
+}
+
+/* Radio LED Pulse */
+@keyframes jp-radio-led {
+  0%, 100% {
+    background-color: #1A1A1A;
+    box-shadow: none;
+  }
+  50% {
+    background-color: #FF0000;
+    box-shadow: 0 0 10px #FF0000, 0 0 20px #FF4444;
+  }
+}
+
+/* ==========================================================================
+   WEATHER AND ATMOSPHERIC EFFECTS
+   ========================================================================== */
+
+/* Rain Animation */
+@keyframes jp-rain-fall {
+  0% {
+    transform: translateY(-100vh) translateX(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh) translateX(50px);
+    opacity: 0;
+  }
+}
+
+/* Lightning Flash */
+@keyframes jp-lightning-flash {
+  0%, 90%, 100% {
+    background-color: transparent;
+    opacity: 0;
+  }
+  5% {
+    background-color: rgba(255, 255, 255, 0.9);
+    opacity: 1;
+  }
+  10% {
+    background-color: rgba(255, 255, 255, 0.6);
+    opacity: 0.7;
+  }
+  15% {
+    background-color: rgba(255, 255, 255, 0.9);
+    opacity: 1;
+  }
+}
+
+/* Mist/Fog Rolling Effect */
+@keyframes jp-fog-roll {
+  0% {
+    transform: translateX(-100%) translateY(0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.6;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  75% {
+    opacity: 0.4;
+    transform: translateX(50%) translateY(10px);
+  }
+  100% {
+    transform: translateX(100%) translateY(0);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   PARALLAX AND DEPTH EFFECTS
+   ========================================================================== */
+
+/* Parallax Layer Movement */
+@keyframes jp-parallax-slow {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(-50px) translateY(-20px); }
+}
+
+@keyframes jp-parallax-medium {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(-100px) translateY(-40px); }
+}
+
+@keyframes jp-parallax-fast {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(-200px) translateY(-80px); }
+}
+
+/* ==========================================================================
+   GATE TRANSITION PREPARATION ANIMATIONS
+   ========================================================================== */
+
+/* Pre-gate Environment Dim */
+@keyframes jp-pre-gate-dim {
+  0% {
+    filter: brightness(1) contrast(1);
+    backdrop-filter: none;
+  }
+  100% {
+    filter: brightness(0.3) contrast(1.2) sepia(0.3);
+    backdrop-filter: blur(2px);
+  }
+}
+
+/* Jungle Sounds Fade */
+@keyframes jp-audio-fade-in {
+  0% { opacity: 0; volume: 0; }
+  100% { opacity: 1; volume: 0.7; }
+}
+
+/* ==========================================================================
+   UTILITY ANIMATIONS
+   ========================================================================== */
+
+/* Element Fade In with Scale */
+@keyframes jp-fade-in-scale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Smooth Element Exit */
+@keyframes jp-fade-out-scale {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+}
+
+/* Pulse Effect for Attention */
+@keyframes jp-attention-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+
+/* GPU Acceleration for all animated elements */
+[data-theme="jurassic"] .animated-element {
+  will-change: transform, opacity, filter;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="jurassic"] * {
+    animation-duration: 0.1s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.1s !important;
+  }
+}
+
+/* ==========================================================================
+   ANIMATION APPLICATION CLASSES
+   ========================================================================== */
+
+/* Environmental Classes */
+.jp-foliage-sway { animation: jp-foliage-sway var(--jp-foliage-sway-duration) ease-in-out infinite; }
+.jp-jungle-depth { animation: jp-jungle-depth 30s ease-in-out infinite alternate; }
+.jp-ground-tremor { animation: jp-ground-tremor 0.5s ease-in-out; }
+.jp-raptor-tremor { animation: jp-raptor-tremor 0.8s ease-in-out; }
+
+/* Electric Fence Classes */
+.jp-electric-spark { animation: jp-electric-spark var(--jp-electric-pulse-speed) ease-out; }
+.jp-fence-warning { animation: jp-fence-warning var(--jp-electric-pulse-speed) ease-in-out infinite; }
+.jp-electric-current { animation: jp-electric-current 1s linear infinite; }
+
+/* DNA and Amber Classes */
+.jp-dna-helix { animation: jp-dna-helix var(--jp-dna-rotation-speed) linear infinite; }
+.jp-amber-glow { animation: jp-amber-glow var(--jp-amber-glow-speed) ease-in-out infinite; }
+.jp-mosquito-float { animation: jp-mosquito-float 3s ease-in-out infinite; }
+
+/* Character Classes */
+.jp-dna-idle { animation: jp-dna-idle-bob 2s ease-in-out infinite; }
+.jp-dna-talking { animation: jp-dna-talk 0.3s ease-in-out infinite; }
+.jp-dna-undulate { animation: jp-dna-undulate 4s ease-in-out infinite; }
+.jp-dna-particles { animation: jp-dna-particles 2s ease-out infinite; }
+
+/* Communication Classes */
+.jp-antenna-sway { animation: jp-antenna-sway 3s ease-in-out infinite; }
+.jp-static-noise { animation: jp-static-noise 0.1s linear infinite; }
+.jp-radio-led { animation: jp-radio-led 1s ease-in-out infinite; }
+
+/* Weather Classes */
+.jp-rain-fall { animation: jp-rain-fall var(--jp-rain-fall-speed) linear infinite; }
+.jp-lightning-flash { animation: jp-lightning-flash var(--jp-lightning-duration) ease-out; }
+.jp-fog-roll { animation: jp-fog-roll 20s ease-in-out infinite; }
+
+/* Pterodactyl Classes */
+.jp-pterodactyl-flight { animation: jp-pterodactyl-flight var(--jp-pterodactyl-flight-duration) linear infinite; }
+.jp-wing-flap { animation: jp-wing-flap 0.8s ease-in-out infinite; }
+
+/* Utility Classes */
+.jp-fade-in { animation: jp-fade-in-scale 0.6s ease-out forwards; }
+.jp-fade-out { animation: jp-fade-out-scale 0.4s ease-in forwards; }
+.jp-pulse { animation: jp-attention-pulse 2s ease-in-out infinite; }
