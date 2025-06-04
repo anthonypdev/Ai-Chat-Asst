@@ -4,93 +4,36 @@
    ======================================== */
 
 /* --- JURASSIC PARK THEME VARIABLES --- */
-:root[data-theme="jurassic"] {
-    /* Primary Color Palette - Amber & Earth Tones */
-    --primary: #D4AC5A;
-    --primary-rgb: 212, 172, 90;
-    --primary-dark: #B08D45;
-    --primary-darker: #8A6C2F;
-    --primary-darker-rgb: 138, 108, 47;
-    --primary-light: #F0CEA0;
-    --primary-lighter: #F8E5C0;
-    --primary-lighter-rgb: 248, 229, 192;
+/* These variables are primarily defined in css/core/variables.css under [data-theme="jurassic"] */
+/* This section is for any overrides or highly specific Jurassic theme variables not in core. */
+[data-theme="jurassic"] {
+  /* Typography:
+     System font stacks from core/variables.css will be used.
+     Thematic feel achieved via font-weight, text-transform, letter-spacing, text-shadows, color.
+  */
+  --font-family-jurassic-display: var(--font-family-system-serif); /* For impactful, rugged, or "carved" headings (was Rye) */
+  --font-family-jurassic-secondary-display: var(--font-family-system-sans-serif); /* For other display elements (was Metal Mania/Ewert) */
+  --font-family-jurassic-body: var(--font-family-system-monospace); /* For typewriter/field notes (was Special Elite) */
 
-    /* Accent Colors - Lush Vegetation */
-    --accent: #507D32;
-    --accent-rgb: 80, 125, 50;
-    --accent-light: #78A858;
-    --accent-dark: #3A5C24;
-
-    /* Danger Colors - Raptor Red */
-    --danger: #A52A2A;
-    --danger-light: #CD5C5C;
-    --warning: #DAA520;
-    --success: --accent;
-
-    /* Background Colors - Rich Earth */
-    --bg-primary: #1E1A12;
-    --bg-primary-rgb: 30, 26, 18;
-    --bg-secondary: #15120A;
-    --bg-secondary-rgb: 21, 18, 10;
-    --bg-tertiary: #0F0D07;
-    --bg-tertiary-rgb: 15, 13, 7;
-    --bg-elevated: #2A251B;
-    --bg-elevated-rgb: 42, 37, 27;
-    --bg-overlay: rgba(15, 13, 7, 0.94);
-    --bg-backdrop: rgba(15, 13, 7, 0.97);
-
-    /* Text Colors - Fossil Ivory */
-    --text-primary: #F8E5C0;
-    --text-primary-rgb: 248, 229, 192;
-    --text-secondary: #F0CEA0;
-    --text-tertiary: #D4AC5A;
-    --text-muted: #B08D45;
-    --text-inverse: #0F0D07;
-
-    /* Border Colors - Weathered Metal */
-    --border: #8A6C2F;
-    --border-light: #B08D45;
-    --border-dark: #685022;
-    --border-rgb: 138, 108, 47;
-
-    /* Special Effects */
-    --electric-yellow: #FFDD00;
-    --caution-orange: #FF8C00;
-    --fossil-white: #F5F5DC;
-
-    /* Typography */
-    --font-family-theme: 'Rye', 'Metal Mania', 'Ewert', 'Special Elite', 'Georgia', serif;
-    --font-family-display: 'Rye', serif;
-    --font-family-body: 'Special Elite', monospace;
-
-    /* Shadows & Effects */
-    --shadow-amber: 0 0 20px rgba(212, 172, 90, 0.3);
-    --shadow-electric: 0 0 15px rgba(255, 221, 0, 0.5);
-    --shadow-depth: 0 8px 32px rgba(0, 0, 0, 0.6);
-    --glow-amber: 0 0 30px rgba(248, 229, 192, 0.4);
-
-    /* Gradients */
-    --gradient-amber: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #755827 100%);
-    --gradient-amber-hover: linear-gradient(135deg, #8A6C2F 0%, var(--primary-dark) 50%, #A07C3E 100%);
-    --gradient-electric: linear-gradient(90deg, transparent 0%, var(--electric-yellow) 50%, transparent 100%);
-
-    /* Textures & Patterns */
-    --texture-concrete: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23685022' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    --texture-metal: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%238A6C2F' fill-opacity='0.15'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2v20H0v-2h20v-2H0v-2h20v-2H0v-2h20v-2H0v-2h20v-1.5z'/%3E%3C/g%3E%3C/svg%3E");
-    --texture-foliage: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23507D32' fill-opacity='0.08'%3E%3Cpath d='M40 0C18 0 0 18 0 40s18 40 40 40 40-18 40-40S62 0 40 0zm0 76C20 76 4 60 4 40S20 4 40 4s36 16 36 36-16 36-36 36z'/%3E%3C/g%3E%3C/svg%3E");
+  /* Ensure this image is either self-contained or a path to a local asset.
+     For now, assuming it's a complex static asset. */
+  --jurassic-gate-border-image: url("data:image/svg+xml,%3Csvg width='120' height='9' viewBox='0 0 120 9' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='jpCautionTape' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23FFDD00'/%3E%3Cstop offset='20%25' stop-color='%23FFDD00'/%3E%3Cstop offset='20%25' stop-color='%23000000'/%3E%3Cstop offset='40%25' stop-color='%23000000'/%3E%3Cstop offset='40%25' stop-color='%23FFDD00'/%3E%3Cstop offset='60%25' stop-color='%23FFDD00'/%3E%3Cstop offset='60%25' stop-color='%23000000'/%3E%3Cstop offset='80%25' stop-color='%23000000'/%3E%3Cstop offset='80%25' stop-color='%23FFDD00'/%3E%3Cstop offset='100%25' stop-color='%23FFDD00'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23jpCautionTape)' width='120' height='9'/%3E%3C/svg%3E") 9 repeat;
 }
 
 /* --- GLOBAL JURASSIC THEMING --- */
 [data-theme="jurassic"] body {
-    background-color: var(--bg-primary);
-    background-image: var(--texture-concrete);
-    font-family: var(--font-family-theme);
-    transition: background-color 1.2s ease-in-out, color 1s ease-in-out;
+  background-color: var(--bg-primary);
+  background-image: var(--texture-concrete); /* Defined in core/variables.css for this theme */
+  font-family: var(--font-family-jurassic-body); /* Default body font for Jurassic theme */
+  color: var(--text-primary);
+  transition: background-color 1.2s ease-in-out, color 1s ease-in-out;
 }
 
 [data-theme="jurassic"] * {
-    box-shadow: none !important;
-    transition: all 0.3s ease;
+  /* Resetting box-shadow like this globally can be too aggressive.
+     Specific components should handle their shadows.
+     Keeping transition for smooth theme switches. */
+  transition: all 0.3s ease;
 }
 
 /* --- TYPOGRAPHY OVERRIDES --- */
@@ -100,596 +43,304 @@
 [data-theme="jurassic"] .brand-name,
 [data-theme="jurassic"] .login-title,
 [data-theme="jurassic"] .modal-title {
-    font-family: var(--font-family-display) !important;
-    color: var(--text-primary);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7), 0 0 8px var(--primary-darker);
-    -webkit-text-stroke: 0.5px var(--primary-darker);
+  font-family: var(--font-family-jurassic-display) !important; /* Force display font */
+  color: var(--text-primary);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7), 0 0 8px var(--primary-darker);
+  /* -webkit-text-stroke might not be universally supported or look good with all system fonts. Use with caution or rely on text-shadow. */
+  /* -webkit-text-stroke: 0.5px var(--primary-darker); */
+  font-weight: var(--font-weight-bold); /* Ensure headings are bold */
 }
+
+[data-theme="jurassic"] h1, [data-theme="jurassic"] .login-title, [data-theme="jurassic"] .brand-name {
+    letter-spacing: 0.05em;
+    font-weight: var(--font-weight-black); /* Make H1 and brand more impactful like 'Rye' */
+    text-transform: uppercase;
+}
+[data-theme="jurassic"] h2 {
+    font-family: var(--font-family-jurassic-secondary-display) !important; /* For 'Metal Mania' like feel, a bold system sans-serif */
+    font-weight: var(--font-weight-extrabold);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+[data-theme="jurassic"] h3 {
+    font-family: var(--font-family-jurassic-secondary-display) !important; /* For 'Ewert' like feel, a distinct system sans-serif */
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
 
 [data-theme="jurassic"] p,
 [data-theme="jurassic"] span,
 [data-theme="jurassic"] .form-label,
 [data-theme="jurassic"] .settings-item-label {
-    font-family: var(--font-family-body) !important;
+  font-family: var(--font-family-jurassic-body) !important; /* Consistent body/detail text */
 }
 
 /* --- HEADER STYLING --- */
 [data-theme="jurassic"] .chat-header {
-    background: linear-gradient(to bottom,
-        var(--bg-elevated) 0%,
-        var(--bg-secondary) 80%,
-        rgba(var(--primary-darker-rgb), 0.5) 110%);
-    border-bottom: 7px solid transparent;
-    border-image: var(--jurassic-gate-border-image);
-    color: var(--text-primary);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.65), inset 0 -3px 0 var(--border-dark);
-    text-shadow: 0 1.2px 1.8px var(--bg-tertiary);
-    position: relative;
+  background: linear-gradient(to bottom,
+    var(--bg-elevated) 0%,
+    var(--bg-secondary) 80%,
+    rgba(var(--primary-darker-rgb), 0.5) 110%);
+  border-bottom: 7px solid transparent;
+  border-image: var(--jurassic-gate-border-image);
+  color: var(--text-primary);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.65), inset 0 -3px 0 var(--border-dark);
+  text-shadow: 0 1.2px 1.8px var(--bg-tertiary);
+  position: relative;
 }
 
-[data-theme="jurassic"] .chat-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-electric);
-    opacity: 0;
-    animation: electricFenceWarning 8s infinite;
+[data-theme="jurassic"] .chat-header::before { /* Electric fence warning animation */
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-electric);
+  opacity: 0;
+  animation: electricFenceWarningPulse 8s infinite; /* Renamed for clarity, keyframes in jurassic/animations.css */
 }
+/* Keyframes for electricFenceWarningPulse would be in jurassic/animations.css */
 
-@keyframes electricFenceWarning {
-    0%, 85%, 100% { opacity: 0; }
-    86%, 88%, 90%, 92% { opacity: 1; }
-    87%, 89%, 91% { opacity: 0.3; }
-}
 
 [data-theme="jurassic"] .brand-icon {
-    background: var(--gradient-amber);
-    border: 3px solid var(--primary-darker);
-    box-shadow: var(--shadow-amber), inset 0 0 10px rgba(0, 0, 0, 0.3);
-    position: relative;
+  background: var(--gradient-amber);
+  border: 3px solid var(--primary-darker);
+  box-shadow: var(--shadow-amber), inset 0 0 10px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
 [data-theme="jurassic"] .brand-icon svg {
-    filter: drop-shadow(0 0 5px var(--primary-lighter));
-    animation: amberGlowPulse 3s ease-in-out infinite;
-}
-
-@keyframes amberGlowPulse {
-    0%, 100% {
-        filter: drop-shadow(0 0 5px var(--primary-lighter)) brightness(0.9);
-        transform: scale(1);
-    }
-    50% {
-        filter: drop-shadow(0 0 15px var(--primary-lighter)) brightness(1.2);
-        transform: scale(1.05);
-    }
+  filter: drop-shadow(0 0 5px var(--primary-lighter));
+  animation: amberGlowPulse 3s ease-in-out infinite; /* Keyframes in jurassic/animations.css */
 }
 
 /* --- SIDEBAR STYLING --- */
-[data-theme="jurassic"] .sidebar {
-    background: var(--bg-elevated);
-    background-image: var(--texture-metal);
-    border-right: 4px solid var(--border-dark);
-    box-shadow: 4px 0 18px rgba(0, 0, 0, 0.4), inset -8px 0 12px rgba(0, 0, 0, 0.15);
-    position: relative;
-}
-
-[data-theme="jurassic"] .sidebar::before {
-    content: 'INGEN SYSTEMS';
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 8px;
-    color: var(--text-muted);
-    transform: rotate(90deg);
-    transform-origin: center;
-    opacity: 0.3;
-    font-family: var(--font-family-body);
-    letter-spacing: 1px;
-}
-
-[data-theme="jurassic"] .new-chat-btn {
-    background: var(--primary-dark);
-    border: 4px groove var(--primary-darker);
-    font-family: var(--font-family-display);
-    text-transform: uppercase;
-    color: var(--text-primary);
-    font-size: 1.1em;
-    box-shadow: inset 0 0 12px var(--primary-darker), 0 5px 8px #000, inset 0 0 5px rgba(255, 255, 255, 0.1);
-    text-shadow: 1px 1px 1px #000;
-    letter-spacing: 1px;
-}
-
-[data-theme="jurassic"] .new-chat-btn:hover {
-    background: var(--primary);
-    color: var(--text-inverse);
-    letter-spacing: 1.8px;
-    border-style: ridge;
-    box-shadow: inset 0 0 15px var(--primary-darker), 0 0 22px var(--accent), 0 3px 4px #000, inset 0 0 8px rgba(255, 255, 255, 0.2);
-    transform: translateY(-4px) scale(1.06);
-}
+/* Jurassic specific sidebar style is in css/components/sidebar.css under [data-theme="jurassic"] */
 
 /* --- CHAT HISTORY ITEMS --- */
-[data-theme="jurassic"] .chat-history-item {
-    border-color: transparent;
-    background: rgba(var(--bg-elevated-rgb), 0.6);
-    border-radius: var(--radius-md);
-    position: relative;
-    overflow: hidden;
-}
-
-[data-theme="jurassic"] .chat-history-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--primary-dark);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-[data-theme="jurassic"] .chat-history-item:hover {
-    border-color: var(--primary-light);
-    background-color: rgba(var(--bg-elevated-rgb), 0.8);
-    box-shadow: 0 0 12px var(--primary-light), 0 3px 8px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="jurassic"] .chat-history-item:hover::before {
-    opacity: 1;
-}
-
-[data-theme="jurassic"] .chat-history-item.active {
-    background: var(--gradient-amber);
-    border-color: var(--primary-light);
-    box-shadow: 0 0 18px var(--primary-light), inset 0 0 10px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="jurassic"] .chat-history-item.active .chat-history-title,
-[data-theme="jurassic"] .chat-history-item.active .chat-history-meta {
-    text-shadow: 1px 1px 1px #000;
-    color: var(--text-inverse);
-}
+/* Jurassic specific chat history item style is in css/components/sidebar.css under [data-theme="jurassic"] */
 
 /* --- CHAT AREA BACKGROUND --- */
 [data-theme="jurassic"] .chat-area {
-    background-color: var(--bg-primary);
-    background-image: var(--texture-foliage);
-    position: relative;
-    filter: saturate(1.1) brightness(0.9);
+  background-color: var(--bg-primary);
+  background-image: var(--texture-foliage); /* Defined in core/variables.css for this theme */
+  position: relative;
+  filter: saturate(1.1) brightness(0.9);
+  overflow: hidden; /* To contain ::before and ::after pseudo-elements */
 }
 
 /* Animated foliage patterns */
 [data-theme="jurassic"] .chat-area::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-        radial-gradient(circle at 20% 80%, transparent 20px, rgba(80, 125, 50, 0.05) 21px, transparent 25px),
-        radial-gradient(circle at 60% 30%, transparent 15px, rgba(80, 125, 50, 0.08) 16px, transparent 20px),
-        radial-gradient(circle at 80% 70%, transparent 18px, rgba(80, 125, 50, 0.06) 19px, transparent 23px);
-    background-size: 200px 200px, 150px 150px, 180px 180px;
-    animation: foliageBreeze 45s ease-in-out infinite alternate;
-    pointer-events: none;
-    opacity: 0.7;
-}
-
-@keyframes foliageBreeze {
-    0% {
-        transform: translateX(0) translateY(0);
-        opacity: 0.5;
-    }
-    50% {
-        transform: translateX(-20px) translateY(-10px);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateX(10px) translateY(5px);
-        opacity: 0.6;
-    }
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, transparent 20px, rgba(var(--accent-rgb), 0.05) 21px, transparent 25px),
+    radial-gradient(circle at 60% 30%, transparent 15px, rgba(var(--accent-rgb), 0.08) 16px, transparent 20px),
+    radial-gradient(circle at 80% 70%, transparent 18px, rgba(var(--accent-rgb), 0.06) 19px, transparent 23px);
+  background-size: 200px 200px, 150px 150px, 180px 180px;
+  animation: foliageBreeze 45s ease-in-out infinite alternate; /* Keyframes in jurassic/animations.css */
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 /* Pterodactyl silhouettes */
 [data-theme="jurassic"] .chat-area::after {
-    content: '';
-    position: absolute;
-    top: 5%;
-    left: -150px;
-    width: 120px;
-    height: 80px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M10 40 Q 25 20, 40 30 L 60 10 L 80 30 Q 95 20, 110 40 L 95 55 Q 70 35, 60 60 Q 50 35, 25 55 Z' fill='rgba(15,13,7,0.3)' opacity='0.6'%3E%3CanimateTransform attributeName='transform' type='translate' values='0 0; 4 -2; 0 0; -4 2; 0 0' dur='3.5s' repeatCount='indefinite'/%3E%3Canimate attributeName='opacity' values='0.6;0.4;0.6;0.8;0.6' dur='8s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    animation: pterodactylFlight 42s linear infinite;
-    pointer-events: none;
-    opacity: 0;
-    z-index: 1;
+  content: '';
+  position: absolute;
+  top: 5%;
+  left: -150px; /* Starts off-screen */
+  width: 120px;
+  height: 80px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cpath d='M10 40 Q 25 20, 40 30 L 60 10 L 80 30 Q 95 20, 110 40 L 95 55 Q 70 35, 60 60 Q 50 35, 25 55 Z' fill='rgba(15,13,7,0.3)' opacity='0.6'%3E%3CanimateTransform attributeName='transform' type='translate' values='0 0; 4 -2; 0 0; -4 2; 0 0' dur='3.5s' repeatCount='indefinite'/%3E%3Canimate attributeName='opacity' values='0.6;0.4;0.6;0.8;0.6' dur='8s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: jpPterodactylFlight var(--jp-pterodactyl-flight-duration, 45s) linear infinite; /* Using variable from jurassic/animations.css */
+  pointer-events: none;
+  opacity: 0; /* Animation will fade it in */
+  z-index: 1; /* Above ::before foliage */
 }
+/* Keyframes for pterodactylFlight are in jurassic/animations.css */
 
-@keyframes pterodactylFlight {
-    0% {
-        left: -150px;
-        opacity: 0.4;
-        transform: translateY(0) scale(0.8);
-    }
-    10% { opacity: 0.6; }
-    50% {
-        transform: translateY(-30px) scale(1.1);
-    }
-    90% { opacity: 0.6; }
-    100% {
-        left: calc(100% + 150px);
-        opacity: 0.4;
-        transform: translateY(-60px) scale(1.3);
-    }
-}
 
 /* --- MESSAGE STYLING --- */
+/* Jurassic specific message styles are in css/components/messages.css under [data-theme="jurassic"] */
 [data-theme="jurassic"] .message.assistant .message-bubble {
-    font-family: var(--font-family-body);
-    letter-spacing: 0.4px;
-    line-height: 1.9;
-    background: linear-gradient(160deg,
-        rgba(var(--primary-light-rgb), 0.9) 0%,
-        rgba(var(--primary-rgb), 0.95) 40%,
-        rgba(var(--primary-dark-rgb), 0.9) 100%);
-    border: 3px solid var(--primary-darker);
-    border-radius: var(--radius-lg);
-    box-shadow:
-        inset 0 0 22px rgba(0, 0, 0, 0.7),
-        0 6px 18px rgba(var(--primary-rgb), 0.45),
-        0 0 15px rgba(0, 0, 0, 0.3);
-    color: var(--text-inverse);
-    padding: calc(var(--space-md) + 10px) calc(var(--space-lg) + 14px);
-    text-shadow: 1px 1px 2px #000;
-    position: relative;
-}
-
-[data-theme="jurassic"] .message.assistant .message-bubble::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border: 2px dashed var(--electric-yellow);
-    border-radius: inherit;
-    opacity: 0;
-    animation: electricFencePulse 6s infinite;
-}
-
-@keyframes electricFencePulse {
-    0%, 90%, 100% { opacity: 0; }
-    91%, 93%, 95% { opacity: 0.7; }
-    92%, 94% { opacity: 0.2; }
-}
-
-[data-theme="jurassic"] .message.user .message-bubble {
-    background: var(--accent);
-    color: var(--text-primary);
-    text-shadow: 1.5px 1.5px 1.5px var(--bg-secondary);
-    border: 2.5px solid var(--primary-darker);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 0 6px rgba(var(--bg-secondary-rgb), 0.4);
+    font-family: var(--font-family-jurassic-body); /* Was Special Elite */
 }
 
 /* --- INPUT AREA --- */
-[data-theme="jurassic"] .input-area {
-    border-top: 9px solid transparent;
-    border-image: url("data:image/svg+xml,%3Csvg width='120' height='9' viewBox='0 0 120 9' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='jpCautionTape' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23FFDD00'/%3E%3Cstop offset='20%25' stop-color='%23FFDD00'/%3E%3Cstop offset='20%25' stop-color='%23000000'/%3E%3Cstop offset='40%25' stop-color='%23000000'/%3E%3Cstop offset='40%25' stop-color='%23FFDD00'/%3E%3Cstop offset='60%25' stop-color='%23FFDD00'/%3E%3Cstop offset='60%25' stop-color='%23000000'/%3E%3Cstop offset='80%25' stop-color='%23000000'/%3E%3Cstop offset='80%25' stop-color='%23FFDD00'/%3E%3Cstop offset='100%25' stop-color='%23FFDD00'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23jpCautionTape)' width='120' height='9'/%3E%3C/svg%3E") 9 repeat;
-    background: var(--bg-secondary);
-    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.7), inset 0 3px 8px rgba(0, 0, 0, 0.3);
-    position: relative;
-}
-
-[data-theme="jurassic"] .input-area::before {
-    content: '⚠ CONTAINMENT PROTOCOLS ACTIVE ⚠';
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 8px;
-    color: var(--electric-yellow);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0;
-    font-family: var(--font-family-body);
-    animation: containmentWarning 12s infinite;
-}
-
-@keyframes containmentWarning {
-    0%, 85%, 100% { opacity: 0; }
-    86%, 88%, 90%, 92%, 94% { opacity: 1; text-shadow: 0 0 10px var(--electric-yellow); }
-    87%, 89%, 91%, 93% { opacity: 0.3; }
-}
-
-[data-theme="jurassic"] .input-wrapper {
-    border: 3px solid var(--primary-dark);
-    box-shadow: 0 0 20px rgba(var(--primary-darker-rgb), 0.6), inset 0 0 8px rgba(0, 0, 0, 0.4);
-    background: rgba(var(--bg-elevated-rgb), 0.8);
-    background-image: var(--texture-metal);
-}
-
-[data-theme="jurassic"] .input-wrapper:focus-within {
-    border-color: var(--primary-light);
-    box-shadow: 0 0 25px var(--primary-light), inset 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
+/* Jurassic specific input area styles are in css/components/forms.css under [data-theme="jurassic"] */
 [data-theme="jurassic"] .chat-input::placeholder {
-    color: var(--primary-light);
-    opacity: 0.9;
-    font-family: var(--font-family-body);
-    font-style: italic;
-    font-size: 1.1em;
-    text-shadow: 1px 1px 1px var(--bg-secondary);
+    font-family: var(--font-family-jurassic-body); /* Was Special Elite */
 }
+[data-theme="jurassic"] .input-area::before { /* Containment Warning text */
+    font-family: var(--font-family-jurassic-body); /* Consistent with other text */
+}
+
 
 /* --- BUTTONS --- */
+/* Jurassic specific button styles are in css/components/buttons.css under [data-theme="jurassic"] */
 [data-theme="jurassic"] .btn-primary {
-    font-family: var(--font-family-display);
-    font-size: 1.25em;
-    letter-spacing: 0.5px;
-    background: linear-gradient(175deg, var(--primary-light) 0%, var(--accent) 100%);
-    color: var(--text-inverse);
-    text-shadow: 2px 2px 3px var(--primary-darker), 1px 1px 1px var(--black);
-    box-shadow: 0 7px 20px rgba(var(--primary-rgb), 0.4), inset 0 0 8px rgba(0, 0, 0, 0.3);
-    border: 2px solid var(--primary-darker);
-    border-style: outset;
-}
-
-[data-theme="jurassic"] .btn-primary:hover {
-    background: linear-gradient(175deg, var(--primary) 0%, var(--accent-light) 100%);
-    transform: translateY(-4px) scale(1.06);
-    box-shadow: 0 9px 25px rgba(var(--primary-rgb), 0.5), inset 0 0 12px rgba(0, 0, 0, 0.4), 0 0 10px var(--primary);
-}
-
-[data-theme="jurassic"] .btn-secondary {
-    background: var(--bg-elevated);
-    color: var(--text-tertiary);
-    border-color: var(--border-dark);
-    box-shadow: var(--shadow-depth), inset 0 0 3px rgba(0, 0, 0, 0.2);
-}
-
-[data-theme="jurassic"] .btn-secondary:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--border);
-    color: var(--text-secondary);
-    box-shadow: var(--shadow-depth), inset 0 0 5px rgba(0, 0, 0, 0.3);
+    font-family: var(--font-family-jurassic-display); /* Was Metal Mania */
 }
 
 /* --- MODALS --- */
-[data-theme="jurassic"] .modal {
-    border-color: var(--border-dark);
-    box-shadow: var(--shadow-depth), 0 0 70px rgba(var(--primary-rgb), 0.25), 0 0 20px rgba(var(--black), 0.2);
-    background: var(--bg-elevated);
-    background-image: var(--texture-concrete);
-}
-
-[data-theme="jurassic"] .modal-header {
-    border-bottom-color: var(--border-dark);
-    background: linear-gradient(to bottom, var(--bg-elevated), var(--bg-secondary));
-}
-
+/* Jurassic specific modal styles are in css/components/modals.css under [data-theme="jurassic"] */
 [data-theme="jurassic"] .modal-title {
-    color: var(--primary-light);
-    text-shadow: 1.5px 1.5px 3px rgba(0, 0, 0, 0.4), 0 0 5px var(--primary-darker);
-}
-
-[data-theme="jurassic"] .modal-footer {
-    background: var(--bg-elevated);
-    border-top-color: var(--border-dark);
+    font-family: var(--font-family-jurassic-display) !important; /* Re-asserting display font */
 }
 
 /* --- FORMS --- */
-[data-theme="jurassic"] .form-input {
-    background-color: rgba(var(--bg-elevated-rgb), 0.6);
-    border: 2.5px dashed var(--primary);
-    color: var(--text-primary);
-    font-family: var(--font-family-body);
+/* Jurassic specific form styles are in css/components/forms.css under [data-theme="jurassic"] */
+[data-theme="jurassic"] .form-input,
+[data-theme="jurassic"] .form-textarea,
+[data-theme="jurassic"] .form-select {
+    font-family: var(--font-family-jurassic-body); /* Was Special Elite */
 }
-
-[data-theme="jurassic"] .form-input:focus {
-    border-color: var(--primary-light);
-    border-style: solid;
-    box-shadow: 0 0 0 4px rgba(var(--primary-light-rgb), 0.4), var(--shadow-depth), 0 0 10px var(--primary-light);
-}
-
 [data-theme="jurassic"] .form-label {
-    color: var(--text-tertiary);
-    font-weight: 500;
-    font-family: var(--font-family-body);
+    font-family: var(--font-family-jurassic-secondary-display); /* Was Metal Mania, using a system sans here */
+    font-weight: var(--font-weight-semibold);
 }
+[data-theme="jurassic"] .form-input:focus::before { /* Electric Fence Warning on input */
+    font-family: var(--font-family-jurassic-secondary-display); /* Was Ewert, using a system sans */
+    font-weight: var(--font-weight-bold);
+}
+
 
 /* --- SETTINGS DROPDOWN --- */
-[data-theme="jurassic"] .settings-dropdown {
-    background: var(--bg-elevated);
-    border-color: var(--border-dark);
-    box-shadow: var(--shadow-depth), 0 0 30px rgba(var(--primary-rgb), 0.3);
-}
+/* Jurassic specific settings styles are in main.css or components/ if detailed */
 
-[data-theme="jurassic"] .settings-item:hover {
-    background-color: var(--bg-secondary);
-}
-
-[data-theme="jurassic"] .settings-item[aria-checked="true"] {
-    background-color: var(--primary);
-    color: var(--text-inverse);
-}
-
-/* --- EMPTY STATE --- */
+/* --- EMPTY STATE & SUGGESTION CARDS --- */
+/* Jurassic specific empty state styles are in default/theme.css (base) and themed here */
 [data-theme="jurassic"] .empty-state-icon {
-    color: var(--primary-light);
-    background: var(--gradient-amber);
-    box-shadow: var(--shadow-depth), 0 0 15px var(--primary-darker);
-    border: 2px solid var(--primary-darker);
+  color: var(--primary-light);
+  background: var(--gradient-amber);
+  box-shadow: var(--shadow-depth), 0 0 15px var(--primary-darker);
+  border: 2px solid var(--primary-darker);
 }
 
 [data-theme="jurassic"] .empty-state-title,
 [data-theme="jurassic"] .empty-state-subtitle {
-    color: var(--text-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family-jurassic-body);
+}
+[data-theme="jurassic"] .empty-state-title {
+    font-family: var(--font-family-jurassic-display);
+    font-weight: var(--font-weight-bold);
 }
 
-/* --- SUGGESTION CARDS --- */
-[data-theme="jurassic"] .suggestion-card {
-    border: 2px dashed var(--primary-darker);
-    background-color: rgba(var(--bg-elevated-rgb), 0.8);
-}
 
-[data-theme="jurassic"] .suggestion-card:hover {
-    border-style: solid;
-    background-color: var(--primary-dark);
-    border-color: var(--primary-light);
-    box-shadow: 0 0 15px var(--primary-light);
-}
-
-[data-theme="jurassic"] .suggestion-card .suggestion-title {
-    color: var(--text-primary);
-}
-
-[data-theme="jurassic"] .suggestion-card .suggestion-desc {
-    color: var(--text-secondary);
-}
-
-/* --- LOADING SCREEN --- */
-[data-theme="jurassic"] #loadingOverlay {
-    background-color: var(--bg-primary);
-    background-image: var(--texture-foliage);
-}
-
-[data-theme="jurassic"] .loading-logo {
-    color: var(--primary-lighter);
-    text-shadow: 0 0 20px var(--primary-light), 0 0 40px var(--primary), 0 0 60px var(--accent);
-    font-family: var(--font-family-display);
-}
-
-/* --- CHARACTER POSITIONS --- */
-[data-theme="jurassic"] .walkie-talkie-container {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    z-index: var(--z-popover);
-    pointer-events: none;
-}
-
-[data-theme="jurassic"] .mr-dna-container {
-    position: fixed;
-    bottom: 80px;
-    left: 20px;
-    z-index: var(--z-popover);
-    pointer-events: none;
-}
+/* --- CHARACTER POSITIONS (defined in jurassic/characters.css) --- */
 
 /* --- SCROLLBAR --- */
 [data-theme="jurassic"] ::-webkit-scrollbar-track {
-    background: rgba(var(--primary-darker-rgb), 0.25);
+  background: rgba(var(--primary-darker-rgb), 0.25);
 }
 
 [data-theme="jurassic"] ::-webkit-scrollbar-thumb {
-    background: var(--primary-dark);
-    border-color: var(--primary-darker);
-    box-shadow: 0 0 10px var(--accent), inset 0 0 5px rgba(var(--text-primary-rgb), 0.25);
+  background: var(--primary-dark);
+  border-color: var(--primary-darker);
+  box-shadow: 0 0 10px var(--accent), inset 0 0 5px rgba(var(--text-primary-rgb), 0.25);
 }
 
 [data-theme="jurassic"] ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
-    transform: scale(1.05);
+  background: var(--primary);
+  transform: scale(1.05);
 }
 
 /* --- SELECTION --- */
 [data-theme="jurassic"] ::selection {
-    color: var(--text-inverse);
-    background: rgba(var(--accent-rgb), 0.65);
-    text-shadow: 1px 1px 2px var(--primary-darker);
+  color: var(--text-inverse);
+  background: rgba(var(--accent-rgb), 0.65);
+  text-shadow: 1px 1px 2px var(--primary-darker);
 }
 
 /* --- FOCUS STATES --- */
 [data-theme="jurassic"] *:focus-visible {
-    outline-color: var(--primary-lighter);
-    box-shadow: 0 0 0 5px rgba(var(--primary-lighter-rgb), 0.5), 0 0 18px var(--primary-lighter);
+  outline-color: var(--primary-lighter);
+  box-shadow: 0 0 0 5px rgba(var(--primary-lighter-rgb), 0.5), 0 0 18px var(--primary-lighter) !important; /* Ensure overrides component shadows if needed */
 }
 
 /* --- ENVIRONMENTAL EFFECTS --- */
 [data-theme="jurassic"] .chat-container {
-    position: relative;
-    overflow: hidden;
+  position: relative; /* Needed for pseudo-elements */
+  overflow: hidden; /* Important for pterodactyl not causing scroll */
 }
 
-/* Subtle screen shake for tension */
+/* Subtle screen shake for tension, animation defined in jurassic/animations.css */
 [data-theme="jurassic"] .chat-container.raptor-nearby {
-    animation: subtleShake 0.3s ease-in-out;
+  animation: jpRaptorTremor 0.3s ease-in-out; /* Using animation name from jurassic/animations.css */
 }
 
-@keyframes subtleShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-1px); }
-    75% { transform: translateX(1px); }
-}
-
-/* Amber preservation effect for important elements */
+/* Amber preservation effect for important elements, animation in jurassic/animations.css */
 [data-theme="jurassic"] .message-bubble:hover::after {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    background: radial-gradient(ellipse at center,
-        transparent 40%,
-        rgba(212, 172, 90, 0.1) 50%,
-        rgba(212, 172, 90, 0.2) 60%,
-        rgba(138, 108, 47, 0.3) 100%
-    );
-    border-radius: inherit;
-    opacity: 0;
-    animation: amberPreservation 2s ease-in-out;
-    pointer-events: none;
-    z-index: -1;
-}
-
-@keyframes amberPreservation {
-    0%, 100% { opacity: 0; filter: brightness(1); }
-    50% { opacity: 1; filter: brightness(1.3) hue-rotate(10deg); }
+  /* This pseudo-element effect can be complex, ensure it's defined or used via class */
+  /* Example if it were to be applied here directly:
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background: radial-gradient(ellipse at center,
+      transparent 40%,
+      rgba(var(--primary-rgb), 0.1) 50%,
+      rgba(var(--primary-rgb), 0.2) 60%,
+      rgba(var(--primary-dark-rgb), 0.3) 100%
+  );
+  border-radius: inherit;
+  opacity: 0;
+  animation: jpAmberGlow var(--jp-amber-glow-speed, 4s) ease-in-out;
+  pointer-events: none;
+  z-index: -1;
+  */
 }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
 @media (max-width: 768px) {
-    [data-theme="jurassic"] .walkie-talkie-container {
-        bottom: 60px;
-        right: 10px;
-        transform: scale(0.8);
-    }
+  [data-theme="jurassic"] .walkie-talkie-container, /* Assuming these are styled in jurassic/characters.css */
+  [data-theme="jurassic"] .mr-dna-container {
+    /* transform: scale(0.8); */ /* Already in characters.css, ensure it's not conflicting */
+  }
 
-    [data-theme="jurassic"] .mr-dna-container {
-        bottom: 60px;
-        left: 10px;
-        transform: scale(0.8);
-    }
+  [data-theme="jurassic"] .chat-header {
+    border-bottom-width: 5px;
+  }
 
-    [data-theme="jurassic"] .chat-header {
-        border-bottom-width: 5px;
-    }
-
-    [data-theme="jurassic"] .input-area {
-        border-top-width: 6px;
-    }
+  [data-theme="jurassic"] .input-area {
+    border-top-width: 6px;
+  }
 }
 
 /* --- PERFORMANCE OPTIMIZATIONS --- */
 [data-theme="jurassic"] * {
-    will-change: auto;
+  will-change: auto; /* Reset from base theme */
 }
 
 [data-theme="jurassic"] .message,
 [data-theme="jurassic"] .chat-history-item,
-[data-theme="jurassic"] .suggestion-card {
-    transform: translateZ(0);
+[data-theme="jurassic"] .suggestion-card,
+[data-theme="jurassic"] .chat-area::before, /* Foliage */
+[data-theme="jurassic"] .chat-area::after { /* Pterodactyl */
+  transform: translateZ(0); /* Promote to own layer */
+  will-change: transform, opacity; /* Hint for common animated properties */
 }
 
 /* --- THEME TRANSITION STATES --- */
 [data-theme="jurassic"].theme-transitioning {
-    transition: all 2s ease-in-out;
+  /* Transition for the theme switch itself, defined in base-theme.css or main.css */
 }
 
 [data-theme="jurassic"].theme-transitioning * {
-    transition: all 1.5s ease-in-out;
+  /* Transition for elements within the theme during switch, if needed */
+}
+
+/* Ensure Jurassic theme specific character UI is visible */
+[data-theme="jurassic"] .theme-jurassic-only {
+    display: block; /* Or appropriate display type */
+}
+[data-theme="default"] .theme-jurassic-only,
+[data-theme="jaws"] .theme-jurassic-only {
+    display: none;
 }
