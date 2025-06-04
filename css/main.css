@@ -1,0 +1,664 @@
+/* ==========================================================================
+   MAIN CSS - PARKLAND AI OPUS MAGNUM EDITION
+   Import Orchestrator & Root Styles
+   ========================================================================== */
+
+/* ==========================================================================
+   CORE FOUNDATION IMPORTS - Load First
+   ========================================================================== */
+
+/* Design System Foundation */
+@import url('core/variables.css');
+@import url('core/reset.css');
+@import url('core/typography.css');
+@import url('core/utilities.css');
+
+/* ==========================================================================
+   COMPONENT IMPORTS - UI Building Blocks
+   ========================================================================== */
+
+@import url('components/buttons.css');
+@import url('components/forms.css');
+@import url('components/modals.css');
+@import url('components/messages.css');
+@import url('components/sidebar.css');
+
+/* ==========================================================================
+   THEME SYSTEM IMPORTS - Conditional Loading
+   ========================================================================== */
+
+/* Base theme structure (always loaded) */
+@import url('themes/base-theme.css');
+
+/* Default theme (always loaded as fallback) */
+@import url('themes/default/theme.css');
+@import url('themes/default/animations.css');
+
+/* ==========================================================================
+   ROOT APPLICATION STYLES
+   ========================================================================== */
+
+/* Document & Body Setup */
+html {
+  /* Enhanced font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* Viewport optimization */
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+
+  /* Custom properties for theme transitions */
+  --theme-transition-active: 0;
+  --theme-transition-progress: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  /* Base application styling */
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+
+  /* Viewport handling */
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+
+  /* Performance optimizations */
+  will-change: background-color, color;
+  transition: background-color 0.8s var(--ease-in-out), color 0.6s var(--ease-in-out);
+
+  /* iOS specific fixes */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* iOS specific body adjustments */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Application loading state */
+body.app-loading {
+  overflow: hidden;
+  cursor: wait;
+}
+
+body.app-loading * {
+  cursor: wait;
+}
+
+/* Theme transition state */
+body.theme-transitioning {
+  --theme-transition-active: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+body.theme-transitioning * {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   LOADING SCREEN STYLES
+   ========================================================================== */
+
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #020104 0%, #0A0C0F 100%);
+  z-index: var(--z-maximum);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #F0F0F8;
+  font-family: var(--font-family-default);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1.3s cubic-bezier(0.77, 0, 0.175, 1),
+              visibility 1.3s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+#loadingOverlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition-delay: 0.35s;
+}
+
+.loading-logo {
+  font-size: 6.5rem;
+  font-weight: 900;
+  color: #A8A4FF;
+  margin-bottom: 2.8rem;
+  text-shadow:
+    0 0 15px rgba(168, 164, 255, 0.3),
+    0 0 35px rgba(168, 164, 255, 0.55),
+    0 0 60px rgba(168, 164, 255, 0.45),
+    0 0 100px rgba(168, 164, 255, 0.25);
+  animation: pulseLogoOpus 3.5s infinite ease-in-out;
+  will-change: transform, opacity, filter;
+}
+
+@keyframes pulseLogoOpus {
+  0% {
+    transform: scale(0.9) rotate(-4deg) translateY(5px);
+    opacity: 0.85;
+    filter: blur(1px);
+  }
+  33% {
+    transform: scale(1.25) rotate(2deg) translateY(-10px);
+    opacity: 1;
+    filter: blur(0px);
+    text-shadow:
+      0 0 20px rgba(200, 190, 255, 0.5),
+      0 0 45px rgba(200, 190, 255, 0.75),
+      0 0 70px rgba(200, 190, 255, 0.65),
+      0 0 120px rgba(200, 190, 255, 0.45);
+  }
+  66% {
+    transform: scale(1.1) rotate(-2deg) translateY(-5px);
+    opacity: 0.95;
+    filter: blur(0.5px);
+  }
+  100% {
+    transform: scale(0.9) rotate(-4deg) translateY(5px);
+    opacity: 0.85;
+    filter: blur(1px);
+  }
+}
+
+.loading-text {
+  font-size: 1.45rem;
+  margin-bottom: 3.8rem;
+  color: #E0E0E6;
+  letter-spacing: 1.8px;
+  animation: fadeInTextOpus 1.8s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInTextOpus {
+  from {
+    opacity: 0;
+    transform: translateY(25px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.progress-bar-container {
+  width: 90%;
+  max-width: 550px;
+  height: 18px;
+  background-color: #1A181F;
+  border-radius: 9px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.75),
+    0 1px 0 rgba(255, 255, 255, 0.03);
+  margin-bottom: 2.8rem;
+  position: relative;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #A8A4FF, #D0AFFF);
+  border-radius: 9px;
+  transition: width 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  box-shadow:
+    0 0 15px rgba(168, 164, 255, 0.6),
+    0 0 25px rgba(208, 175, 255, 0.4);
+  animation: progressShineOpus 2s infinite linear;
+  will-change: width;
+}
+
+@keyframes progressShineOpus {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.3) hue-rotate(10deg); }
+  100% { filter: brightness(1); }
+}
+
+.loading-tip {
+  font-size: 1.05rem;
+  color: #B8B8C0;
+  font-style: italic;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.7;
+  animation: fadeInTipOpus 1.5s ease-out 0.8s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInTipOpus {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   THEME TRANSITION OVERLAYS
+   ========================================================================== */
+
+.theme-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.theme-transition-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Jaws Wave Transition */
+.jaws-wave-transition {
+  background: linear-gradient(to bottom,
+    rgba(0, 10, 20, 0.9) 0%,
+    rgba(0, 64, 102, 0.95) 50%,
+    rgba(0, 153, 221, 0.8) 100%
+  );
+}
+
+.wave-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.shark-silhouette {
+  position: absolute;
+  top: 50%;
+  left: -200px;
+  width: 120px;
+  height: 60px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60'%3E%3Cpath d='M0 30 Q20 10 40 15 L80 10 Q100 15 120 30 Q100 45 80 50 L40 45 Q20 50 0 30Z' fill='%23001122'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
+  opacity: 0.8;
+  animation: sharkSwim 2.5s ease-in-out forwards;
+}
+
+@keyframes sharkSwim {
+  0% {
+    left: -200px;
+    transform: translateY(-50%) scale(0.8);
+  }
+  50% {
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%) scale(1.2);
+  }
+  100% {
+    left: calc(100% + 200px);
+    transform: translateY(-50%) scale(0.8);
+  }
+}
+
+/* Jurassic Gate Transition */
+.jurassic-gate-transition {
+  background: linear-gradient(to bottom,
+    rgba(30, 26, 18, 0.9) 0%,
+    rgba(42, 37, 27, 0.95) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gate-left,
+.gate-right {
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to bottom,
+    #8A6C2F 0%,
+    #685022 50%,
+    #4A3818 100%
+  );
+  position: relative;
+  transform: translateX(0);
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.gate-left.closing {
+  transform: translateX(0);
+}
+
+.gate-right.closing {
+  transform: translateX(0);
+}
+
+.gate-left.opening {
+  transform: translateX(-100%);
+}
+
+.gate-right.opening {
+  transform: translateX(100%);
+}
+
+.gate-structure {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+}
+
+.gate-logo {
+  font-family: 'Rye', serif;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 700;
+  color: #F8E5C0;
+  text-shadow:
+    2px 2px 0 #4A3818,
+    0 0 10px rgba(248, 229, 192, 0.5);
+  letter-spacing: 0.1em;
+  transform: rotate(-90deg);
+}
+
+.gate-right .gate-logo {
+  transform: rotate(90deg);
+}
+
+.gate-lights {
+  position: absolute;
+  top: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  background: #FF3333;
+  border-radius: 50%;
+  box-shadow:
+    0 0 10px #FF3333,
+    0 0 20px rgba(255, 51, 51, 0.5);
+  animation: gateLightBlink 1s infinite alternate;
+}
+
+@keyframes gateLightBlink {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.gate-fog {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(to top,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  animation: fogRoll 2s ease-out 1.5s forwards;
+}
+
+@keyframes fogRoll {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   DYNAMIC THEME LOADING
+   ========================================================================== */
+
+/* Theme-specific CSS will be dynamically loaded */
+[data-theme="jaws"] {
+  /* Jaws theme styles will be injected here */
+}
+
+[data-theme="jurassic"] {
+  /* Jurassic theme styles will be injected here */
+}
+
+/* ==========================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+
+/* Focus management during loading */
+body.app-loading *:focus {
+  outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .loading-logo {
+    text-shadow: none;
+    border: 2px solid currentColor;
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+  }
+
+  .progress-bar {
+    box-shadow: none;
+    border: 2px solid var(--primary);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .loading-logo,
+  .progress-bar,
+  .loading-text,
+  .loading-tip {
+    animation: none;
+  }
+
+  .shark-silhouette {
+    animation: none;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+  }
+
+  .gate-lights {
+    animation: none;
+  }
+
+  .theme-transition-overlay * {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN OVERRIDES
+   ========================================================================== */
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .loading-logo {
+    font-size: 4.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .loading-text {
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .progress-bar-container {
+    width: 95%;
+    height: 16px;
+    margin-bottom: 2rem;
+  }
+
+  .loading-tip {
+    font-size: 0.95rem;
+    padding: 0 var(--space-md);
+  }
+
+  .gate-logo {
+    font-size: 1.5rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .loading-logo {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .loading-text {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+  }
+
+  .progress-bar-container {
+    height: 14px;
+    margin-bottom: 1.5rem;
+  }
+
+  .loading-tip {
+    font-size: 0.85rem;
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+  #loadingOverlay,
+  .theme-transition-overlay,
+  .sound-toggle,
+  .character-status-display,
+  .walkie-talkie,
+  .mr-dna-container {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  * {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+
+/* GPU acceleration for animated elements */
+.loading-logo,
+.progress-bar,
+.shark-silhouette,
+.gate-left,
+.gate-right,
+.gate-fog {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Contain layout changes */
+#loadingOverlay {
+  contain: layout style paint;
+}
+
+.theme-transition-overlay {
+  contain: layout style paint;
+}
+
+/* Optimize repaints */
+.progress-bar {
+  contain: layout;
+}
+
+/* ==========================================================================
+   DEBUG STYLES (Development Only)
+   ========================================================================== */
+
+/* Remove in production */
+.debug-theme-transitions .theme-transition-overlay {
+  border: 3px solid red;
+  opacity: 0.8 !important;
+}
+
+.debug-theme-transitions .gate-left,
+.debug-theme-transitions .gate-right {
+  border: 2px solid yellow;
+}
+
+.debug-theme-transitions .shark-silhouette {
+  border: 2px solid cyan;
+  background-color: rgba(255, 0, 0, 0.3) !important;
+}
+
+/* ==========================================================================
+   CUSTOM PROPERTIES FOR DYNAMIC THEMING
+   ========================================================================== */
+
+:root {
+  /* Theme transition properties */
+  --theme-transition-duration: 2.8s;
+  --theme-transition-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Loading screen customization */
+  --loading-logo-size: 6.5rem;
+  --loading-progress-height: 18px;
+  --loading-tip-delay: 0.8s;
+
+  /* Character system properties */
+  --character-size: 80px;
+  --walkie-size: 60px;
+  --character-transition-speed: 1.2s;
+
+  /* Environmental effect properties */
+  --water-wave-speed: 2.5s;
+  --gate-close-speed: 1.2s;
+  --gate-open-speed: 1.5s;
+  --fog-roll-speed: 2s;
+}
+
+/* Allow themes to override timing */
+[data-theme="jaws"] {
+  --theme-transition-duration: 2.2s;
+  --water-wave-speed: 2s;
+}
+
+[data-theme="jurassic"] {
+  --theme-transition-duration: 2.5s;
+  --gate-close-speed: 1s;
+  --gate-open-speed: 1.3s;
+}
