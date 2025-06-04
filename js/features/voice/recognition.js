@@ -1,493 +1,308 @@
 /**
- * Speech Recognition - Handles voice input with enhanced accuracy
- * Includes noise reduction and command recognition
+ * Parkland AI - Opus Magnum Edition
+ * VoiceRecognition Module
+ *
+ * Handles speech-to-text functionality using the browser's Web Speech API.
+ * Manages microphone input, processes speech results, and emits events.
  */
 
-import { EventBus } from '../../core/events.js';
-import { AppState } from '../../core/state.js';
+class VoiceRecognition {
+    /**
+     * @param {StateManager} stateManager
+     * @param {EventEmitter} eventEmitter
+     * @param {ParklandUtils} utils
+     * @param {HTMLElement} [micButtonElement] - Optional microphone button element for direct manipulation.
+     */
+    constructor(stateManager, eventEmitter, utils, micButtonElement = null) {
+        if (!stateManager || !eventEmitter || !utils) {
+            throw new Error("VoiceRecognition requires StateManager, EventEmitter, and Utils instances.");
+        }
+        this.stateManager = stateManager;
+        this.eventEmitter = eventEmitter;
+        this.utils = utils;
+        this.micButtonElement = micButtonElement;
 
-export class SpeechRecognitionManager {
-    constructor() {
-        this.recognition = null;
-        this.isRecording = false;
-        this.isSupported = false;
-        this.currentLanguage = 'en-US';
-        this.confidence = 0;
-        this.finalTranscript = '';
-        this.interimTranscript = '';
-
-        this.config = {
-            continuous: false,
-            interimResults: true,
-            maxAlternatives: 3,
-            grammars: null
-        };
-
-        this.noiseFilter = {
-            minConfidence: 0.6,
-            maxSilenceTime: 3000, // 3 seconds
-            minSpeechTime: 500    // 0.5 seconds
-        };
-
-        this.commands = {
-            'clear chat': () => EventBus.emit('chat:clear-messages'),
-            'new chat': () => EventBus.emit('chat:create-new'),
-            'switch theme': () => this.handleThemeSwitch(),
-            'send message': () => this.handleSendMessage(),
-            'stop recording': () => this.stopRecording()
-        };
-
-        this.silenceTimer = null;
-        this.speechStartTime = null;
-        this.lastSpeechTime = null;
-
-        this.init();
-    }
-
-    init() {
-        this.setupSpeechRecognition();
-        this.setupEventListeners();
-        this.updateLanguageSettings();
-    }
-
-    setupSpeechRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-        if (!SpeechRecognition) {
-            console.warn('Speech recognition not supported in this browser');
-            this.isSupported = false;
-            this.hideVoiceButton();
+        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognitionAPI) {
+            console.warn('VoiceRecognition: Web Speech API (SpeechRecognition) not supported by this browser.');
+            this.recognition = null;
+            this._isSupported = false;
             return;
         }
+        this._isSupported = true;
 
-        this.isSupported = true;
-        this.recognition = new SpeechRecognition();
+        this.recognition = new SpeechRecognitionAPI();
+        this._isListening = false;
+        this._finalTranscript = '';
+        this._interimTranscript = '';
+        this._language = this.stateManager.get('userPreferences.recognitionLanguage') || 'en-US'; // Default language
 
-        // Configure recognition
-        Object.assign(this.recognition, this.config);
-        this.recognition.lang = this.currentLanguage;
+        this._configureRecognition();
+        this._bindRecognitionEvents();
 
-        this.setupRecognitionEvents();
-        console.log('Speech recognition initialized successfully');
+        // Listen for preference changes
+        this.stateManager.subscribe('change:userPreferences.voiceInputEnabled', ({ newValue }) => {
+            if (!newValue && this._isListening) {
+                this.stopListening();
+            }
+        });
+        
+        this.stateManager.subscribe('change:userPreferences.recognitionLanguage', ({newValue}) => {
+            if(newValue && this.recognition) {
+                this.setLanguage(newValue);
+            }
+        });
+
+        console.log('🎤 VoiceRecognition initialized.');
     }
 
-    setupRecognitionEvents() {
+    _configureRecognition() {
+        if (!this.recognition) return;
+        this.recognition.continuous = true;      // Keep listening even after a pause in speech
+        this.recognition.interimResults = true;  // Get results while the user is still speaking
+        this.recognition.lang = this._language;
+        // this.recognition.maxAlternatives = 1; // Default is 1
+    }
+
+    _bindRecognitionEvents() {
         if (!this.recognition) return;
 
-        this.recognition.onstart = () => {
-            console.log('Speech recognition started');
-            this.isRecording = true;
-            this.speechStartTime = Date.now();
-            this.resetTranscripts();
-            this.startSilenceDetection();
-            EventBus.emit('voice:recognition-started');
-        };
+        this.recognition.onstart = () => this._onRecognitionStart();
+        this.recognition.onresult = (event) => this._onRecognitionResult(event);
+        this.recognition.onerror = (event) => this._onRecognitionError(event);
+        this.recognition.onend = () => this._onRecognitionEnd();
 
-        this.recognition.onresult = (event) => {
-            this.processRecognitionResults(event);
-        };
-
-        this.recognition.onerror = (event) => {
-            this.handleRecognitionError(event);
-        };
-
-        this.recognition.onend = () => {
-            this.handleRecognitionEnd();
-        };
-
-        this.recognition.onspeechstart = () => {
-            console.log('Speech detected');
-            this.lastSpeechTime = Date.now();
-            this.clearSilenceTimer();
-        };
-
-        this.recognition.onspeechend = () => {
-            console.log('Speech ended');
-            this.startSilenceDetection();
-        };
-
-        this.recognition.onnomatch = () => {
-            console.log('No speech match found');
-        };
+        // Additional potentially useful events (less common for basic use)
+        // this.recognition.onaudiostart = () => console.log('Audio capture started.');
+        // this.recognition.onaudioend = () => console.log('Audio capture ended.');
+        // this.recognition.onsoundstart = () => console.log('Sound detected.');
+        // this.recognition.onsoundend = () => console.log('Sound stopped being detected.');
+        // this.recognition.onspeechstart = () => console.log('Speech detected.');
+        // this.recognition.onspeechend = () => console.log('Speech stopped being detected.');
     }
 
-    setupEventListeners() {
-        EventBus.on('voice:start-recording', this.startRecording.bind(this));
-        EventBus.on('voice:stop-recording', this.stopRecording.bind(this));
-        EventBus.on('voice:toggle', this.toggleRecording.bind(this));
-        EventBus.on('theme:changed', this.updateLanguageSettings.bind(this));
-
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && this.isRecording) {
-                this.stopRecording(false); // Don't send message on page hide
-            }
-        });
+    _onRecognitionStart() {
+        this._isListening = true;
+        this._finalTranscript = ''; // Reset transcript for new session if not continuous in true sense
+        this.stateManager.set('isMicListening', true);
+        this.eventEmitter.emit('recognition:start');
+        if (this.micButtonElement) {
+            this.utils.addClass(this.micButtonElement, 'listening');
+            this.micButtonElement.setAttribute('aria-label', 'Stop listening');
+            this.micButtonElement.title = 'Stop listening';
+        }
+        if (this.stateManager.get('debugMode')) console.log('Voice recognition started.');
     }
 
-    startRecording() {
-        if (!this.isSupported || this.isRecording) {
-            return false;
-        }
-
-        if (!this.recognition) {
-            console.error('Speech recognition not initialized');
-            return false;
-        }
-
-        try {
-            this.resetTranscripts();
-            this.recognition.start();
-            this.updateUI(true);
-            EventBus.emit('audio:play-ui-sound', { sound: 'start' });
-            return true;
-        } catch (error) {
-            console.error('Failed to start speech recognition:', error);
-            this.handleRecognitionError({ error: 'audio-capture' });
-            return false;
-        }
-    }
-
-    stopRecording(sendMessage = false) {
-        if (!this.isRecording) return false;
-
-        this.clearSilenceTimer();
-
-        if (this.recognition) {
-            try {
-                this.recognition.stop();
-            } catch (error) {
-                console.warn('Error stopping recognition:', error);
-            }
-        }
-
-        this.isRecording = false;
-        this.updateUI(false);
-
-        if (!sendMessage) {
-            EventBus.emit('audio:play-ui-sound', { sound: 'stop' });
-        }
-
-        // Process final result if we have good speech
-        if (sendMessage && this.shouldSendFinalResult()) {
-            this.sendFinalTranscript();
-        }
-
-        EventBus.emit('voice:recognition-stopped', {
-            transcript: this.finalTranscript,
-            sendMessage
-        });
-
-        return true;
-    }
-
-    toggleRecording() {
-        if (this.isRecording) {
-            this.stopRecording(false);
-        } else {
-            this.startRecording();
-        }
-    }
-
-    processRecognitionResults(event) {
-        let interimTranscript = '';
-        let finalTranscript = '';
-        let maxConfidence = 0;
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const result = event.results[i];
-            const transcript = result[0].transcript;
-            const confidence = result[0].confidence || 0;
-
-            maxConfidence = Math.max(maxConfidence, confidence);
-
-            if (result.isFinal) {
-                if (confidence >= this.noiseFilter.minConfidence) {
-                    finalTranscript += transcript;
-                    this.finalTranscript = finalTranscript;
-                    this.handleFinalResult(finalTranscript, confidence);
-                }
+    _onRecognitionResult(event) {
+        this._interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                this._finalTranscript += event.results[i][0].transcript;
             } else {
-                interimTranscript += transcript;
-                this.interimTranscript = interimTranscript;
+                this._interimTranscript += event.results[i][0].transcript;
             }
         }
 
-        this.confidence = maxConfidence;
-        this.updateInputDisplay(finalTranscript || interimTranscript);
-
-        // Check for voice commands
-        if (finalTranscript) {
-            this.checkForCommands(finalTranscript);
+        if (this._interimTranscript) {
+            this.eventEmitter.emit('recognition:interimResult', this._interimTranscript);
+             if (this.stateManager.get('debugMode')) console.log('Interim transcript:', this._interimTranscript);
         }
 
-        EventBus.emit('voice:transcript-updated', {
-            final: finalTranscript,
-            interim: interimTranscript,
-            confidence: maxConfidence
-        });
-    }
-
-    handleFinalResult(transcript, confidence) {
-        console.log(`Final result: "${transcript}" (confidence: ${confidence})`);
-
-        if (this.meetsQualityThreshold(transcript, confidence)) {
-            // Auto-stop and send for high-quality results
-            if (!this.recognition.calledStopFromFinal) {
-                this.recognition.calledStopFromFinal = true;
-                this.stopRecording(true);
+        if (event.results[event.results.length - 1].isFinal) {
+            const finalSegment = event.results[event.results.length - 1][0].transcript.trim();
+            if (finalSegment) { // Only emit if there's actual final content
+                this.eventEmitter.emit('recognition:finalResult', this._finalTranscript.trim());
+                 if (this.stateManager.get('debugMode')) console.log('Final transcript:', this._finalTranscript.trim());
+                // Reset final transcript after processing to avoid appending in continuous mode indefinitely
+                // if recognition.continuous actually means it keeps adding.
+                // The current pattern of += _finalTranscript implies we might want to reset it here
+                // if each 'finalResult' event should be self-contained for that utterance.
+                // Let's assume _finalTranscript should accumulate for a session until stopListening is called.
+                // If user wants to clear and start a new "sentence", they can toggle listening.
             }
         }
     }
 
-    handleRecognitionError(event) {
-        console.error('Speech recognition error:', event.error, event.message);
-
-        let userMessage = "Speech recognition encountered an issue. Please try again.";
+    _onRecognitionError(event) {
+        this._isListening = false; // Typically stops on error
+        this.stateManager.set('isMicListening', false);
+        let errorMessage = `Speech recognition error: ${event.error}`;
+        let errorType = event.error;
 
         switch (event.error) {
             case 'no-speech':
-                userMessage = "No speech detected. Make sure your microphone is active and try speaking clearly.";
+                errorMessage = 'No speech was detected. Please try again.';
                 break;
             case 'audio-capture':
-                userMessage = "Microphone error. Please check if it's connected and enabled.";
+                errorMessage = 'Audio capture failed. Ensure your microphone is working.';
                 break;
             case 'not-allowed':
-                userMessage = "Microphone access denied. Please enable microphone permissions for this site.";
+                errorMessage = 'Microphone access denied. Please allow microphone permission in your browser settings.';
+                // Future attempts to start will likely fail until permission is granted.
+                // Consider permanently disabling voice input if this error persists.
+                this.stateManager.setUserPreference('voiceInputEnabled', false);
                 break;
             case 'network':
-                userMessage = "Network error during speech recognition. Please check your connection.";
+                errorMessage = 'Network error during speech recognition. Please check your connection.';
+                break;
+            case 'aborted':
+                errorMessage = 'Speech recognition aborted.'; // Often due to stopListening() call
+                break;
+            case 'language-not-supported':
+                errorMessage = `The selected language (${this.recognition.lang}) is not supported.`;
                 break;
             case 'service-not-allowed':
-                userMessage = "Speech recognition service not allowed. Please check your browser settings.";
-                break;
-        }
-
-        EventBus.emit('voice:recognition-error', {
-            error: event.error,
-            message: userMessage
-        });
-
-        if (this.isRecording) {
-            this.stopRecording(false);
-        }
-
-        // Show user-friendly error
-        this.showErrorMessage(userMessage);
-    }
-
-    handleRecognitionEnd() {
-        console.log('Speech recognition ended');
-
-        if (this.recognition && !this.recognition.calledStopFromFinal) {
-            this.isRecording = false;
-            this.updateUI(false);
-
-            // Don't send message if recognition ended prematurely
-            EventBus.emit('voice:recognition-stopped', {
-                transcript: this.finalTranscript,
-                sendMessage: false
-            });
-        }
-
-        // Reset flags
-        if (this.recognition) {
-            this.recognition.calledStopFromFinal = false;
-        }
-
-        this.clearSilenceTimer();
-    }
-
-    startSilenceDetection() {
-        this.clearSilenceTimer();
-
-        this.silenceTimer = setTimeout(() => {
-            if (this.isRecording) {
-                console.log('Stopping due to silence timeout');
-                this.stopRecording(this.shouldSendFinalResult());
-            }
-        }, this.noiseFilter.maxSilenceTime);
-    }
-
-    clearSilenceTimer() {
-        if (this.silenceTimer) {
-            clearTimeout(this.silenceTimer);
-            this.silenceTimer = null;
-        }
-    }
-
-    shouldSendFinalResult() {
-        const hasGoodTranscript = this.finalTranscript.trim().length > 0;
-        const hasGoodConfidence = this.confidence >= this.noiseFilter.minConfidence;
-        const hasSufficientSpeechTime = this.speechStartTime &&
-            (Date.now() - this.speechStartTime) >= this.noiseFilter.minSpeechTime;
-
-        return hasGoodTranscript && hasGoodConfidence && hasSufficientSpeechTime;
-    }
-
-    meetsQualityThreshold(transcript, confidence) {
-        return transcript.trim().length >= 3 &&
-               confidence >= this.noiseFilter.minConfidence;
-    }
-
-    sendFinalTranscript() {
-        if (this.finalTranscript.trim()) {
-            EventBus.emit('chat:voice-input', {
-                text: this.finalTranscript.trim(),
-                confidence: this.confidence
-            });
-
-            // Clear input display
-            this.updateInputDisplay('');
-        }
-    }
-
-    checkForCommands(transcript) {
-        const lowerTranscript = transcript.toLowerCase().trim();
-
-        for (const [command, action] of Object.entries(this.commands)) {
-            if (lowerTranscript.includes(command)) {
-                console.log(`Voice command detected: ${command}`);
-                action();
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    updateInputDisplay(text) {
-        const chatInput = document.getElementById('chatInput');
-        if (chatInput) {
-            chatInput.value = text;
-            chatInput.placeholder = this.isRecording ? "Listening..." : "Send a message to Parkland AI...";
-        }
-
-        // Update send button state
-        EventBus.emit('ui:update-send-button');
-    }
-
-    updateUI(isRecording) {
-        const voiceBtn = document.getElementById('voiceBtn');
-        const voiceIndicator = document.getElementById('voiceIndicator');
-
-        if (voiceBtn) {
-            voiceBtn.classList.toggle('recording', isRecording);
-            voiceBtn.setAttribute('aria-label', isRecording ? 'Stop Voice Input' : 'Start Voice Input');
-            voiceBtn.setAttribute('aria-pressed', String(isRecording));
-        }
-
-        if (voiceIndicator) {
-            voiceIndicator.classList.toggle('active', isRecording);
-        }
-    }
-
-    updateLanguageSettings() {
-        const theme = AppState.currentTheme;
-
-        // Adjust language settings based on theme
-        switch (theme) {
-            case 'jaws':
-                // Could use Australian English if available
-                this.currentLanguage = 'en-AU';
-                break;
-            case 'jurassic':
-                // Could use British English if available
-                this.currentLanguage = 'en-GB';
+                errorMessage = 'Speech recognition service is not allowed. This may be due to browser/OS settings or enterprise policies.';
                 break;
             default:
-                this.currentLanguage = 'en-US';
+                errorMessage = `An unknown speech recognition error occurred: ${event.error}.`;
         }
 
+        console.error('Voice recognition error:', event.error, event.message || '');
+        this.eventEmitter.emit('recognition:error', { error: errorType, message: errorMessage });
+        this.stateManager.set('lastError', { message: errorMessage, type: 'recognition' });
+        
+        if (this.micButtonElement) {
+            this.utils.removeClass(this.micButtonElement, 'listening');
+            this.utils.addClass(this.micButtonElement, 'error'); // Add error class for styling
+            this.micButtonElement.setAttribute('aria-label', 'Start listening');
+            this.micButtonElement.title = 'Start listening (Error occurred)';
+            setTimeout(() => { // Remove error state after a bit
+                if (this.micButtonElement) this.utils.removeClass(this.micButtonElement, 'error');
+            }, 3000);
+        }
+    }
+
+    _onRecognitionEnd() {
+        // This event fires when recognition stops, either manually or automatically (e.g., no speech).
+        const wasListening = this._isListening; // Check if it was stopped intentionally or due to error/auto-end
+        this._isListening = false;
+        this.stateManager.set('isMicListening', false);
+        this.eventEmitter.emit('recognition:end');
+
+        if (this.micButtonElement) {
+            this.utils.removeClass(this.micButtonElement, 'listening');
+            this.micButtonElement.setAttribute('aria-label', 'Start listening');
+            this.micButtonElement.title = 'Start listening';
+        }
+
+        if (this.stateManager.get('debugMode')) console.log('Voice recognition ended.');
+
+        // Handle auto-restart if continuous mode was interrupted not by user/fatal error
+        // The 'continuous' property itself handles restarting after pauses in speech.
+        // This 'onend' might be for when the entire session ends.
+        // If an error like 'not-allowed' occurred, we shouldn't try to restart.
+        // For now, startListening() is user-initiated via toggleListening().
+    }
+
+    /**
+     * Toggles the listening state of voice recognition.
+     */
+    toggleListening() {
+        if (!this._isSupported || !this.stateManager.get('userPreferences.voiceInputEnabled')) {
+             const message = !this._isSupported ? 'Voice recognition is not supported by your browser.' : 'Voice input is disabled in settings.';
+             this.eventEmitter.emit('recognition:error', { error: 'not-available', message });
+             this.stateManager.set('lastError', { message, type: 'recognition' });
+             console.warn(message);
+            return;
+        }
+
+        if (this._isListening) {
+            this.stopListening();
+        } else {
+            this.startListening();
+        }
+    }
+
+    /**
+     * Starts voice recognition.
+     */
+    startListening() {
+        if (!this.recognition || this._isListening || !this.stateManager.get('userPreferences.voiceInputEnabled')) {
+            return;
+        }
+        try {
+            this._finalTranscript = ''; // Reset for a new listening "session"
+            this._interimTranscript = '';
+            this.recognition.lang = this._language; // Ensure latest language is set
+            this.recognition.start();
+        } catch (error) {
+            // This can happen if start() is called too soon after a stop(), or if already started.
+            console.error('Error starting voice recognition:', error);
+            this._isListening = false; // Ensure state is correct
+            this.stateManager.set('isMicListening', false);
+            if (this.micButtonElement) this.utils.removeClass(this.micButtonElement, 'listening');
+            this.eventEmitter.emit('recognition:error', { error: 'start_failed', message: 'Could not start voice recognition.' });
+        }
+    }
+
+    /**
+     * Stops voice recognition.
+     */
+    stopListening() {
+        if (!this.recognition || !this._isListening) {
+            return;
+        }
+        try {
+            this.recognition.stop(); // This will trigger onend event
+        } catch (error) {
+            // This can happen if already stopped.
+            console.warn('Error stopping voice recognition (might be already stopped):', error);
+            // Manually trigger cleanup if synth.stop() fails but we know we were listening
+             if (this._isListening) { // Check if we thought we were listening
+                this._isListening = false;
+                this.stateManager.set('isMicListening', false);
+                this.eventEmitter.emit('recognition:end');
+                if (this.micButtonElement) this.utils.removeClass(this.micButtonElement, 'listening');
+            }
+        }
+    }
+
+    /**
+     * Sets the language for speech recognition.
+     * @param {string} lang - The BCP 47 language tag (e.g., 'en-US', 'es-ES').
+     */
+    setLanguage(lang) {
+        if (typeof lang === 'string' && this.recognition) {
+            this._language = lang;
+            this.recognition.lang = lang; // Set for current/next session
+            if (this.stateManager.get('debugMode')) console.log(`Recognition language set to: ${lang}`);
+            // Note: Changing language while recognition is active might require stopping and restarting.
+            // For simplicity, this change will apply to the next recognition session.
+        }
+    }
+
+    /**
+     * Checks if voice recognition is currently active.
+     * @returns {boolean} True if listening, false otherwise.
+     */
+    isListening() {
+        return this._isListening;
+    }
+
+    /**
+     * Checks if the Web Speech API (SpeechRecognition) is supported by the browser.
+     * @returns {boolean} True if supported, false otherwise.
+     */
+    isSupported() {
+        return this._isSupported;
+    }
+
+    destroy() {
         if (this.recognition) {
-            this.recognition.lang = this.currentLanguage;
+            this.recognition.abort(); // Abort any ongoing recognition
+            this.recognition.onstart = null;
+            this.recognition.onresult = null;
+            this.recognition.onerror = null;
+            this.recognition.onend = null;
+            // Remove other specific event listeners if added
         }
-    }
-
-    hideVoiceButton() {
-        const voiceBtn = document.getElementById('voiceBtn');
-        if (voiceBtn) {
-            voiceBtn.style.display = 'none';
-        }
-    }
-
-    showErrorMessage(message) {
-        // Could integrate with notification system
-        console.warn('Voice recognition error:', message);
-
-        // For now, just emit an event
-        EventBus.emit('ui:show-notification', {
-            type: 'error',
-            message: message,
-            duration: 5000
-        });
-    }
-
-    resetTranscripts() {
-        this.finalTranscript = '';
-        this.interimTranscript = '';
-        this.confidence = 0;
-    }
-
-    handleThemeSwitch() {
-        // Cycle through themes
-        const themes = ['default', 'jaws', 'jurassic'];
-        const currentIndex = themes.indexOf(AppState.currentTheme || 'default');
-        const nextIndex = (currentIndex + 1) % themes.length;
-        const nextTheme = themes[nextIndex];
-
-        EventBus.emit('theme:switch', { theme: nextTheme });
-    }
-
-    handleSendMessage() {
-        if (this.finalTranscript.trim()) {
-            this.sendFinalTranscript();
-            this.stopRecording(false);
-        }
-    }
-
-    // Public API methods
-    isRecognitionSupported() {
-        return this.isSupported;
-    }
-
-    isCurrentlyRecording() {
-        return this.isRecording;
-    }
-
-    getCurrentTranscript() {
-        return {
-            final: this.finalTranscript,
-            interim: this.interimTranscript,
-            confidence: this.confidence
-        };
-    }
-
-    getRecognitionConfig() {
-        return {
-            language: this.currentLanguage,
-            continuous: this.config.continuous,
-            interimResults: this.config.interimResults,
-            supported: this.isSupported
-        };
-    }
-
-    setLanguage(language) {
-        this.currentLanguage = language;
-        if (this.recognition) {
-            this.recognition.lang = language;
-        }
-    }
-
-    addVoiceCommand(command, callback) {
-        this.commands[command.toLowerCase()] = callback;
-    }
-
-    removeVoiceCommand(command) {
-        delete this.commands[command.toLowerCase()];
-    }
-
-    getAvailableCommands() {
-        return Object.keys(this.commands);
+        this._isListening = false;
+        this.stateManager.set('isMicListening', false); // Ensure state is updated
+        console.log('🎤 VoiceRecognition destroyed.');
     }
 }
+
+// If not using ES modules:
+// window.VoiceRecognition = VoiceRecognition;
