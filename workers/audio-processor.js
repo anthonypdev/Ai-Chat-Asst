@@ -1,543 +1,224 @@
 /**
- * Audio Processor Worker - Real-time audio effects for Parkland AI Opus Magnum
- * Handles character voice processing, environmental audio, and theme-specific effects
+ * Parkland AI - Opus Magnum Edition
+ * Audio Processor Worker (workers/audio-processor.js)
+ *
+ * This Web Worker handles playback of predefined sound effects off the main thread.
+ * It receives messages to play sounds and uses HTMLAudioElement for playback.
  */
 
-class AudioProcessor {
-    constructor() {
-        this.audioContext = null;
-        this.activeEffects = new Map();
-        this.characterProfiles = new Map();
-        this.environmentalSources = new Map();
-        this.masterGain = null;
-        this.compressor = null;
-        this.isInitialized = false;
+// Predefined mapping of sound effect names to their audio file paths
+// IMPORTANT: These paths are assumed and need to exist in the project structure (e.g., a 'sounds/' directory).
+const soundEffectsMap = {
+    // UI Sounds
+    messageSent: 'sounds/ui_message_sent.mp3', // Example path
+    messageReceived: 'sounds/ui_message_received.mp3',
+    uiClick: 'sounds/ui_click_soft.wav',
+    uiHover: 'sounds/ui_hover_gentle.wav', // Might be too frequent for a worker
+    actionSuccess: 'sounds/ui_success_chime.mp3',
+    actionInitiated: 'sounds/ui_action_start.wav',
+    itemDeleted: 'sounds/ui_deleted.wav',
+    settingsSaved: 'sounds/ui_settings_saved.mp3',
+    appReady: 'sounds/ui_app_ready_pling.mp3',
 
-        this.effectChains = {
-            radio: null,
-            underwater: null,
-            ambient: null
-        };
+    // Notifications & Alerts
+    notification: 'sounds/notification_simple.mp3',
+    error: 'sounds/alert_error.wav',
+    warning: 'sounds/alert_warning.wav',
+
+    // Theme specific sounds (examples)
+    jaws_theme_change_sting: 'sounds/jaws_sting.mp3',
+    jaws_sonar_ping: 'sounds/jaws_sonar_ping.wav',
+    jaws_bubble_pop: 'sounds/jaws_bubble.wav',
+    quint_entrance: 'sounds/jaws_quint_intro_effect.mp3',
+    harpoon_throw: 'sounds/jaws_harpoon.wav',
+    quint_shanty: 'sounds/jaws_quint_shanty_short.mp3', // Needs actual audio file
+    quint_grunt: 'sounds/jaws_quint_grunt.wav',
+    brody_sigh: 'sounds/jaws_brody_sigh.wav',
+    alarm_urgent: 'sounds/jaws_alarm.wav',
+    hooper_excited_hmm: 'sounds/jaws_hooper_hmm.wav',
+    metal_clank_subtle: 'sounds/jaws_metal_clank.wav',
+    hooper_discovery_chime: 'sounds/jaws_discovery_chime.wav',
+
+
+    jurassic_theme_change_roar: 'sounds/jurassic_roar_short.mp3',
+    jurassic_gate_creak_open: 'sounds/jurassic_gate_open.mp3',
+    jurassic_gate_creak_close: 'sounds/jurassic_gate_close.mp3',
+    jurassic_gate_rumble_heavy: 'sounds/jurassic_gate_rumble.mp3',
+    jurassic_electric_fence_crackle: 'sounds/jurassic_electric_spark.wav',
+    jurassic_pterodactyl_screech: 'sounds/jurassic_pterodactyl.wav',
+    jurassic_raptor_call: 'sounds/jurassic_raptor_call.wav',
+    jurassic_ambience_start: 'sounds/jurassic_jungle_ambience.mp3', // For looping
+    jurassic_ambience_stop: 'sounds/jurassic_jungle_ambience_stop_placeholder.mp3', // Not a real stop, main thread handles stopping loops
+    walkie_crackle_on: 'sounds/jurassic_walkie_on.wav',
+    walkie_static_short_start: 'sounds/jurassic_walkie_static_start.wav',
+    walkie_static_short_end: 'sounds/jurassic_walkie_static_end.wav',
+    walkie_alert_start: 'sounds/jurassic_walkie_alert.wav',
+    walkie_talk_press: 'sounds/jurassic_walkie_press.wav',
+    walkie_talk_release: 'sounds/jurassic_walkie_release.wav',
+    mr_dna_hello: 'sounds/jurassic_mr_dna_hello.mp3',
+    dna_reveal_sparkle: 'sounds/jurassic_dna_sparkle.wav',
+
+
+    // Voice recognition sounds
+    mic_on: 'sounds/mic_on.wav',
+    mic_off: 'sounds/mic_off.wav',
+    recognition_success: 'sounds/recognition_success.wav',
+
+    // Add more sound effects here as needed by the application
+};
+
+const activeAudioInstances = new Set(); // Keep track of playing audio for potential control
+
+/**
+ * Main message handler for the worker.
+ * Listens for 'PLAY_SOUND' messages from the main thread.
+ */
+self.onmessage = function(event) {
+    const data = event.data;
+
+    if (typeof self.console === 'undefined') { // Basic logging if full console isn't available
+        self.postMessage({ type: 'WORKER_LOG', payload: `AudioWorker received: ${data.type}` });
+    } else {
+        console.log('Audio Worker: Message received from main thread:', data);
     }
 
-    async init() {
-        try {
-            this.audioContext = new AudioContext();
-            this.setupMasterChain();
-            this.createEffectChains();
-            this.setupCharacterProfiles();
-            this.isInitialized = true;
+    if (data && data.type === 'PLAY_SOUND' && data.payload) {
+        playSoundEffect(data.payload.effectName, data.payload.volume, data.payload.loop || false, data.payload.soundId);
+    } else if (data && data.type === 'STOP_SOUND' && data.payload && data.payload.soundId) {
+        stopSoundEffect(data.payload.soundId);
+    } else if (data && data.type === 'PRELOAD_SOUNDS' && Array.isArray(data.payload.effectNames)) {
+        preloadSoundEffects(data.payload.effectNames);
+    }
+};
 
-            postMessage({
-                type: 'audio_initialized',
-                sampleRate: this.audioContext.sampleRate
+/**
+ * Plays a sound effect.
+ * @param {string} effectName - The name of the sound effect (key in soundEffectsMap).
+ * @param {number} [volume=1.0] - Volume level (0.0 to 1.0).
+ * @param {boolean} [loop=false] - Whether the sound should loop.
+ * @param {string} [soundId=null] - An optional ID to control this specific sound instance (e.g., for stopping).
+ */
+function playSoundEffect(effectName, volume = 1.0, loop = false, soundId = null) {
+    const filePath = soundEffectsMap[effectName];
+
+    if (!filePath) {
+        console.warn(`Audio Worker: Sound effect "${effectName}" not found in map.`);
+        self.postMessage({ type: 'SOUND_ERROR', payload: { effectName, error: 'Not found' } });
+        return;
+    }
+
+    try {
+        const audio = new Audio(filePath);
+        audio.volume = Math.max(0, Math.min(1, volume)); // Clamp volume between 0 and 1
+        audio.loop = loop;
+        if (soundId) {
+            audio.dataset.soundId = soundId; // Tag audio element with ID
+            activeAudioInstances.add(audio);
+        }
+
+        audio.play()
+            .then(() => {
+                if (self.console) console.log(`Audio Worker: Playing "${effectName}" (Path: ${filePath})`);
+                self.postMessage({ type: 'SOUND_PLAYING', payload: { effectName, soundId } });
+            })
+            .catch(error => {
+                console.error(`Audio Worker: Error playing sound "${effectName}":`, error);
+                self.postMessage({ type: 'SOUND_ERROR', payload: { effectName, error: error.message, soundId } });
+                if(soundId) activeAudioInstances.delete(audio);
             });
-        } catch (error) {
-            postMessage({
-                type: 'audio_error',
-                error: error.message
-            });
-        }
-    }
 
-    setupMasterChain() {
-        // Master output chain
-        this.masterGain = this.audioContext.createGain();
-        this.masterGain.gain.setValueAtTime(0.8, this.audioContext.currentTime);
-
-        // Master compressor for consistent levels
-        this.compressor = this.audioContext.createDynamicsCompressor();
-        this.compressor.threshold.setValueAtTime(-24, this.audioContext.currentTime);
-        this.compressor.knee.setValueAtTime(30, this.audioContext.currentTime);
-        this.compressor.ratio.setValueAtTime(12, this.audioContext.currentTime);
-        this.compressor.attack.setValueAtTime(0.003, this.audioContext.currentTime);
-        this.compressor.release.setValueAtTime(0.25, this.audioContext.currentTime);
-
-        this.masterGain.connect(this.compressor);
-        this.compressor.connect(this.audioContext.destination);
-    }
-
-    createEffectChains() {
-        // ========================================
-        // RADIO EFFECT CHAIN (Muldoon)
-        // ========================================
-        this.effectChains.radio = this.createRadioEffect();
-
-        // ========================================
-        // UNDERWATER EFFECT CHAIN (Jaws theme)
-        // ========================================
-        this.effectChains.underwater = this.createUnderwaterEffect();
-
-        // ========================================
-        // AMBIENT EFFECT CHAIN (Environment)
-        // ========================================
-        this.effectChains.ambient = this.createAmbientEffect();
-    }
-
-    createRadioEffect() {
-        const input = this.audioContext.createGain();
-        const output = this.audioContext.createGain();
-
-        // High-pass filter to remove low frequencies
-        const highpass = this.audioContext.createBiquadFilter();
-        highpass.type = 'highpass';
-        highpass.frequency.setValueAtTime(300, this.audioContext.currentTime);
-        highpass.Q.setValueAtTime(0.7, this.audioContext.currentTime);
-
-        // Low-pass filter to remove high frequencies
-        const lowpass = this.audioContext.createBiquadFilter();
-        lowpass.type = 'lowpass';
-        lowpass.frequency.setValueAtTime(3000, this.audioContext.currentTime);
-        lowpass.Q.setValueAtTime(0.7, this.audioContext.currentTime);
-
-        // Bit crusher effect for digital distortion
-        const waveshaper = this.audioContext.createWaveShaper();
-        waveshaper.curve = this.createRadioDistortionCurve();
-        waveshaper.oversample = '2x';
-
-        // Compressor for radio-style dynamics
-        const radioCompressor = this.audioContext.createDynamicsCompressor();
-        radioCompressor.threshold.setValueAtTime(-20, this.audioContext.currentTime);
-        radioCompressor.knee.setValueAtTime(15, this.audioContext.currentTime);
-        radioCompressor.ratio.setValueAtTime(8, this.audioContext.currentTime);
-        radioCompressor.attack.setValueAtTime(0.001, this.audioContext.currentTime);
-        radioCompressor.release.setValueAtTime(0.1, this.audioContext.currentTime);
-
-        // Static noise generator
-        const staticGain = this.audioContext.createGain();
-        staticGain.gain.setValueAtTime(0.05, this.audioContext.currentTime);
-
-        // Chain effects
-        input.connect(highpass);
-        highpass.connect(lowpass);
-        lowpass.connect(waveshaper);
-        waveshaper.connect(radioCompressor);
-        radioCompressor.connect(output);
-
-        // Add static noise
-        this.createStaticNoise().connect(staticGain);
-        staticGain.connect(output);
-
-        return { input, output, controls: { highpass, lowpass, staticGain } };
-    }
-
-    createUnderwaterEffect() {
-        const input = this.audioContext.createGain();
-        const output = this.audioContext.createGain();
-
-        // Low-pass filter for muffled underwater sound
-        const underwaterFilter = this.audioContext.createBiquadFilter();
-        underwaterFilter.type = 'lowpass';
-        underwaterFilter.frequency.setValueAtTime(800, this.audioContext.currentTime);
-        underwaterFilter.Q.setValueAtTime(2.0, this.audioContext.currentTime);
-
-        // Reverb for underwater acoustics
-        const convolver = this.audioContext.createConvolver();
-        convolver.buffer = this.createUnderwaterImpulseResponse();
-
-        // Chorus effect for water movement
-        const chorus = this.createChorusEffect();
-
-        // Low-frequency oscillation for water pressure
-        const lfo = this.audioContext.createOscillator();
-        lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(0.3, this.audioContext.currentTime);
-
-        const lfoGain = this.audioContext.createGain();
-        lfoGain.gain.setValueAtTime(50, this.audioContext.currentTime);
-
-        lfo.connect(lfoGain);
-        lfoGain.connect(underwaterFilter.frequency);
-        lfo.start();
-
-        // Chain effects
-        input.connect(underwaterFilter);
-        underwaterFilter.connect(chorus.input);
-        chorus.output.connect(convolver);
-        convolver.connect(output);
-
-        return { input, output, controls: { underwaterFilter, convolver, lfo } };
-    }
-
-    createAmbientEffect() {
-        const input = this.audioContext.createGain();
-        const output = this.audioContext.createGain();
-
-        // Spatial reverb
-        const reverb = this.audioContext.createConvolver();
-        reverb.buffer = this.createAmbientImpulseResponse();
-
-        // EQ for environmental shaping
-        const eq = this.create3BandEQ();
-
-        // Dynamic range expander for natural ambience
-        const expander = this.createExpander();
-
-        // Chain effects
-        input.connect(eq.input);
-        eq.output.connect(expander.input);
-        expander.output.connect(reverb);
-        reverb.connect(output);
-
-        return { input, output, controls: { eq, expander } };
-    }
-
-    // ========================================
-    // CHARACTER VOICE PROFILES
-    // ========================================
-
-    setupCharacterProfiles() {
-        // Quint - Gruff sea captain
-        this.characterProfiles.set('quint', {
-            pitch: 0.85,
-            rate: 0.9,
-            voice: 'male-gruff',
-            effects: ['slight_reverb', 'vocal_distortion'],
-            personality: {
-                pauses: 'dramatic',
-                emphasis: 'strong',
-                breathing: 'heavy'
-            }
-        });
-
-        // Brody - Nervous chief of police
-        this.characterProfiles.set('brody', {
-            pitch: 1.0,
-            rate: 1.1,
-            voice: 'male-nervous',
-            effects: ['slight_compression'],
-            personality: {
-                pauses: 'hesitant',
-                emphasis: 'cautious',
-                breathing: 'quick'
-            }
-        });
-
-        // Hooper - Enthusiastic marine biologist
-        this.characterProfiles.set('hooper', {
-            pitch: 1.15,
-            rate: 1.2,
-            voice: 'male-enthusiastic',
-            effects: ['bright_eq'],
-            personality: {
-                pauses: 'minimal',
-                emphasis: 'excited',
-                breathing: 'normal'
-            }
-        });
-
-        // Muldoon - Military precision through radio
-        this.characterProfiles.set('muldoon', {
-            pitch: 0.9,
-            rate: 0.95,
-            voice: 'male-military',
-            effects: ['radio', 'static_background'],
-            personality: {
-                pauses: 'tactical',
-                emphasis: 'controlled',
-                breathing: 'controlled'
-            }
-        });
-
-        // Mr. DNA - Cheerful cartoon character
-        this.characterProfiles.set('mr_dna', {
-            pitch: 1.3,
-            rate: 1.15,
-            voice: 'cartoon-cheerful',
-            effects: ['bright_eq', 'slight_chorus'],
-            personality: {
-                pauses: 'bouncy',
-                emphasis: 'educational',
-                breathing: 'artificial'
-            }
-        });
-    }
-
-    // ========================================
-    // AUDIO PROCESSING FUNCTIONS
-    // ========================================
-
-    processCharacterSpeech(audioBuffer, characterId, options = {}) {
-        const profile = this.characterProfiles.get(characterId);
-        if (!profile) return audioBuffer;
-
-        const source = this.audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-
-        let currentNode = source;
-
-        // Apply character-specific effects
-        profile.effects.forEach(effectName => {
-            const effect = this.getEffect(effectName);
-            if (effect) {
-                currentNode.connect(effect.input);
-                currentNode = effect.output;
-            }
-        });
-
-        // Apply radio effect for Muldoon
-        if (characterId === 'muldoon') {
-            currentNode.connect(this.effectChains.radio.input);
-            currentNode = this.effectChains.radio.output;
-        }
-
-        // Apply underwater effect for Jaws characters when appropriate
-        if (['quint', 'brody', 'hooper'].includes(characterId) && options.underwater) {
-            currentNode.connect(this.effectChains.underwater.input);
-            currentNode = this.effectChains.underwater.output;
-        }
-
-        currentNode.connect(this.masterGain);
-        return source;
-    }
-
-    createStaticNoise() {
-        const bufferSize = this.audioContext.sampleRate * 2; // 2 seconds
-        const noiseBuffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-
-        // Generate pink noise for radio static
-        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-
-        for (let i = 0; i < bufferSize; i++) {
-            const white = Math.random() * 2 - 1;
-            b0 = 0.99886 * b0 + white * 0.0555179;
-            b1 = 0.99332 * b1 + white * 0.0750759;
-            b2 = 0.96900 * b2 + white * 0.1538520;
-            b3 = 0.86650 * b3 + white * 0.3104856;
-            b4 = 0.55000 * b4 + white * 0.5329522;
-            b5 = -0.7616 * b5 - white * 0.0168980;
-
-            output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
-            b6 = white * 0.115926;
-        }
-
-        const source = this.audioContext.createBufferSource();
-        source.buffer = noiseBuffer;
-        source.loop = true;
-
-        return source;
-    }
-
-    createRadioDistortionCurve() {
-        const samples = 44100;
-        const curve = new Float32Array(samples);
-        const deg = Math.PI / 180;
-
-        for (let i = 0; i < samples; i++) {
-            const x = (i * 2) / samples - 1;
-            curve[i] = ((3 + 20) * x * 20 * deg) / (Math.PI + 20 * Math.abs(x));
-        }
-
-        return curve;
-    }
-
-    createUnderwaterImpulseResponse() {
-        const sampleRate = this.audioContext.sampleRate;
-        const length = sampleRate * 3; // 3 seconds
-        const impulse = this.audioContext.createBuffer(2, length, sampleRate);
-
-        for (let channel = 0; channel < 2; channel++) {
-            const channelData = impulse.getChannelData(channel);
-
-            for (let i = 0; i < length; i++) {
-                const decay = Math.pow(1 - i / length, 3);
-                const delay = Math.floor(Math.random() * 1000);
-
-                if (i > delay) {
-                    channelData[i] = (Math.random() * 2 - 1) * decay * 0.3;
-                } else {
-                    channelData[i] = 0;
-                }
-            }
-        }
-
-        return impulse;
-    }
-
-    createChorusEffect() {
-        const input = this.audioContext.createGain();
-        const output = this.audioContext.createGain();
-        const delay = this.audioContext.createDelay(0.02);
-        const feedback = this.audioContext.createGain();
-        const mix = this.audioContext.createGain();
-
-        const lfo = this.audioContext.createOscillator();
-        const lfoGain = this.audioContext.createGain();
-
-        // Configure LFO
-        lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(0.5, this.audioContext.currentTime);
-        lfoGain.gain.setValueAtTime(0.005, this.audioContext.currentTime);
-
-        // Configure feedback
-        feedback.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-        mix.gain.setValueAtTime(0.5, this.audioContext.currentTime);
-
-        // Connect LFO to delay time
-        lfo.connect(lfoGain);
-        lfoGain.connect(delay.delayTime);
-        lfo.start();
-
-        // Connect effect chain
-        input.connect(delay);
-        delay.connect(feedback);
-        feedback.connect(delay);
-        delay.connect(mix);
-        mix.connect(output);
-
-        // Dry signal
-        input.connect(output);
-
-        return { input, output };
-    }
-
-    // ========================================
-    // ENVIRONMENTAL AUDIO SYSTEMS
-    // ========================================
-
-    startEnvironmentalAudio(theme) {
-        this.stopAllEnvironmentalAudio();
-
-        switch (theme) {
-            case 'jaws':
-                this.startOceanAmbience();
-                break;
-            case 'jurassic':
-                this.startJungleAmbience();
-                break;
-        }
-    }
-
-    startOceanAmbience() {
-        const oceanLayers = {
-            waves: this.createOceanWaves(),
-            wind: this.createOceanWind(),
-            seagulls: this.createSeagulls(),
-            boat: this.createBoatSounds()
+        audio.onended = () => {
+            if (self.console) console.log(`Audio Worker: Finished playing "${effectName}"`);
+            self.postMessage({ type: 'SOUND_ENDED', payload: { effectName, soundId } });
+            if(soundId) activeAudioInstances.delete(audio);
         };
 
-        Object.entries(oceanLayers).forEach(([name, source]) => {
-            this.environmentalSources.set(`ocean_${name}`, source);
-            source.connect(this.effectChains.ambient.input);
-            source.start();
-        });
-    }
-
-    startJungleAmbience() {
-        const jungleLayers = {
-            insects: this.createInsectSounds(),
-            birds: this.createBirdSounds(),
-            wind: this.createJungleWind(),
-            rain: this.createRainSounds()
+        audio.onerror = (e) => { // More specific error handling for audio element
+            console.error(`Audio Worker: HTMLAudioElement error for "${effectName}":`, e);
+            self.postMessage({ type: 'SOUND_ERROR', payload: { effectName, error: 'Audio element playback error', soundId } });
+            if(soundId) activeAudioInstances.delete(audio);
         };
 
-        Object.entries(jungleLayers).forEach(([name, source]) => {
-            this.environmentalSources.set(`jungle_${name}`, source);
-            source.connect(this.effectChains.ambient.input);
-            source.start();
-        });
-    }
-
-    createOceanWaves() {
-        // Procedural ocean wave generation
-        const bufferSize = this.audioContext.sampleRate * 10;
-        const buffer = this.audioContext.createBuffer(2, bufferSize, this.audioContext.sampleRate);
-
-        for (let channel = 0; channel < 2; channel++) {
-            const channelData = buffer.getChannelData(channel);
-
-            for (let i = 0; i < bufferSize; i++) {
-                const time = i / this.audioContext.sampleRate;
-                let sample = 0;
-
-                // Layer multiple wave frequencies
-                sample += Math.sin(2 * Math.PI * 0.1 * time) * 0.3;
-                sample += Math.sin(2 * Math.PI * 0.05 * time) * 0.2;
-                sample += Math.sin(2 * Math.PI * 0.03 * time) * 0.1;
-
-                // Add noise for foam
-                sample += (Math.random() * 2 - 1) * 0.05;
-
-                channelData[i] = sample * 0.3;
-            }
-        }
-
-        const source = this.audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.loop = true;
-
-        return source;
-    }
-
-    // ========================================
-    // MESSAGE HANDLING
-    // ========================================
-
-    handleMessage(event) {
-        const { type, data, id } = event.data;
-
-        switch (type) {
-            case 'init':
-                this.init();
-                break;
-
-            case 'process_character_speech':
-                const processedAudio = this.processCharacterSpeech(
-                    data.audioBuffer,
-                    data.characterId,
-                    data.options
-                );
-                postMessage({
-                    type: 'processed_speech',
-                    data: processedAudio,
-                    id
-                });
-                break;
-
-            case 'start_environmental_audio':
-                this.startEnvironmentalAudio(data.theme);
-                break;
-
-            case 'stop_environmental_audio':
-                this.stopAllEnvironmentalAudio();
-                break;
-
-            case 'adjust_master_volume':
-                if (this.masterGain) {
-                    this.masterGain.gain.linearRampToValueAtTime(
-                        data.volume,
-                        this.audioContext.currentTime + 0.1
-                    );
-                }
-                break;
-
-            case 'trigger_sound_effect':
-                this.playSoundEffect(data.effect, data.options);
-                break;
-        }
-    }
-
-    stopAllEnvironmentalAudio() {
-        this.environmentalSources.forEach(source => {
-            try {
-                source.stop();
-            } catch (e) {
-                // Source may already be stopped
-            }
-        });
-        this.environmentalSources.clear();
-    }
-
-    playSoundEffect(effectName, options = {}) {
-        // Implementation for one-off sound effects
-        // Shark approach, electric fence, raptor calls, etc.
+    } catch (error) {
+        console.error(`Audio Worker: General error creating or playing sound "${effectName}":`, error);
+        self.postMessage({ type: 'SOUND_ERROR', payload: { effectName, error: error.message, soundId } });
     }
 }
 
-// Initialize audio processor
-const audioProcessor = new AudioProcessor();
-self.addEventListener('message', (event) => audioProcessor.handleMessage(event));
+/**
+ * Stops a specific sound effect instance if it's playing.
+ * @param {string} soundId - The ID of the sound instance to stop.
+ */
+function stopSoundEffect(soundId) {
+    if (!soundId) return;
+    let found = false;
+    activeAudioInstances.forEach(audio => {
+        if (audio.dataset.soundId === soundId) {
+            audio.pause();
+            audio.currentTime = 0; // Reset
+            audio.loop = false; // Ensure loop is stopped
+            activeAudioInstances.delete(audio);
+            found = true;
+            if (self.console) console.log(`Audio Worker: Stopped sound with ID "${soundId}"`);
+            self.postMessage({ type: 'SOUND_STOPPED_ACK', payload: { soundId } });
+        }
+    });
+    if (!found && self.console) {
+        console.warn(`Audio Worker: No active sound found with ID "${soundId}" to stop.`);
+    }
+}
 
-// Initialize on first message
-postMessage({ type: 'audio_worker_ready' });
+/**
+ * Preloads a list of sound effects.
+ * This can help reduce playback delay for frequently used sounds.
+ * @param {string[]} effectNames - Array of effect names to preload.
+ */
+function preloadSoundEffects(effectNames) {
+    if (!Array.isArray(effectNames)) return;
+    let loadedCount = 0;
+    effectNames.forEach(name => {
+        const filePath = soundEffectsMap[name];
+        if (filePath) {
+            const audio = new Audio();
+            audio.src = filePath;
+            audio.preload = 'auto'; // Hint to browser to load metadata or full file
+            audio.load(); // Explicitly start loading
+            audio.oncanplaythrough = () => {
+                loadedCount++;
+                if (loadedCount === effectNames.length) {
+                     if (self.console) console.log('Audio Worker: All requested sounds preloaded.');
+                     self.postMessage({ type: 'SOUNDS_PRELOADED', payload: { count: loadedCount } });
+                }
+            };
+            audio.onerror = () => {
+                 if (self.console) console.warn(`Audio Worker: Error preloading ${name} at ${filePath}`);
+                // Still count it as processed for promise resolution
+                loadedCount++;
+                 if (loadedCount === effectNames.length) {
+                     if (self.console) console.log('Audio Worker: Preloading attempt finished (with some errors).');
+                     self.postMessage({ type: 'SOUNDS_PRELOADED', payload: { count: loadedCount, errors: true } });
+                }
+            }
+        }
+    });
+     if (self.console) console.log(`Audio Worker: Initiated preloading for ${effectNames.length} sounds.`);
+}
+
+
+// Worker error handling
+self.onerror = function(errorEvent) {
+    if (self.console) {
+        console.error('Audio Worker: Unhandled error:', errorEvent.message, errorEvent);
+    }
+    self.postMessage({
+        type: 'WORKER_ERROR',
+        payload: { message: errorEvent.message, filename: errorEvent.filename, lineno: errorEvent.lineno }
+    });
+};
+
+// Signal that the worker is ready
+if (typeof self.console !== 'undefined') {
+    console.log('Audio Worker: Script loaded and ready.');
+} else {
+    self.postMessage({ type: 'WORKER_READY', payload: { status: 'Audio worker script loaded.' }});
+}
