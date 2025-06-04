@@ -3,7 +3,7 @@
    Premium AAA-Quality Animations
    ============================================ */
 
-/* Ocean Wave Base Animation */
+/* Ocean Wave Base Animation (Applied to .chat-area) */
 @keyframes oceanWaveMotion {
   0% {
     background-position: 0% 0%, 0% 0%, 0% 0%;
@@ -27,258 +27,126 @@
   }
 }
 
-/* Deep Ocean Parallax Layers */
-[data-theme="jaws"] .chat-area {
-  background-image:
-    radial-gradient(ellipse at 20% 30%, rgba(0, 153, 221, 0.08) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 70%, rgba(0, 112, 163, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(0, 64, 102, 0.04) 0%, transparent 60%),
-    linear-gradient(180deg,
-      rgba(0, 10, 20, 0.9) 0%,
-      rgba(0, 64, 102, 0.7) 30%,
-      rgba(0, 112, 163, 0.5) 60%,
-      rgba(0, 153, 221, 0.3) 100%
-    );
-  background-size: 1600px 1200px, 2000px 1500px, 2400px 1800px, 100% 100%;
-  animation: oceanWaveMotion 45s ease-in-out infinite;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Underwater Light Rays */
-[data-theme="jaws"] .chat-area::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -10%;
-  right: -10%;
-  height: 200%;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 100px,
-    rgba(0, 153, 221, 0.03) 100px,
-    rgba(0, 153, 221, 0.08) 120px,
-    rgba(0, 153, 221, 0.03) 140px,
-    transparent 140px,
-    transparent 240px
-  );
-  animation: lightRayMovement 20s linear infinite;
-  pointer-events: none;
-  opacity: 0;
-  animation: lightRayFade 3s ease-out 0.5s forwards, lightRayMovement 20s linear infinite;
-}
-
+/* Underwater Light Rays (Applied to .chat-area::before) */
 @keyframes lightRayMovement {
-  0% { transform: translateX(0) skewX(-5deg); }
-  100% { transform: translateX(240px) skewX(-5deg); }
+  0% { transform: translateX(0) skewX(-5deg) translateZ(0); } /* Added translateZ */
+  100% { transform: translateX(240px) skewX(-5deg) translateZ(0); }
 }
 
 @keyframes lightRayFade {
   to { opacity: 1; }
 }
 
-/* Bubble System */
-[data-theme="jaws"] .messages-container::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image:
-    radial-gradient(circle at 20% 80%, white 1px, transparent 1.5px),
-    radial-gradient(circle at 60% 90%, white 0.5px, transparent 1px),
-    radial-gradient(circle at 85% 85%, white 0.8px, transparent 1.2px),
-    radial-gradient(circle at 35% 95%, white 1.2px, transparent 1.8px),
-    radial-gradient(circle at 70% 88%, white 0.6px, transparent 1px);
-  background-size:
-    250px 300px,
-    300px 350px,
-    200px 250px,
-    350px 400px,
-    280px 320px;
-  animation:
-    bubbleRise1 18s linear infinite,
-    bubbleWobble1 3s ease-in-out infinite;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-[data-theme="jaws"] .messages-container::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image:
-    radial-gradient(circle at 10% 75%, rgba(255, 255, 255, 0.9) 1.5px, transparent 2px),
-    radial-gradient(circle at 45% 82%, rgba(255, 255, 255, 0.8) 0.8px, transparent 1.2px),
-    radial-gradient(circle at 78% 79%, rgba(255, 255, 255, 0.7) 1px, transparent 1.5px);
-  background-size:
-    400px 450px,
-    320px 380px,
-    380px 420px;
-  animation:
-    bubbleRise2 25s linear infinite,
-    bubbleWobble2 4s ease-in-out infinite 0.5s;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
+/* Bubble System (Applied to .messages-container::before and ::after) */
 @keyframes bubbleRise1 {
-  0% { transform: translateY(100vh) translateX(0); }
-  100% { transform: translateY(-100vh) translateX(20px); }
+  0% { transform: translateY(100vh) translateX(0) translateZ(0); }
+  100% { transform: translateY(-100vh) translateX(20px) translateZ(0); }
 }
 
 @keyframes bubbleRise2 {
-  0% { transform: translateY(100vh) translateX(0); }
-  100% { transform: translateY(-100vh) translateX(-30px); }
+  0% { transform: translateY(100vh) translateX(0) translateZ(0); }
+  100% { transform: translateY(-100vh) translateX(-30px) translateZ(0); }
 }
 
 @keyframes bubbleWobble1 {
-  0%, 100% { transform: translateX(0); }
-  33% { transform: translateX(15px); }
-  66% { transform: translateX(-15px); }
+  0%, 100% { transform: translateX(0) translateZ(0); }
+  33% { transform: translateX(15px) translateZ(0); }
+  66% { transform: translateX(-15px) translateZ(0); }
 }
 
 @keyframes bubbleWobble2 {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(-20px); }
+  0%, 100% { transform: translateX(0) translateZ(0); }
+  50% { transform: translateX(-20px) translateZ(0); }
 }
 
-/* Shark Fin Animation */
+/* Shark Fin Animation (Applied to .chat-area::after)
+   Refined to use translateX for better performance.
+   Assumes the ::after element is positioned initially at left:0 (or equivalent start).
+*/
 @keyframes sharkFinSwim {
   0% {
-    left: 110%;
-    transform: translateY(0) rotate(0deg) scaleX(1);
+    transform: translateX(110vw) translateY(0) rotate(0deg) scaleX(1) translateZ(0);
     opacity: 0;
   }
   2% {
     opacity: 0.7;
   }
-  48% {
-    transform: translateY(-15px) rotate(-3deg) scaleX(1);
+  48% { /* Mid-ish screen, starts to turn */
+    transform: translateX(45vw) translateY(-15px) rotate(-3deg) scaleX(1) translateZ(0);
   }
-  50% {
-    transform: translateY(-15px) rotate(-3deg) scaleX(-1);
+  50% { /* Flip */
+    transform: translateX(40vw) translateY(-15px) rotate(-3deg) scaleX(-1) translateZ(0);
   }
-  52% {
-    transform: translateY(-15px) rotate(3deg) scaleX(-1);
+  52% { /* Start moving other way */
+    transform: translateX(38vw) translateY(-15px) rotate(3deg) scaleX(-1) translateZ(0);
   }
   98% {
     opacity: 0.7;
-    transform: translateY(0) rotate(0deg) scaleX(-1);
+    transform: translateX(-10vw) translateY(0) rotate(0deg) scaleX(-1) translateZ(0);
   }
   100% {
-    left: -20%;
+    transform: translateX(-20vw) translateY(0) rotate(0deg) scaleX(-1) translateZ(0);
     opacity: 0;
-    transform: translateY(0) rotate(0deg) scaleX(-1);
   }
 }
 
-[data-theme="jaws"] .chat-area::after {
-  content: '';
-  position: absolute;
-  top: 30%;
-  width: 120px;
-  height: 80px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Cdefs%3E%3ClinearGradient id='finGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23002E47'/%3E%3Cstop offset='100%25' stop-color='%23001523'/%3E%3C/linearGradient%3E%3Cfilter id='finShadow'%3E%3CfeGaussianBlur in='SourceAlpha' stdDeviation='3'/%3E%3CfeOffset dx='2' dy='4' result='offsetblur'/%3E%3CfeFlood flood-color='%23000307' flood-opacity='0.8'/%3E%3CfeComposite in2='offsetblur' operator='in'/%3E%3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M60 5 C45 5, 35 15, 30 30 C25 45, 20 60, 15 70 C10 75, 5 78, 0 80 L20 80 C25 78, 30 75, 35 70 C45 60, 55 40, 60 20 C65 40, 75 60, 85 70 C90 75, 95 78, 100 80 L120 80 C115 78, 110 75, 105 70 C100 60, 95 45, 90 30 C85 15, 75 5, 60 5 Z' fill='url(%23finGrad)' filter='url(%23finShadow)'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  animation: sharkFinSwim 35s linear infinite 5s;
-  pointer-events: none;
-  z-index: 2;
-  filter: drop-shadow(0 10px 20px rgba(0, 3, 7, 0.6));
-}
 
-/* Sonar Pulse Effect */
-@keyframes sonarPulse {
+/* Sonar Pulse Effect (Applied to .message.assistant) */
+@keyframes sonarPulse { /* box-shadow animation is kept as it's characteristic */
   0% {
-    transform: scale(0.8);
+    transform: scale(0.8) translateZ(0);
     opacity: 0.8;
     box-shadow:
-      0 0 0 0 rgba(0, 153, 221, 0.8),
-      0 0 0 0 rgba(0, 153, 221, 0.6) inset,
-      0 0 20px rgba(0, 153, 221, 0.4);
+      0 0 0 0 rgba(var(--primary-rgb), 0.8),
+      0 0 0 0 rgba(var(--primary-rgb), 0.6) inset,
+      0 0 20px rgba(var(--primary-rgb), 0.4);
   }
   50% {
     box-shadow:
-      0 0 0 15px rgba(0, 153, 221, 0.2),
-      0 0 0 10px rgba(0, 153, 221, 0.1) inset,
-      0 0 40px rgba(0, 153, 221, 0.2);
+      0 0 0 15px rgba(var(--primary-rgb), 0.2),
+      0 0 0 10px rgba(var(--primary-rgb), 0.1) inset,
+      0 0 40px rgba(var(--primary-rgb), 0.2);
   }
   100% {
-    transform: scale(1);
+    transform: scale(1) translateZ(0);
     opacity: 1;
     box-shadow:
-      0 0 0 30px rgba(0, 153, 221, 0),
-      0 0 0 20px rgba(0, 153, 221, 0) inset,
-      0 0 60px rgba(0, 153, 221, 0);
+      0 0 0 30px rgba(var(--primary-rgb), 0),
+      0 0 0 20px rgba(var(--primary-rgb), 0) inset,
+      0 0 60px rgba(var(--primary-rgb), 0);
   }
 }
 
-[data-theme="jaws"] .message.assistant {
-  animation: sonarPulse 2.5s ease-out;
-}
-
-/* Water Ripple on User Interaction */
+/* Water Ripple on User Interaction (Applied to .btn::after) */
 @keyframes waterRipple {
   0% {
-    transform: translate(-50%, -50%) scale(0);
+    transform: translate(-50%, -50%) scale(0) translateZ(0);
     opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(4);
+    transform: translate(-50%, -50%) scale(4) translateZ(0);
     opacity: 0;
   }
 }
 
-[data-theme="jaws"] .btn::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100px;
-  height: 100px;
-  border: 2px solid rgba(0, 153, 221, 0.6);
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0;
-  pointer-events: none;
-}
-
-[data-theme="jaws"] .btn:active::after {
-  animation: waterRipple 0.8s ease-out;
-}
-
-/* Underwater Message Float */
+/* Underwater Message Float (Applied to .message) */
 @keyframes messageFloat {
   0%, 100% {
-    transform: translateY(0) translateX(0) rotate(0deg);
+    transform: translateY(0) translateX(0) rotate(0deg) translateZ(0);
   }
   25% {
-    transform: translateY(-3px) translateX(2px) rotate(0.5deg);
+    transform: translateY(-3px) translateX(2px) rotate(0.5deg) translateZ(0);
   }
   50% {
-    transform: translateY(-5px) translateX(-1px) rotate(-0.5deg);
+    transform: translateY(-5px) translateX(-1px) rotate(-0.5deg) translateZ(0);
   }
   75% {
-    transform: translateY(-2px) translateX(-2px) rotate(0.3deg);
+    transform: translateY(-2px) translateX(-2px) rotate(0.3deg) translateZ(0);
   }
 }
 
-[data-theme="jaws"] .message {
-  animation: messageFloat 6s ease-in-out infinite;
-  animation-delay: calc(var(--message-index, 0) * 0.3s);
-}
-
-/* Depth Pressure Visual Effect */
-[data-theme="jaws"] .messages-container {
-  background:
-    radial-gradient(ellipse at center top, transparent 0%, rgba(0, 3, 7, 0.2) 50%, rgba(0, 3, 7, 0.5) 100%);
-  background-attachment: fixed;
-}
-
-/* Blood in Water Effect (for errors) */
-@keyframes bloodSpread {
+/* Blood in Water Effect (Applied to .message.error::before) */
+@keyframes bloodSpread { /* background-size animation, acceptable for this effect */
   0% {
     background-size: 0% 0%;
     opacity: 0;
@@ -293,66 +161,35 @@
   }
 }
 
-[data-theme="jaws"] .message.error::before {
-  content: '';
-  position: absolute;
-  inset: -50%;
-  background: radial-gradient(circle at center, rgba(255, 0, 0, 0.3) 0%, transparent 50%);
-  background-size: 0% 0%;
-  background-position: center;
-  animation: bloodSpread 3s ease-out;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Boat Rocking Effect */
+/* Boat Rocking Effect (Applied to .chat-header) */
 @keyframes boatRock {
-  0%, 100% { transform: rotate(0deg) translateY(0); }
-  25% { transform: rotate(-1deg) translateY(-2px); }
-  75% { transform: rotate(1deg) translateY(-2px); }
+  0%, 100% { transform: rotate(0deg) translateY(0) translateZ(0); }
+  25% { transform: rotate(-1deg) translateY(-2px) translateZ(0); }
+  75% { transform: rotate(1deg) translateY(-2px) translateZ(0); }
 }
 
-[data-theme="jaws"] .chat-header {
-  animation: boatRock 4s ease-in-out infinite;
-  transform-origin: center bottom;
-}
-
-/* Underwater Caustics */
+/* Underwater Caustics (Applied to .sidebar::before) */
 @keyframes causticShift {
   0% {
-    transform: scale(1) translateX(0) translateY(0);
+    transform: scale(1) translateX(0) translateY(0) translateZ(0);
     opacity: 0.15;
   }
   33% {
-    transform: scale(1.1) translateX(-20px) translateY(10px);
+    transform: scale(1.1) translateX(-20px) translateY(10px) translateZ(0);
     opacity: 0.25;
   }
   66% {
-    transform: scale(0.9) translateX(20px) translateY(-10px);
+    transform: scale(0.9) translateX(20px) translateY(-10px) translateZ(0);
     opacity: 0.15;
   }
   100% {
-    transform: scale(1) translateX(0) translateY(0);
+    transform: scale(1) translateX(0) translateY(0) translateZ(0);
     opacity: 0.15;
   }
 }
 
-[data-theme="jaws"] .sidebar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(ellipse at 20% 30%, rgba(144, 223, 255, 0.2) 0%, transparent 40%),
-    radial-gradient(ellipse at 70% 40%, rgba(144, 223, 255, 0.15) 0%, transparent 35%),
-    radial-gradient(ellipse at 40% 70%, rgba(144, 223, 255, 0.18) 0%, transparent 45%);
-  background-size: 200% 200%;
-  animation: causticShift 15s ease-in-out infinite;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-
-/* Depth Gauge Animation */
-@keyframes depthGaugePulse {
+/* Depth Gauge Animation (Applied to .sidebar .depth-gauge) */
+@keyframes depthGaugePulse { /* filter animation */
   0%, 100% {
     opacity: 0.3;
     filter: brightness(1);
@@ -363,107 +200,79 @@
   }
 }
 
-[data-theme="jaws"] .sidebar .depth-gauge {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 80%;
-  background: linear-gradient(to bottom,
-    #00FFFF 0%,
-    #0099DD 20%,
-    #0070A3 40%,
-    #004066 60%,
-    #002233 80%,
-    #000307 100%
-  );
-  border-radius: 4px;
-  animation: depthGaugePulse 4s ease-in-out infinite;
-}
-
-/* Jaws Theme Typing Indicator - Sonar */
-[data-theme="jaws"] .typing-bubble {
-  background: radial-gradient(circle at center, rgba(0, 153, 221, 0.2) 0%, rgba(0, 153, 221, 0.1) 50%, transparent 70%);
-  border: 2px solid rgba(0, 153, 221, 0.5);
-  animation: sonarScan 2s linear infinite;
-}
-
-@keyframes sonarScan {
+/* Jaws Theme Typing Indicator - Sonar (Applied to .typing-bubble) */
+@keyframes sonarScan { /* box-shadow animation */
   0% {
     box-shadow:
-      0 0 0 0 rgba(0, 153, 221, 0.8),
-      inset 0 0 10px rgba(0, 153, 221, 0.4);
+      0 0 0 0 rgba(var(--primary-rgb), 0.8),
+      inset 0 0 10px rgba(var(--primary-rgb), 0.4);
   }
   100% {
     box-shadow:
-      0 0 0 40px rgba(0, 153, 221, 0),
-      inset 0 0 10px rgba(0, 153, 221, 0.4);
+      0 0 0 40px rgba(var(--primary-rgb), 0),
+      inset 0 0 10px rgba(var(--primary-rgb), 0.4);
   }
 }
 
-/* Enhanced Voice Indicator for Jaws */
-[data-theme="jaws"] .voice-indicator {
-  background: rgba(0, 64, 102, 0.95);
-  border: 2px solid var(--primary);
-  box-shadow:
-    0 5px 20px rgba(0, 153, 221, 0.4),
-    inset 0 0 20px rgba(0, 153, 221, 0.2);
-}
-
-[data-theme="jaws"] .voice-bar {
-  background: linear-gradient(to top, var(--primary-darker) 0%, var(--primary-lighter) 100%);
-  box-shadow: 0 0 5px var(--primary-lighter);
-}
-
-/* Dramatic Entrance for New Messages */
+/* Dramatic Entrance for New Messages (Applied to .message) */
 @keyframes jawsMessageSplash {
   0% {
-    transform: translateY(50px) scale(0.7);
+    transform: translateY(50px) scale(0.7) translateZ(0);
     opacity: 0;
     filter: blur(10px);
   }
   50% {
-    transform: translateY(-10px) scale(1.05);
+    transform: translateY(-10px) scale(1.05) translateZ(0);
     filter: blur(0);
   }
   100% {
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(1) translateZ(0);
     opacity: 1;
   }
 }
 
-[data-theme="jaws"] .message {
-  animation: jawsMessageSplash 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, messageFloat 6s ease-in-out infinite 0.6s;
+/* Radar Sweep for Header (from jaws/theme.css, moved here as it's an animation) */
+@keyframes radarSweep {
+  0% { transform: translateX(-100%) translateZ(0); }
+  100% { transform: translateX(100%) translateZ(0); }
 }
 
-/* Screen Edge Water Effects */
-[data-theme="jaws"] body::before,
-[data-theme="jaws"] body::after {
-  content: '';
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 100px;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0.3;
+/* Shark Fin Gleam for Brand Icon (from jaws/theme.css, moved here) */
+@keyframes sharkFinGleam {
+  0%, 100% { transform: translateX(-100%) rotate(45deg) translateZ(0); }
+  50% { transform: translateX(100%) rotate(45deg) translateZ(0); }
 }
 
-[data-theme="jaws"] body::before {
-  top: 0;
-  background: linear-gradient(to bottom,
-    rgba(0, 153, 221, 0.3) 0%,
-    rgba(0, 112, 163, 0.2) 30%,
-    transparent 100%
-  );
+/* Depth Indicator Blink (from jaws/theme.css, moved here) */
+@keyframes depthIndicatorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
-[data-theme="jaws"] body::after {
-  bottom: 0;
-  background: linear-gradient(to top,
-    rgba(0, 3, 7, 0.5) 0%,
-    rgba(0, 64, 102, 0.3) 30%,
-    transparent 100%
-  );
+/* Recording Pulse for Voice Button (from jaws/theme.css, moved here) */
+@keyframes recordingPulse {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    box-shadow:
+      0 0 30px var(--accent),
+      inset 0 0 15px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.1) translateZ(0);
+    box-shadow:
+      0 0 50px var(--accent),
+      inset 0 0 25px rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Alert Flash for Shark Alert (from jaws/characters.css, moved here as it's a general Jaws animation) */
+@keyframes alertFlash {
+  0%, 100% {
+    background: linear-gradient(135deg, #CC0000 0%, #FF4444 100%);
+    box-shadow: 0 4px 20px rgba(204, 0, 0, 0.5);
+  }
+  50% {
+    background: linear-gradient(135deg, #FF6666 0%, #FF8888 100%);
+    box-shadow: 0 4px 30px rgba(255, 102, 102, 0.8);
+  }
 }
