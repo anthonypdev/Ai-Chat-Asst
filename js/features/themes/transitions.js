@@ -1,404 +1,228 @@
 /**
- * Transition Controller - Handles cinematic theme transitions
- * Implements wave and gate transitions with realistic physics
+ * Parkland AI - Opus Magnum Edition
+ * ThemeTransition Module
+ *
+ * Manages and orchestrates visual transitions between themes.
+ * Works in conjunction with ThemeManager and theme-specific animation modules.
  */
 
-import { EventBus } from '../../core/events.js';
+class ThemeTransition {
+    /**
+     * @param {ParklandUtils} utils - Instance of ParklandUtils.
+     * @param {StateManager} stateManager - Instance of StateManager.
+     */
+    constructor(utils, stateManager) {
+        if (!utils || !stateManager) {
+            throw new Error("ThemeTransition requires Utils and StateManager instances.");
+        }
+        this.utils = utils;
+        this.stateManager = stateManager;
 
-export class TransitionController {
-    constructor() {
-        this.activeTransition = null;
-        this.transitionDuration = {
-            'default-to-jaws': 2500,
-            'default-to-jurassic': 3000,
-            'jaws-to-default': 2000,
-            'jaws-to-jurassic': 3500,
-            'jurassic-to-default': 2200,
-            'jurassic-to-jaws': 3200
+        this.ui = {
+            // The main overlay container that is always present but hidden
+            baseTransitionOverlay: this.utils.$('#themeTransitionOverlay'),
+            // Specific transition effect containers (should be children of baseTransitionOverlay)
+            jawsWaveContainer: this.utils.$('#jawsWaveTransitionContainer'), // Assumed ID from HTML structure
+            jurassicGateContainer: this.utils.$('#jurassicGateTransitionContainer'), // Assumed ID
+            // Add other theme transition containers here if needed
         };
-    }
 
-    async execute(fromTheme, toTheme) {
-        if (this.activeTransition) {
-            await this.activeTransition;
+        if (!this.ui.baseTransitionOverlay) {
+            console.error("ThemeTransition: Base transition overlay element (#themeTransitionOverlay) not found in DOM.");
+        }
+        if (!this.ui.jawsWaveContainer) {
+            console.warn("ThemeTransition: Jaws wave container element (#jawsWaveTransitionContainer) not found.");
+        }
+        if (!this.ui.jurassicGateContainer) {
+            console.warn("ThemeTransition: Jurassic gate container element (#jurassicGateTransitionContainer) not found.");
         }
 
-        const transitionKey = `${fromTheme}-to-${toTheme}`;
-        const duration = this.transitionDuration[transitionKey] || 2500;
+        this._currentTransition = null; // Tracks the active transition type (e.g., 'jaws', 'jurassic')
+        this._isTransitioning = false;
 
-        this.activeTransition = this.performTransition(fromTheme, toTheme, duration);
+        // Instantiate or get references to theme-specific animation controllers
+        // These would come from files like 'js/animations/transitions/jaws-wave.js'
+        // For now, creating placeholder objects if actual classes aren't loaded yet.
+        this.jawsWaveAnimator = typeof JawsWaveAnimation !== 'undefined' ? new JawsWaveAnimation(this.ui.jawsWaveContainer, this.utils) : {
+            playWaveAnimation: () => { console.warn("JawsWaveAnimation not fully loaded, using placeholder."); return Promise.resolve({ covered: true, duration: 1500 }); }, // Simulates covering screen
+            hideWaveAnimation: () => { console.warn("JawsWaveAnimation not fully loaded, using placeholder."); return Promise.resolve({ revealed: true, duration: 1000 }); }  // Simulates revealing screen
+        };
+        this.jurassicGateAnimator = typeof JurassicGateAnimation !== 'undefined' ? new JurassicGateAnimation(this.ui.jurassicGateContainer, this.utils) : {
+            closeGates: () => { console.warn("JurassicGateAnimation not fully loaded, using placeholder."); return Promise.resolve({ covered: true, duration: 2000 }); },
+            openGates: () => { console.warn("JurassicGateAnimation not fully loaded, using placeholder."); return Promise.resolve({ revealed: true, duration: 1500 }); }
+        };
+        // Add other animators similarly
 
-        try {
-            await this.activeTransition;
-        } finally {
-            this.activeTransition = null;
-        }
+        console.log('🎬 ThemeTransition initialized.');
     }
 
-    async performTransition(fromTheme, toTheme, duration) {
-        // Add transitioning state to body
+    /**
+     * Sets up and starts the "cover screen" phase of a theme transition.
+     * @param {string} newThemeName - The name of the theme being transitioned TO.
+     * @param {string} [previousThemeName] - The name of the theme being transitioned FROM.
+     * @returns {Promise<{coveredTime: number}>} Promise resolving with estimated time for screen to be covered.
+     */
+    async setActiveTransition(newThemeName, previousThemeName = null) {
+        if (this._isTransitioning) {
+            console.warn("ThemeTransition: Another transition is already in progress.");
+            return Promise.reject("Transition already in progress.");
+        }
+        this._isTransitioning = true;
+        this._currentTransition = newThemeName;
+        this.stateManager.set('isThemeTransitioning', true);
         document.body.classList.add('theme-transitioning');
 
-        // Create transition overlay
-        const overlay = this.createTransitionOverlay();
-        document.body.appendChild(overlay);
+        if (!this.ui.baseTransitionOverlay) {
+            console.error("Base transition overlay not found, cannot start transition.");
+            this._isTransitioning = false;
+            this.stateManager.set('isThemeTransitioning', false);
+            document.body.classList.remove('theme-transitioning');
+            return Promise.reject("Missing base overlay.");
+        }
+        
+        this.utils.addClass(this.ui.baseTransitionOverlay, 'active');
+        let coverPromise;
+        let estimatedCoverTime = 1000; // Default cover time
+
+        // Hide all specific transition containers first
+        if(this.ui.jawsWaveContainer) this.utils.addClass(this.ui.jawsWaveContainer, 'hidden');
+        if(this.ui.jurassicGateContainer) this.utils.addClass(this.ui.jurassicGateContainer, 'hidden');
+
+        switch (newThemeName) {
+            case 'jaws':
+                if (this.ui.jawsWaveContainer && this.jawsWaveAnimator) {
+                    this.utils.removeClass(this.ui.jawsWaveContainer, 'hidden');
+                    this.utils.addClass(this.ui.jawsWaveContainer, 'active');
+                    coverPromise = this.jawsWaveAnimator.playWaveAnimation();
+                    estimatedCoverTime = (await coverPromise).duration || 1500;
+                } else {
+                    console.warn("Jaws transition elements/animator not available.");
+                    coverPromise = Promise.resolve();
+                }
+                break;
+            case 'jurassic':
+                if (this.ui.jurassicGateContainer && this.jurassicGateAnimator) {
+                    this.utils.removeClass(this.ui.jurassicGateContainer, 'hidden');
+                    this.utils.addClass(this.ui.jurassicGateContainer, 'active');
+                    coverPromise = this.jurassicGateAnimator.closeGates(); // Closing gates covers the screen
+                    estimatedCoverTime = (await coverPromise).duration || 2000;
+                } else {
+                    console.warn("Jurassic transition elements/animator not available.");
+                    coverPromise = Promise.resolve();
+                }
+                break;
+            default:
+                // Default transition: simple fade or use a generic overlay animation
+                console.log(`No specific transition for theme "${newThemeName}". Using default fade (via CSS).`);
+                // CSS on .theme-transition-overlay.active should handle a default fade
+                coverPromise = this.utils.wait(500); // Estimate for a CSS fade
+                estimatedCoverTime = 500;
+                break;
+        }
 
         try {
-            // Execute theme-specific transition
-            if (toTheme === 'jaws' || fromTheme === 'jaws') {
-                await this.executeWaveTransition(fromTheme, toTheme, overlay);
-            } else if (toTheme === 'jurassic' || fromTheme === 'jurassic') {
-                await this.executeGateTransition(fromTheme, toTheme, overlay);
-            } else {
-                await this.executeDefaultTransition(fromTheme, toTheme, overlay);
+            await coverPromise;
+            if (this.stateManager.get('debugMode')) {
+                console.log(`ThemeTransition: Screen covered for ${newThemeName} transition.`);
             }
+            return { coveredTime: estimatedCoverTime };
+        } catch (error) {
+            console.error(`Error during setActiveTransition for ${newThemeName}:`, error);
+            this._resetTransitionState(); // Clean up on error
+            return Promise.reject(error);
+        }
+    }
 
-            EventBus.emit('theme:transition:complete', { from: fromTheme, to: toTheme });
-        } finally {
-            // Cleanup
-            setTimeout(() => {
-                if (overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
+    /**
+     * Completes the "reveal screen" phase of the current theme transition.
+     * @param {string} [newThemeName] - The name of the theme that was transitioned TO (can use this._currentTransition).
+     * @param {string} [previousThemeName] - The name of the theme that was transitioned FROM.
+     * @returns {Promise<{revealedTime: number}>} Promise resolving with estimated time for screen to be revealed.
+     */
+    async completeTransition(newThemeName = this._currentTransition, previousThemeName = null) {
+        if (!this._isTransitioning || !this._currentTransition) {
+            console.warn("ThemeTransition: No active transition to complete.");
+            this._resetTransitionState(); // Ensure consistent state
+            return Promise.resolve({ revealedTime: 0 });
+        }
+        if (newThemeName !== this._currentTransition) {
+            console.warn(`ThemeTransition: Completing transition for ${this._currentTransition}, but received ${newThemeName}.`);
+        }
+
+        let revealPromise;
+        let estimatedRevealTime = 1000; // Default reveal time
+
+        switch (this._currentTransition) {
+            case 'jaws':
+                if (this.ui.jawsWaveContainer && this.jawsWaveAnimator) {
+                    revealPromise = this.jawsWaveAnimator.hideWaveAnimation();
+                    estimatedRevealTime = (await revealPromise).duration || 1000;
+                } else {
+                    revealPromise = Promise.resolve();
                 }
-                document.body.classList.remove('theme-transitioning');
-            }, 300);
+                break;
+            case 'jurassic':
+                if (this.ui.jurassicGateContainer && this.jurassicGateAnimator) {
+                    revealPromise = this.jurassicGateAnimator.openGates(); // Opening gates reveals the screen
+                    estimatedRevealTime = (await revealPromise).duration || 1500;
+                } else {
+                    revealPromise = Promise.resolve();
+                }
+                break;
+            default:
+                // Default: CSS on .theme-transition-overlay should handle fade out when .active is removed later
+                revealPromise = this.utils.wait(500);
+                estimatedRevealTime = 500;
+                break;
+        }
+
+        try {
+            await revealPromise;
+            if (this.stateManager.get('debugMode')) {
+                console.log(`ThemeTransition: Screen revealed for ${this._currentTransition} transition.`);
+            }
+            this._resetTransitionState(this._currentTransition); // Pass current transition to reset
+            return { revealedTime: estimatedRevealTime };
+        } catch (error) {
+            console.error(`Error during completeTransition for ${this._currentTransition}:`, error);
+            this._resetTransitionState(this._currentTransition); // Clean up on error
+            return Promise.reject(error);
         }
     }
 
-    createTransitionOverlay() {
-        const overlay = document.createElement('div');
-        overlay.className = 'theme-transition-overlay';
-        overlay.style.cssText = `
-            position: fixed;
-            inset: 0;
-            z-index: 999999;
-            pointer-events: none;
-            overflow: hidden;
-        `;
-        return overlay;
-    }
+    /**
+     * Resets the transition state and hides overlays.
+     * @param {string} completedThemeTransition - The theme whose transition elements should be hidden.
+     * @private
+     */
+    _resetTransitionState(completedThemeTransition = null) {
+        if(this.ui.baseTransitionOverlay) this.utils.removeClass(this.ui.baseTransitionOverlay, 'active');
 
-    async executeWaveTransition(fromTheme, toTheme, overlay) {
-        // Create wave SVG
-        const wave = this.createWaveSVG();
-        overlay.appendChild(wave);
-
-        // Play ocean sound effect
-        EventBus.emit('audio:play-ui-sound', { sound: 'oceanWave' });
-
-        // Phase 1: Wave rises from bottom
-        await this.animateElement(wave, [
-            { transform: 'translateY(100%)', opacity: 0 },
-            { transform: 'translateY(0%)', opacity: 1 }
-        ], 800);
-
-        // Phase 2: Add shark fin silhouette
-        const fin = this.createSharkFin();
-        wave.appendChild(fin);
-
-        await this.animateElement(fin, [
-            { transform: 'translateX(-100px) scale(0)', opacity: 0 },
-            { transform: 'translateX(200px) scale(1)', opacity: 1 },
-            { transform: 'translateX(calc(100vw + 100px)) scale(0.8)', opacity: 0.7 }
-        ], 1200);
-
-        // Phase 3: Wave crests and breaks
-        const foam = this.createWaveFoam();
-        wave.appendChild(foam);
-
-        await Promise.all([
-            this.animateElement(wave.querySelector('.wave-body'), [
-                { transform: 'scaleY(1)' },
-                { transform: 'scaleY(1.3)' },
-                { transform: 'scaleY(0.8)' }
-            ], 600),
-            this.animateElement(foam, [
-                { opacity: 0, transform: 'scale(0)' },
-                { opacity: 1, transform: 'scale(1.5)' },
-                { opacity: 0.3, transform: 'scale(3)' }
-            ], 600)
-        ]);
-
-        // Phase 4: Wave recedes
-        await this.animateElement(wave, [
-            { transform: 'translateY(0%)', opacity: 1 },
-            { transform: 'translateY(100%)', opacity: 0 }
-        ], 700);
-    }
-
-    createWaveSVG() {
-        const waveContainer = document.createElement('div');
-        waveContainer.className = 'wave-transition-container';
-        waveContainer.style.cssText = `
-            width: 100%;
-            height: 100%;
-            position: relative;
-            background: linear-gradient(to bottom,
-                rgba(0, 25, 50, 0.95) 0%,
-                rgba(0, 60, 100, 0.98) 70%,
-                rgba(0, 20, 40, 1) 100%);
-        `;
-
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('viewBox', '0 0 1200 800');
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-        svg.style.cssText = 'width: 100%; height: 100%; position: absolute; top: 0; left: 0;';
-
-        // Create wave path with realistic curves
-        const wavePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        wavePath.setAttribute('class', 'wave-body');
-        wavePath.setAttribute('d', 'M0,400 Q300,350 600,400 T1200,400 L1200,800 L0,800 Z');
-        wavePath.setAttribute('fill', 'url(#waveGradient)');
-
-        // Create gradient definition
-        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
-        gradient.setAttribute('id', 'waveGradient');
-        gradient.setAttribute('x1', '0%');
-        gradient.setAttribute('y1', '0%');
-        gradient.setAttribute('x2', '0%');
-        gradient.setAttribute('y2', '100%');
-
-        const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop1.setAttribute('offset', '0%');
-        stop1.setAttribute('stop-color', 'rgba(255, 255, 255, 0.8)');
-
-        const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop2.setAttribute('offset', '30%');
-        stop2.setAttribute('stop-color', 'rgba(0, 153, 221, 0.9)');
-
-        const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-        stop3.setAttribute('offset', '100%');
-        stop3.setAttribute('stop-color', 'rgba(0, 70, 163, 1)');
-
-        gradient.appendChild(stop1);
-        gradient.appendChild(stop2);
-        gradient.appendChild(stop3);
-        defs.appendChild(gradient);
-
-        svg.appendChild(defs);
-        svg.appendChild(wavePath);
-        waveContainer.appendChild(svg);
-
-        return waveContainer;
-    }
-
-    createSharkFin() {
-        const fin = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        fin.setAttribute('class', 'shark-fin');
-
-        const finPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        finPath.setAttribute('d', 'M0,0 L30,-60 L60,0 L45,5 L15,5 Z');
-        finPath.setAttribute('fill', '#002233');
-        finPath.setAttribute('filter', 'drop-shadow(0 2px 8px rgba(0,0,0,0.6))');
-
-        fin.appendChild(finPath);
-        return fin;
-    }
-
-    createWaveFoam() {
-        const foam = document.createElement('div');
-        foam.className = 'wave-foam';
-        foam.style.cssText = `
-            position: absolute;
-            top: 40%;
-            left: 0;
-            width: 100%;
-            height: 20%;
-            background: radial-gradient(ellipse at center,
-                rgba(255, 255, 255, 0.8) 0%,
-                rgba(255, 255, 255, 0.4) 40%,
-                transparent 70%);
-            filter: blur(2px);
-        `;
-        return foam;
-    }
-
-    async executeGateTransition(fromTheme, toTheme, overlay) {
-        // Create Jurassic Park gates
-        const gatesContainer = this.createJurassicGates();
-        overlay.appendChild(gatesContainer);
-
-        // Play ambient jungle sounds
-        EventBus.emit('audio:play-ui-sound', { sound: 'jurassicAmbient' });
-
-        // Phase 1: Environmental preparation
-        document.body.style.filter = 'brightness(0.7) sepia(0.3)';
-        await this.delay(300);
-
-        // Phase 2: Gates slide in
-        const leftGate = gatesContainer.querySelector('.gate-left');
-        const rightGate = gatesContainer.querySelector('.gate-right');
-
-        await Promise.all([
-            this.animateElement(leftGate, [
-                { transform: 'translateX(-100%)', opacity: 0 },
-                { transform: 'translateX(0%)', opacity: 1 }
-            ], 1000),
-            this.animateElement(rightGate, [
-                { transform: 'translateX(100%)', opacity: 0 },
-                { transform: 'translateX(0%)', opacity: 1 }
-            ], 1000)
-        ]);
-
-        // Phase 3: Gates close with mechanical sound
-        EventBus.emit('audio:play-ui-sound', { sound: 'metalClang' });
-
-        await Promise.all([
-            this.animateElement(leftGate, [
-                { transform: 'translateX(0%) rotateY(0deg)' },
-                { transform: 'translateX(25%) rotateY(-15deg)' }
-            ], 800),
-            this.animateElement(rightGate, [
-                { transform: 'translateX(0%) rotateY(0deg)' },
-                { transform: 'translateX(-25%) rotateY(15deg)' }
-            ], 800)
-        ]);
-
-        // Phase 4: Behind-gates transformation (screen flickers)
-        for (let i = 0; i < 3; i++) {
-            document.body.style.filter = 'brightness(1.5) contrast(1.3)';
-            await this.delay(100);
-            document.body.style.filter = 'brightness(0.7) sepia(0.3)';
-            await this.delay(150);
+        // Hide specific theme containers
+        if (completedThemeTransition === 'jaws' && this.ui.jawsWaveContainer) {
+            this.utils.removeClass(this.ui.jawsWaveContainer, 'active');
+            this.utils.addClass(this.ui.jawsWaveContainer, 'hidden'); // Ensure it's hidden for next time
         }
-
-        // Phase 5: Gates open majestically
-        EventBus.emit('audio:play-ui-sound', { sound: 'gateOpen' });
-
-        await Promise.all([
-            this.animateElement(leftGate, [
-                { transform: 'translateX(25%) rotateY(-15deg)' },
-                { transform: 'translateX(-50%) rotateY(-45deg)', opacity: 1 },
-                { transform: 'translateX(-100%) rotateY(-60deg)', opacity: 0 }
-            ], 1200),
-            this.animateElement(rightGate, [
-                { transform: 'translateX(-25%) rotateY(15deg)' },
-                { transform: 'translateX(50%) rotateY(45deg)', opacity: 1 },
-                { transform: 'translateX(100%) rotateY(60deg)', opacity: 0 }
-            ], 1200)
-        ]);
-
-        // Reset body filter
-        document.body.style.filter = '';
-    }
-
-    createJurassicGates() {
-        const container = document.createElement('div');
-        container.className = 'jurassic-gates-container';
-        container.style.cssText = `
-            width: 100%;
-            height: 100%;
-            position: relative;
-            perspective: 1000px;
-            background: linear-gradient(to bottom,
-                rgba(45, 35, 20, 0.9) 0%,
-                rgba(25, 20, 12, 0.95) 100%);
-        `;
-
-        // Left gate
-        const leftGate = this.createGate('left');
-        // Right gate
-        const rightGate = this.createGate('right');
-
-        container.appendChild(leftGate);
-        container.appendChild(rightGate);
-
-        return container;
-    }
-
-    createGate(side) {
-        const gate = document.createElement('div');
-        gate.className = `gate-${side}`;
-        gate.style.cssText = `
-            position: absolute;
-            top: 0;
-            ${side}: 0;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(45deg,
-                #8B7355 0%,
-                #A0916B 25%,
-                #6B5A3D 50%,
-                #8B7355 75%,
-                #9C8B6F 100%);
-            border: 8px solid #5D4E37;
-            transform-origin: ${side === 'left' ? 'right' : 'left'} center;
-            transform-style: preserve-3d;
-        `;
-
-        // Add Jurassic Park logo
-        const logo = document.createElement('div');
-        logo.className = 'gate-logo';
-        logo.style.cssText = `
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle,
-                rgba(212, 172, 90, 0.9) 30%,
-                rgba(138, 108, 47, 0.8) 60%,
-                transparent 80%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Rye', serif;
-            font-size: 24px;
-            color: #2A251B;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            border: 4px solid #8A6C2F;
-        `;
-        logo.textContent = 'JURASSIC PARK';
-
-        // Add warning lights
-        for (let i = 0; i < 6; i++) {
-            const light = document.createElement('div');
-            light.className = 'warning-light';
-            light.style.cssText = `
-                position: absolute;
-                width: 12px;
-                height: 12px;
-                background: #FF4444;
-                border-radius: 50%;
-                box-shadow: 0 0 10px #FF4444;
-                top: ${20 + i * 12}%;
-                ${side === 'left' ? 'right' : 'left'}: 20px;
-                animation: warningBlink ${0.5 + i * 0.1}s infinite alternate;
-            `;
-            gate.appendChild(light);
+        if (completedThemeTransition === 'jurassic' && this.ui.jurassicGateContainer) {
+            this.utils.removeClass(this.ui.jurassicGateContainer, 'active');
+            this.utils.addClass(this.ui.jurassicGateContainer, 'hidden');
         }
+        // Add for other themes if they have specific containers
 
-        gate.appendChild(logo);
-        return gate;
+        this._isTransitioning = false;
+        this._currentTransition = null;
+        this.stateManager.set('isThemeTransitioning', false);
+        document.body.classList.remove('theme-transitioning');
     }
 
-    async executeDefaultTransition(fromTheme, toTheme, overlay) {
-        // Simple fade transition for default theme
-        overlay.style.background = 'var(--bg-primary)';
-
-        await this.animateElement(overlay, [
-            { opacity: 0 },
-            { opacity: 1 },
-            { opacity: 0 }
-        ], 1200);
-    }
-
-    // Utility methods
-    animateElement(element, keyframes, duration) {
-        return new Promise(resolve => {
-            const animation = element.animate(keyframes, {
-                duration,
-                easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-                fill: 'forwards'
-            });
-            animation.addEventListener('finish', resolve);
-        });
-    }
-
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+    /**
+     * Checks if a theme transition is currently active.
+     * @returns {boolean} True if a transition is in progress.
+     */
+    isTransitioning() {
+        return this._isTransitioning;
     }
 }
+
+// If not using ES modules:
+// window.ThemeTransition = ThemeTransition;
