@@ -16,24 +16,21 @@ class App {
             console.log('typeof window.AppEvents:', typeof window.AppEvents, '; Value:', window.AppEvents);
         }
 
-        // Ensure core global singletons/classes are ready
         if (!window.UtilsInstance || !window.StateManager || !window.AppEvents) {
             const criticalErrorMsg = "Critical Error: Core utility scripts (Utils, StateManager, AppEvents) not found. App cannot initialize.";
-            console.error(criticalErrorMsg); // This is the error the user is seeing
+            console.error(criticalErrorMsg); 
             document.body.innerHTML = `<div style="color: red; font-family: sans-serif; padding: 20px;">${criticalErrorMsg} Please check console and script loading order in index.html.</div>`;
-            throw new Error(criticalErrorMsg); // This stops further constructor execution
+            throw new Error(criticalErrorMsg); 
         }
 
         this.utils = window.UtilsInstance;
         this.stateManager = window.StateManager.getInstance();
         this.eventEmitter = window.AppEvents;
 
-        // Feature Modules (instances to be created in init)
         this.themePersistence = null;
         this.themeTransition = null;
         this.characterManager = null;
         this.themeManager = null;
-
         this.apiService = null;
         this.voiceRecognition = null;
         this.voiceSynthesis = null;
@@ -41,7 +38,7 @@ class App {
         this.chatMessages = null;
         this.markdownProcessor = null;
         this.soundEffects = null;
-        this.audioWorker = null; // Reference to the audio worker
+        this.audioWorker = null;
 
         this.ui = {};
         this.isInitialized = false;
@@ -49,15 +46,11 @@ class App {
 
         this._handleVisibilityChange = this._handleVisibilityChange.bind(this);
 
-        // Debug mode check from state (which should be available now)
         if (this.stateManager && this.stateManager.get('debugMode')) {
             console.log('App constructor: Debug mode is ON.');
         }
     }
 
-    /**
-     * Initializes the application.
-     */
     async init() {
         if (this.isInitialized) {
             console.warn('App already initialized.');
@@ -66,50 +59,58 @@ class App {
 
         console.log('🚀 Parkland AI - Opus Magnum Edition: Initializing App...');
         document.body.classList.add('app-loading');
-        if(this.ui.loadingOverlay) this.utils.removeClass(this.ui.loadingOverlay, 'hidden');
+        // Ensure loadingOverlay is selected before trying to use it.
+        // _selectUIElements is called later, so for now, query directly or ensure it's available globally if used this early.
+        const loadingOverlayDirect = document.getElementById('loadingOverlay');
+        if(loadingOverlayDirect) this.utils.removeClass(loadingOverlayDirect, 'hidden');
 
 
-        this._selectUIElements();
+        this._selectUIElements(); // Now ui elements are populated
 
         // Initialize Feature Modules in correct order
-        // Ensure MarkdownProcessor, ClaudeAPIService etc. classes are globally available or imported if using modules
-        if (typeof MarkdownProcessor === 'undefined') { console.error("MarkdownProcessor class is undefined!"); return; }
+        // Adding checks for class definitions before instantiation
+        if (typeof MarkdownProcessor === 'undefined') { console.error("MarkdownProcessor class is undefined! Ensure markdown.js is loaded."); return Promise.reject("MarkdownProcessor missing"); }
         this.markdownProcessor = new MarkdownProcessor();
 
-        if (typeof ClaudeAPIService === 'undefined') { console.error("ClaudeAPIService class is undefined!"); return; }
+        if (typeof ClaudeAPIService === 'undefined') { console.error("ClaudeAPIService class is undefined! Ensure claude.js is loaded."); return Promise.reject("ClaudeAPIService missing"); }
         this.apiService = new ClaudeAPIService(this.stateManager, this.utils);
 
-        if (typeof ChatMessages === 'undefined') { console.error("ChatMessages class is undefined!"); return; }
+        if (typeof ChatMessages === 'undefined') { console.error("ChatMessages class is undefined! Ensure messages.js is loaded."); return Promise.reject("ChatMessages missing"); }
         this.chatMessages = new ChatMessages(this.ui.chatMessagesContainer, this.utils, this.markdownProcessor, this.stateManager);
 
-        if (typeof ChatHistory === 'undefined') { console.error("ChatHistory class is undefined!"); return; }
+        if (typeof ChatHistory === 'undefined') { console.error("ChatHistory class is undefined! Ensure history.js is loaded."); return Promise.reject("ChatHistory missing"); }
         this.chatHistory = new ChatHistory(this.ui.chatHistoryContainer, this.utils, this.eventEmitter, this.stateManager);
 
-        if (typeof VoiceRecognition === 'undefined') { console.error("VoiceRecognition class is undefined!"); return; }
+        if (typeof VoiceRecognition === 'undefined') { console.error("VoiceRecognition class is undefined! Ensure recognition.js is loaded."); return Promise.reject("VoiceRecognition missing"); }
         this.voiceRecognition = new VoiceRecognition(this.stateManager, this.eventEmitter, this.utils, this.ui.micBtn);
-        if (this.voiceRecognition.isSupported()) this.voiceRecognition.init();
+        // VoiceRecognition constructor handles its setup. We check support before enabling UI.
+        if (this.ui.micBtn && !this.voiceRecognition.isSupported()) {
+            this.ui.micBtn.disabled = true;
+            this.ui.micBtn.title = "Voice recognition not supported by your browser.";
+            this.utils.addClass(this.ui.micBtn, 'btn-disabled');
+        }
 
-        if (typeof VoiceSynthesis === 'undefined') { console.error("VoiceSynthesis class is undefined!"); return; }
+
+        if (typeof VoiceSynthesis === 'undefined') { console.error("VoiceSynthesis class is undefined! Ensure synthesis.js is loaded."); return Promise.reject("VoiceSynthesis missing"); }
         this.voiceSynthesis = new VoiceSynthesis(this.stateManager, this.eventEmitter, this.utils);
-        this.voiceSynthesis.init();
+        this.voiceSynthesis.init(); // VoiceSynthesis has an init to populate voices
 
-        if (typeof ThemePersistence === 'undefined') { console.error("ThemePersistence class is undefined!"); return; }
+        if (typeof ThemePersistence === 'undefined') { console.error("ThemePersistence class is undefined! Ensure persistence.js is loaded."); return Promise.reject("ThemePersistence missing"); }
         this.themePersistence = new ThemePersistence(this.stateManager);
 
-        if (typeof ThemeTransition === 'undefined') { console.error("ThemeTransition class is undefined!"); return; }
+        if (typeof ThemeTransition === 'undefined') { console.error("ThemeTransition class is undefined! Ensure themes/transitions.js is loaded."); return Promise.reject("ThemeTransition missing"); }
         this.themeTransition = new ThemeTransition(this.utils, this.stateManager);
 
-        if (typeof CharacterManager === 'undefined') { console.error("CharacterManager class is undefined!"); return; }
+        if (typeof CharacterManager === 'undefined') { console.error("CharacterManager class is undefined! Ensure voice/characters.js is loaded."); return Promise.reject("CharacterManager missing"); }
         this.characterManager = new CharacterManager(this.stateManager, this.eventEmitter, this.utils, null);
 
-        if (typeof ThemeManager === 'undefined') { console.error("ThemeManager class is undefined!"); return; }
+        if (typeof ThemeManager === 'undefined') { console.error("ThemeManager class is undefined! Ensure themes/manager.js is loaded."); return Promise.reject("ThemeManager missing"); }
         this.themeManager = new ThemeManager(
             this.stateManager, this.utils, this.eventEmitter,
             this.themePersistence, this.themeTransition, this.characterManager
         );
-        this.characterManager.themeManager = this.themeManager; // Provide ThemeManager instance to CharacterManager
+        this.characterManager.themeManager = this.themeManager;
 
-        // Initialize Sound Effects (AudioProcessor worker)
         if (window.Worker) {
             try {
                 this.audioWorker = new Worker('workers/audio-processor.js');
@@ -130,7 +131,6 @@ class App {
                     if (this.stateManager.get('debugMode')) console.log('Msg from AudioWorker:', event.data);
                     if (event.data.type === 'SOUND_ERROR') console.error('AudioWorker Sound Error:', event.data.payload);
                     else if (event.data.type === 'WORKER_READY' && this.soundEffects) {
-                        // Preload common UI sounds once worker is ready
                         this.soundEffects.preload(['uiClick', 'messageSent', 'messageReceived', 'error', 'appReady']);
                     }
                 };
@@ -138,8 +138,7 @@ class App {
                     console.error("Error initializing AudioWorker:", error.message ? `${error.message} (at ${error.filename}:${error.lineno})` : error);
                     this.soundEffects = null;
                 };
-                // Make soundEffects globally accessible if desired, or pass instance around
-                window.soundEffects = this.soundEffects; // For easier access by character classes perhaps
+                window.soundEffects = this.soundEffects;
             } catch (error) {
                 console.error("Failed to create AudioProcessor worker:", error);
                 this.soundEffects = null;
@@ -170,10 +169,6 @@ class App {
         }, 500);
     }
 
-    // ... (rest of the App class methods: _selectUIElements, _registerEventListeners, etc. remain as previously generated)
-    // For brevity, I'll only include the changed constructor and the start of init.
-    // The full App class is quite large. Assume the rest of the methods are unchanged from the last correct App.js generation.
-
     _selectUIElements() {
         this.ui.loadingOverlay = this.utils.$('#loadingOverlay');
         this.ui.appContainer = this.utils.$('#appContainer');
@@ -184,26 +179,26 @@ class App {
         this.ui.loginButton = this.utils.$('#loginButton');
         this.ui.loginErrorMessage = this.utils.$('#loginErrorMessage');
         this.ui.sidebar = this.utils.$('#appSidebar'); 
-        this.ui.chatHeader = this.utils.$('.chat-header'); 
+        this.ui.chatHeader = this.utils.$('.chat-header', this.ui.chatContainer); 
         this.ui.chatInputForm = this.utils.$('#chatInputForm');
         this.ui.chatInput = this.utils.$('#chatInput');
         this.ui.sendBtn = this.utils.$('#sendBtn');
         this.ui.micBtn = this.utils.$('#micBtn');
-        this.ui.chatMessagesContainer = this.utils.$('.messages-container .messages-inner');
-        this.ui.chatHistoryContainer = this.utils.$('.sidebar-content .chat-history-list');
-        this.ui.newChatBtn = this.utils.$('#newChatBtn');
-        this.ui.settingsBtn = this.utils.$('#settingsBtn');
-        this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle');
+        this.ui.chatMessagesContainer = this.utils.$('.messages-container .messages-inner', this.ui.chatContainer);
+        this.ui.chatHistoryContainer = this.utils.$('.sidebar-content .chat-history-list', this.ui.sidebar);
+        this.ui.newChatBtn = this.utils.$('#newChatBtn', this.ui.sidebarHeader); // Scope to sidebar header if possible
+        this.ui.settingsBtn = this.utils.$('#settingsBtn', this.ui.sidebarFooter); // Scope to sidebar footer
+        this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle', this.ui.sidebarHeader); // Scope to sidebar header
         this.ui.settingsModal = this.utils.$('#appSettingsModal');
         this.ui.settingsForm = this.utils.$('#settingsForm', this.ui.settingsModal); 
-        this.ui.closeSettingsModalBtn = this.utils.$('#closeSettingsModalBtn', this.ui.settingsModal);
-        this.ui.emptyStateContainer = this.utils.$('.empty-state-container');
+        this.ui.closeSettingsModalBtn = this.utils.$('.modal-close', this.ui.settingsModal); // More specific
+        this.ui.emptyStateContainer = this.utils.$('.empty-state-container', this.ui.chatContainer);
     }
 
     _registerEventListeners() {
         if (this.ui.loginForm) {
             this.ui.loginForm.addEventListener('submit', this._handleLoginSubmit.bind(this));
-        } else if (this.ui.loginButton) {
+        } else if (this.ui.loginButton) { // Fallback if only button exists
             this.ui.loginButton.addEventListener('click', (e) => {
                  e.preventDefault(); 
                  this._handleLoginSubmit(e);
@@ -213,7 +208,14 @@ class App {
         if(this.ui.chatInputForm) this.ui.chatInputForm.addEventListener('submit', this._handleSendMessage.bind(this));
         if(this.ui.chatInput) this.ui.chatInput.addEventListener('keydown', this._handleInputKeyDown.bind(this));
         if(this.ui.sendBtn) this.ui.sendBtn.addEventListener('click', this._handleSendMessage.bind(this));
-        if(this.ui.micBtn && this.voiceRecognition && this.voiceRecognition.isSupported()) this.ui.micBtn.addEventListener('click', () => this.voiceRecognition.toggleListening());
+        
+        if(this.ui.micBtn && this.voiceRecognition && this.voiceRecognition.isSupported()) {
+            this.ui.micBtn.addEventListener('click', () => this.voiceRecognition.toggleListening());
+        } else if (this.ui.micBtn) { // Disable if not supported
+            this.utils.addClass(this.ui.micBtn, 'btn-disabled'); // Use a class for styling disabled state
+            this.ui.micBtn.disabled = true;
+        }
+
         if(this.ui.newChatBtn) this.ui.newChatBtn.addEventListener('click', this._handleNewChat.bind(this));
 
         if (this.ui.settingsBtn) {
@@ -222,14 +224,21 @@ class App {
         if (this.ui.closeSettingsModalBtn) {
             this.ui.closeSettingsModalBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', false));
         }
+        
         const settingsModalOverlay = this.utils.$('#appSettingsModal');
         if (settingsModalOverlay) {
             settingsModalOverlay.addEventListener('click', (event) => {
-                if (event.target === settingsModalOverlay) {
+                if (event.target === settingsModalOverlay) { 
                     this.stateManager.setModalOpen('isSettingsModalOpen', false);
                 }
             });
         }
+        // Also add cancel button functionality for settings modal
+        const settingsCancelBtn = this.utils.$('.modal-cancel-btn', this.ui.settingsModal);
+        if(settingsCancelBtn) {
+            settingsCancelBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', false));
+        }
+
 
         if (this.ui.settingsForm) {
             this.ui.settingsForm.addEventListener('submit', this._handleSettingsSave.bind(this));
@@ -243,7 +252,9 @@ class App {
         }
 
         window.addEventListener('keydown', this._handleGlobalKeyDown.bind(this));
-        window.addEventListener('resize', this.utils.debounce(this._handleResize.bind(this), 200));
+        // Store debounced handler to be able to remove it later if app is destroyed
+        this._debouncedResizeHandler = this.utils.debounce(this._handleResize.bind(this), 200);
+        window.addEventListener('resize', this._debouncedResizeHandler);
         document.addEventListener('visibilitychange', this._handleVisibilityChange);
 
         this.eventEmitter.on('errorDisplay', this._displayError.bind(this));
@@ -263,6 +274,22 @@ class App {
                 this.voiceSynthesis.speak(text, characterKey, options);
             }
         });
+        // Listener for when chat history updates active session
+        this.eventEmitter.on('chatSessionLoaded', ({ sessionId, messages }) => {
+            // App.js can react if needed, e.g., update chat title
+            const sessions = this.chatHistory._getStoredSessions(); // Access internal method carefully or add public getter
+            const loadedSession = sessions.find(s => s.id === sessionId);
+            if(this.ui.chatHeader) {
+                const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
+                if(chatTitleEl) chatTitleEl.textContent = loadedSession ? (this.utils.truncate(loadedSession.title, 30) || 'Chat') : 'Chat';
+            }
+        });
+        this.eventEmitter.on('newChatStarted', () => {
+            if(this.ui.chatHeader) {
+                 const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
+                 if(chatTitleEl) chatTitleEl.textContent = 'New Chat';
+            }
+        });
     }
 
     _setupStateSubscriptions() {
@@ -279,7 +306,10 @@ class App {
         this.stateManager.subscribe('change:chatHistory', ({ newValue, oldValue }) => {
             if(this.chatMessages) this.chatMessages.renderHistory(newValue); 
             this._toggleEmptyState(newValue.length === 0);
-            if (newValue.length > (oldValue ? oldValue.length : 0)) { 
+            // Update session in history list on new messages
+            if (newValue.length > (oldValue ? oldValue.length : 0) || 
+               (newValue.length > 0 && (!oldValue || oldValue.length === 0)) ||
+               (newValue.length === 0 && oldValue && oldValue.length > 0) ) { // Also update on clear
                 if(this.chatHistory) this.chatHistory.addOrUpdateCurrentSession(); 
             }
         });
@@ -291,17 +321,27 @@ class App {
             if(this.ui.appContainer) this.ui.appContainer.classList.toggle('sidebar-collapsed', !newValue);
         });
         this.stateManager.subscribe('change:isLoginModalOpen', ({ newValue }) => {
+            // This state now more accurately reflects if the login *view* should be shown
             if (newValue) this._showLoginView(); else this._showChatView();
         });
         this.stateManager.subscribe('change:isSettingsModalOpen', ({ newValue }) => {
             this._toggleModal(this.ui.settingsModal, newValue);
-             if (newValue) this._populateSettingsForm();
+             if (newValue && this.ui.settingsForm) this._populateSettingsForm();
         });
         this.stateManager.subscribe('change:isMicListening', ({newValue}) => {
             if(this.ui.micBtn) {
                 this.ui.micBtn.classList.toggle('active', newValue); 
                 this.ui.micBtn.classList.toggle('listening', newValue); 
                 this.ui.micBtn.setAttribute('aria-pressed', newValue.toString());
+                 // Change icon based on state (example)
+                const iconSvg = this.utils.$('svg', this.ui.micBtn);
+                if (iconSvg) {
+                    if (newValue) { // Listening
+                        iconSvg.innerHTML = '<path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>'; // Stop icon
+                    } else { // Not listening
+                        iconSvg.innerHTML = '<path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path>'; // Mic icon
+                    }
+                }
             }
         });
         this.stateManager.subscribe('change:userInput', ({newValue}) => {
@@ -311,8 +351,14 @@ class App {
                 this.ui.chatInput.style.height = (this.ui.chatInput.scrollHeight) + 'px';
             }
         });
-        this.stateManager.subscribe('change:activeCharacter', ({newValue}) => {
-            // CharacterManager._updateCharacterUI handles visual changes
+         this.stateManager.subscribe('change:activeSessionId', ({ newValue }) => {
+            if (this.chatHistory) this.chatHistory.renderHistoryList(); // Re-render to update active state styling
+            const sessions = this.chatHistory ? this.chatHistory._getStoredSessions() : [];
+            const loadedSession = sessions.find(s => s.id === newValue);
+            if(this.ui.chatHeader) {
+                const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
+                if(chatTitleEl) chatTitleEl.textContent = loadedSession ? (this.utils.truncate(loadedSession.title, 30) || 'Chat') : 'New Chat';
+            }
         });
     }
 
@@ -360,7 +406,7 @@ class App {
         if(this.ui.loginContainer) this.utils.addClass(this.ui.loginContainer, 'hidden');
         if(this.ui.chatContainer) this.utils.removeClass(this.ui.chatContainer, 'hidden');
         this.stateManager.set('currentView', 'chat', true); 
-        if(this.chatMessages) this.chatMessages.scrollToBottom();
+        if(this.chatMessages) this.chatMessages.scrollToBottom(true); // Force scroll when view becomes active
         if(this.ui.chatInput) this.ui.chatInput.focus();
 
         if(!this.chatViewShownBefore) {
@@ -377,7 +423,7 @@ class App {
         if (this.soundEffects) this.soundEffects.playSoundEffect('messageSent');
 
         const userMessage = {
-            id: `msg-user-${Date.now()}`, 
+            id: `msg-user-${this.utils.generateId('')}`, 
             role: 'user',
             content: messageText,
             timestamp: Date.now()
@@ -387,7 +433,7 @@ class App {
         this.stateManager.set('userInput', '');
         if(this.ui.chatInput) {
             this.ui.chatInput.value = '';
-            this.ui.chatInput.style.height = 'auto';
+            this.ui.chatInput.style.height = 'auto'; // Reset height
             this.ui.chatInput.focus();
         }
 
@@ -398,7 +444,11 @@ class App {
             this._showTypingIndicator(false);
             return;
         }
-        this.apiService.sendMessage(messageText, this.stateManager.get('chatHistory'))
+        
+        // Pass a copy of chat history that ClaudeAPIService might modify for API call (e.g. system prompt)
+        const historyForApi = this.utils.deepClone(this.stateManager.get('chatHistory'));
+
+        this.apiService.sendMessage(messageText, historyForApi)
             .then(response => this._processAssistantResponse(response))
             .catch(error => this._handleApiError(error))
             .finally(() => this._showTypingIndicator(false));
@@ -411,14 +461,14 @@ class App {
         if (typeof apiResponse === 'string') content = apiResponse;
         else if (apiResponse && typeof apiResponse.content === 'string') {
             content = apiResponse.content;
-            if (apiResponse.character) character = apiResponse.character;
+            if (apiResponse.character) character = apiResponse.character; // API might suggest a character override
         } else {
-            content = "Sorry, I received an unexpected response.";
+            content = "Sorry, I received an unexpected response from the AI.";
              console.warn("Unexpected API response format in _processAssistantResponse:", apiResponse);
         }
 
         const assistantMessage = {
-            id: `msg-assistant-${Date.now()}`,
+            id: `msg-assistant-${this.utils.generateId('')}`,
             role: 'assistant',
             content: content,
             timestamp: Date.now(),
@@ -436,8 +486,8 @@ class App {
         console.error("API Error in App:", error);
         const errorMessage = (error && error.message) ? error.message : "An unknown API error occurred.";
         const errorResponseMessage = {
-            id: `msg-error-${Date.now()}`,
-            role: 'assistant',
+            id: `msg-error-${this.utils.generateId('')}`,
+            role: 'assistant', // Display as an assistant message for errors
             content: `⚠️ ${errorMessage}`,
             timestamp: Date.now(),
             isError: true
@@ -452,7 +502,7 @@ class App {
 
     _handleInputKeyDown(event) {
         if(!event || !event.target) return;
-        this.stateManager.set('userInput', event.target.value, true);
+        this.stateManager.set('userInput', event.target.value, true); // Update state silently
 
         const sendOnEnter = this.stateManager.get('userPreferences.sendOnEnter');
         if (event.key === 'Enter' && sendOnEnter && !event.shiftKey) {
@@ -460,8 +510,10 @@ class App {
             this._handleSendMessage();
         }
         
+        // Auto-resize textarea
         event.target.style.height = 'auto';
-        const maxHeight = parseInt(this.utils.getStyle(event.target, 'max-height'), 10) || Infinity;
+        const maxHeightStyle = this.utils.getStyle(event.target, 'max-height');
+        const maxHeight = maxHeightStyle && maxHeightStyle !== 'none' ? parseInt(maxHeightStyle, 10) : Infinity;
         event.target.style.height = Math.min(event.target.scrollHeight, maxHeight) + 'px';
     }
 
@@ -469,10 +521,19 @@ class App {
         this.stateManager.clearChatHistory(); 
         this.stateManager.setActiveSessionId(null); 
         if(this.chatHistory) this.chatHistory.renderHistoryList(); 
-        if(this.ui.chatInput) this.ui.chatInput.focus();
+        if(this.ui.chatInput) {
+            this.ui.chatInput.value = ""; // Clear input field
+            this.ui.chatInput.style.height = 'auto'; // Reset height
+            this.ui.chatInput.focus();
+        }
         this._toggleEmptyState(true);
         if (this.soundEffects) this.soundEffects.playSoundEffect('newChat');
         this.eventEmitter.emit('newChatStarted');
+         // Potentially reset/update current chat title in header
+        if(this.ui.chatHeader) {
+            const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
+            if(chatTitleEl) chatTitleEl.textContent = 'New Chat';
+        }
     }
     
     _populateSettingsForm() {
@@ -486,29 +547,28 @@ class App {
         if(apiKeySettingEl) apiKeySettingEl.value = apiKey || '';
         
         const modelSelectEl = this.utils.$('#modelSelection', this.ui.settingsForm);
-        if(modelSelectEl) modelSelectEl.value = currentApiModel || 'claude-3-haiku-20240307'; // Default fallback
+        if(modelSelectEl) modelSelectEl.value = currentApiModel || 'claude-3-haiku-20240307';
 
         const autoScrollEl = this.utils.$('#autoScroll', this.ui.settingsForm);
-        if(autoScrollEl) autoScrollEl.checked = prefs.autoScroll;
+        if(autoScrollEl) autoScrollEl.checked = !!prefs.autoScroll;
         
         const sendOnEnterEl = this.utils.$('#sendOnEnter', this.ui.settingsForm);
-        if(sendOnEnterEl) sendOnEnterEl.checked = prefs.sendOnEnter;
+        if(sendOnEnterEl) sendOnEnterEl.checked = !!prefs.sendOnEnter;
 
         const markdownRenderingEl = this.utils.$('#markdownRendering', this.ui.settingsForm);
-        if(markdownRenderingEl) markdownRenderingEl.checked = prefs.markdownRendering;
+        if(markdownRenderingEl) markdownRenderingEl.checked = !!prefs.markdownRendering;
 
         const voiceInputEnabledEl = this.utils.$('#voiceInputEnabled', this.ui.settingsForm);
-        if(voiceInputEnabledEl) voiceInputEnabledEl.checked = prefs.voiceInputEnabled;
+        if(voiceInputEnabledEl) voiceInputEnabledEl.checked = !!prefs.voiceInputEnabled;
         
         const voiceOutputEnabledEl = this.utils.$('#voiceOutputEnabled', this.ui.settingsForm);
-        if(voiceOutputEnabledEl) voiceOutputEnabledEl.checked = prefs.voiceOutputEnabled;
+        if(voiceOutputEnabledEl) voiceOutputEnabledEl.checked = !!prefs.voiceOutputEnabled;
         
         const soundEffectsEnabledEl = this.utils.$('#soundEffectsEnabled', this.ui.settingsForm);
-        if(soundEffectsEnabledEl) soundEffectsEnabledEl.checked = prefs.soundEffectsEnabled;
+        if(soundEffectsEnabledEl) soundEffectsEnabledEl.checked = !!prefs.soundEffectsEnabled;
 
         const reduceMotionEl = this.utils.$('#reduceMotion', this.ui.settingsForm);
-        if(reduceMotionEl) reduceMotionEl.checked = prefs.reduceMotion;
-
+        if(reduceMotionEl) reduceMotionEl.checked = !!prefs.reduceMotion;
 
         const themeSelect = this.utils.$('#themeSelectorSetting', this.ui.settingsForm);
         if (themeSelect && this.themeManager) {
@@ -556,7 +616,9 @@ class App {
         }
 
         ['autoScroll', 'sendOnEnter', 'markdownRendering', 'voiceInputEnabled', 'voiceOutputEnabled', 'soundEffectsEnabled', 'reduceMotion'].forEach(key => {
-            this.stateManager.setUserPreference(key, formData.has(key));
+             const el = this.utils.$(`#${key}`, this.ui.settingsForm); // Ensure element exists before checking .has
+             if(el) this.stateManager.setUserPreference(key, formData.has(key) && el.checked);
+             else this.stateManager.setUserPreference(key, formData.has(key)); // Fallback for non-checkboxes or direct name
         });
         this.stateManager.setUserPreference('voiceCharacter', formData.get('characterVoiceSelector') || 'default');
 
@@ -574,11 +636,16 @@ class App {
     _handlePreferenceChange(event) {
         if(!event || !event.target) return;
         const target = event.target;
-        const key = target.name || target.id;
+        // Use a mapping or more specific handling for preference keys if IDs/names are not direct matches
+        let prefKey = target.name || target.id; 
         const value = target.type === 'checkbox' ? target.checked : target.value;
 
-        if (key === 'reduceMotion' || key === 'soundEffectsEnabled') {
-            this.stateManager.setUserPreference(key, value);
+        if (['reduceMotion', 'soundEffectsEnabled', 'voiceInputEnabled', 'voiceOutputEnabled', 'autoScroll', 'sendOnEnter', 'markdownRendering'].includes(prefKey)) {
+            this.stateManager.setUserPreference(prefKey, value);
+        } else if (prefKey === 'themeSelectorSetting') {
+            // Theme is applied on save, but could preview here if desired
+        } else if (prefKey === 'characterVoiceSelector') {
+            this.stateManager.setUserPreference('voiceCharacter', value);
         }
     }
 
@@ -587,6 +654,7 @@ class App {
             if (this.stateManager.get('isSettingsModalOpen')) {
                 this.stateManager.setModalOpen('isSettingsModalOpen', false);
             }
+            // Add other global escape handlers here if needed
         }
     }
 
@@ -619,20 +687,22 @@ class App {
 
     _toggleModal(modalElement, show) {
         const overlay = modalElement && modalElement.classList.contains('modal-overlay') ? modalElement : (modalElement ? modalElement.closest('.modal-overlay') : null);
-        if (!overlay) {
-            console.warn("Modal overlay not found for element:", modalElement);
-            return;
-        }
+        if (!overlay) return;
+        
+        const transitionDurationStyle = this.utils.getStyle(overlay, 'transition-duration');
+        const transitionDuration = transitionDurationStyle ? parseFloat(transitionDurationStyle) * 1000 : 300;
+
+
         if (show) {
             this.utils.removeClass(overlay, 'hidden');
-            this.utils.requestFrame(() => {
+            this.utils.requestFrame(() => { 
                 this.utils.addClass(overlay, 'active');
-                const firstFocusable = this.utils.$$('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])', modalElement || overlay).find(el => !el.disabled && el.offsetWidth > 0 && el.offsetHeight > 0);
+                const firstFocusable = this.utils.$$('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])', modalElement || overlay)
+                                           .find(el => !el.disabled && el.offsetWidth > 0 && el.offsetHeight > 0 && window.getComputedStyle(el).visibility !== 'hidden');
                 if (firstFocusable) firstFocusable.focus();
             });
         } else {
             this.utils.removeClass(overlay, 'active');
-            const transitionDuration = parseFloat(this.utils.getStyle(overlay, 'transition-duration') || '0.3') * 1000;
             setTimeout(() => {
                  if (!this.utils.hasClass(overlay, 'active')) this.utils.addClass(overlay, 'hidden');
             }, transitionDuration + 50);
@@ -653,24 +723,26 @@ class App {
     _displayError({ message, type = 'general' }) {
         console.error(`App Error (${type}):`, message);
         this.stateManager.set('lastError', { message, type, timestamp: Date.now() });
-        // For now, a simple alert. A proper toast system would be better.
-        alert(`Error: ${message}`);
+        // Replace with a more sophisticated UI notification system
+        alert(`Error: ${message}`); 
     }
 
     _displayNotification({ message, type = 'info', duration = 3000}) {
         console.log(`Notification (${type}): ${message}`);
+        // Replace with a more sophisticated UI notification system
         if(type !== 'error') alert(`Info: ${message}`);
     }
 
     destroy() {
         console.log('🛑 Destroying App...');
-        // Clean up event listeners, workers, etc.
-        // Example: window.removeEventListener('resize', this._debouncedResizeHandler);
+        if(this._debouncedResizeHandler) window.removeEventListener('resize', this._debouncedResizeHandler);
         document.removeEventListener('visibilitychange', this._handleVisibilityChange);
+
         if(this.voiceRecognition) this.voiceRecognition.destroy();
         if(this.voiceSynthesis) this.voiceSynthesis.destroy();
         if(this.themeManager) this.themeManager.destroy();
         if(this.audioWorker) this.audioWorker.terminate();
+        // Destroy other managers and remove event listeners from eventEmitter as needed
 
         this.stateManager.enableDebugging(false);
         this.isInitialized = false;
@@ -679,15 +751,30 @@ class App {
 
 // Global error handling & App instantiation
 window.addEventListener('error', (event) => {
-    console.error('Unhandled global error:', event.error || event.message, event);
+    const errorMsg = event.error ? (event.error.message || String(event.error)) : event.message;
+    const stack = event.error ? event.error.stack : null;
+    console.error('Unhandled global error:', errorMsg, stack, event);
     if (window.StateManager && typeof StateManager.getInstance === 'function' && StateManager.getInstance()) {
-        StateManager.getInstance().set('lastError', { /* ... error details ... */ });
+        StateManager.getInstance().set('lastError', {
+            message: 'Unhandled global error: ' + errorMsg,
+            stack: stack,
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno,
+            timestamp: new Date().toISOString()
+        });
     }
 });
 window.addEventListener('unhandledrejection', (event) => {
-    console.error('Unhandled promise rejection:', event.reason);
+    const reasonMsg = event.reason && event.reason.message ? event.reason.message : String(event.reason);
+    const stack = event.reason ? event.reason.stack : null;
+    console.error('Unhandled promise rejection:', reasonMsg, stack, event);
      if (window.StateManager && typeof StateManager.getInstance === 'function' && StateManager.getInstance()) {
-        StateManager.getInstance().set('lastError', { /* ... rejection details ... */ });
+        StateManager.getInstance().set('lastError', {
+            message: 'Unhandled promise rejection: ' + reasonMsg,
+            stack: stack,
+            timestamp: new Date().toISOString()
+        });
     }
 });
 
@@ -695,16 +782,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.UtilsInstance || !window.StateManager || !window.AppEvents) {
         const criticalErrorMsg = "FATAL: Core Singleton JS files (Utils, StateManager, AppEvents) failed to load or initialize their globals correctly. App cannot start.";
         console.error(criticalErrorMsg);
-        document.body.innerHTML = `<div style="font-family:sans-serif;color:red;padding:20px;">${criticalErrorMsg} Check script order and definitions.</div>`;
+        document.body.innerHTML = `<div style="font-family:sans-serif;color:red;padding:20px;">${criticalErrorMsg} Check script order and definitions in index.html.</div>`;
         return;
     }
     const parklandApp = new App();
-    window.parklandApp = parklandApp;
+    window.parklandApp = parklandApp; // Make app instance globally available for debugging or specific integrations
     parklandApp.init().catch(err => {
-        console.error("Fatal error during app initialization sequence:", err);
+        console.error("Fatal error during app initialization sequence:", err.message, err.stack);
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
-            loadingOverlay.innerHTML = `<div class="loading-text" style="color:red; font-size:16px; padding:20px;">Critical Error Initializing Application. Details in console. Please refresh.</div>`;
+            loadingOverlay.innerHTML = `<div class="loading-text" style="color:red; font-size:16px; padding:20px; text-align:left; white-space:pre-wrap;">Critical Error Initializing Application. Details in console. <br/>Error: ${err.message || String(err)} <br/>Please refresh.</div>`;
             if(loadingOverlay.classList.contains('hidden')) loadingOverlay.classList.remove('hidden');
             loadingOverlay.style.opacity = '1'; loadingOverlay.style.visibility = 'visible';
         }
