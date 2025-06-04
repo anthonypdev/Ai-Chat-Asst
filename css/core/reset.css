@@ -1,0 +1,747 @@
+/* ==========================================================================
+   CSS RESET - PARKLAND AI OPUS MAGNUM EDITION
+   Modern Browser Normalization & Foundation Reset
+   ========================================================================== */
+
+/* ==========================================================================
+   DOCUMENT & ROOT ELEMENT RESET
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent iOS text size adjust after orientation change */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* Improve text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* Set default font size for rem calculations */
+  font-size: 16px;
+
+  /* Smooth scrolling for anchor links */
+  scroll-behavior: smooth;
+
+  /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-400, #A9B0BC) var(--gray-100, #F3F4F8);
+}
+
+/* Disable smooth scrolling for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  /* Reset browser defaults */
+  margin: 0;
+  padding: 0;
+
+  /* Set base typography */
+  font-family: var(--font-family-default, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-size: var(--font-size-base, 1rem);
+  line-height: var(--line-height-normal, 1.5);
+  font-weight: var(--font-weight-normal, 400);
+  color: var(--text-primary, #16191E);
+  background-color: var(--bg-primary, #FFFFFF);
+
+  /* Improve font rendering */
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+
+  /* Prevent rubber band scrolling on iOS */
+  overscroll-behavior: none;
+
+  /* Set minimum height */
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+
+  /* Remove default margins on Safari */
+  -webkit-margin-before: 0;
+  -webkit-margin-after: 0;
+}
+
+/* ==========================================================================
+   HEADING ELEMENTS RESET
+   ========================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Remove default heading margins in all browsers */
+h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+ul, ol, dl, figure,
+hr, fieldset, legend {
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   TEXT ELEMENTS RESET
+   ========================================================================== */
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset emphasis elements */
+b, strong {
+  font-weight: var(--font-weight-bold, 700);
+}
+
+i, em {
+  font-style: italic;
+}
+
+small {
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+/* Reset subscript and superscript */
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/* Reset abbreviations */
+abbr[title] {
+  text-decoration: underline dotted;
+  border-bottom: none;
+}
+
+/* Reset mark element */
+mark {
+  background-color: #ffff99;
+  color: #000;
+  padding: 0.125em 0.25em;
+}
+
+/* Reset quote elements */
+blockquote, q {
+  quotes: none;
+}
+
+blockquote::before,
+blockquote::after,
+q::before,
+q::after {
+  content: '';
+  content: none;
+}
+
+/* Reset code elements */
+code, kbd, samp, pre {
+  font-family: var(--font-family-mono, 'Courier New', monospace);
+  font-size: 1em;
+}
+
+pre {
+  overflow: auto;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+/* ==========================================================================
+   LIST ELEMENTS RESET
+   ========================================================================== */
+
+ul, ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset definition lists */
+dl {
+  margin: 0;
+}
+
+dt {
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   LINK ELEMENTS RESET
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: none;
+  background-color: transparent;
+
+  /* Remove gaps in links underline in iOS 8+ and Safari 8+ */
+  -webkit-text-decoration-skip: objects;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* Remove default focus outline, we'll add our own */
+a:focus {
+  outline: none;
+}
+
+/* ==========================================================================
+   MEDIA ELEMENTS RESET
+   ========================================================================== */
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+img {
+  border-style: none;
+  vertical-align: middle;
+}
+
+/* Remove border on images inside links in IE 10 */
+img {
+  border: 0;
+}
+
+/* Reset SVG elements */
+svg {
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+/* Reset audio and video elements */
+audio, video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+/* ==========================================================================
+   FORM ELEMENTS RESET
+   ========================================================================== */
+
+/* Reset form containers */
+form {
+  margin: 0;
+  padding: 0;
+}
+
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+legend {
+  border: 0;
+  padding: 0;
+  white-space: normal;
+  color: inherit;
+  display: block;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Reset form controls */
+button, input, optgroup, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* Remove default button styling */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+
+  /* Remove button text shadow in Firefox 4+ */
+  text-shadow: none;
+
+  /* Remove inner border and padding in Firefox */
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* Reset input elements */
+input {
+  background: none;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Reset search input */
+input[type="search"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+/* Reset checkbox and radio */
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: auto;
+  height: auto;
+}
+
+/* Reset select elements */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+/* Reset textarea */
+textarea {
+  resize: vertical;
+  overflow: auto;
+  vertical-align: top;
+  background: none;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Reset placeholder styling */
+::placeholder {
+  color: var(--text-muted, #A9B0BC);
+  opacity: 1;
+}
+
+::-webkit-input-placeholder {
+  color: var(--text-muted, #A9B0BC);
+  opacity: 1;
+}
+
+::-moz-placeholder {
+  color: var(--text-muted, #A9B0BC);
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: var(--text-muted, #A9B0BC);
+  opacity: 1;
+}
+
+/* ==========================================================================
+   TABLE ELEMENTS RESET
+   ========================================================================== */
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+th, td {
+  padding: 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* ==========================================================================
+   INTERACTIVE ELEMENTS RESET
+   ========================================================================== */
+
+/* Reset details/summary */
+details {
+  display: block;
+}
+
+summary {
+  display: list-item;
+  cursor: pointer;
+}
+
+/* Reset progress element */
+progress {
+  vertical-align: baseline;
+}
+
+/* Reset hidden attribute */
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY IMPROVEMENTS
+   ========================================================================== */
+
+/* Improve focus visibility */
+:focus-visible {
+  outline: 2px solid var(--primary, #7A77FF);
+  outline-offset: 2px;
+}
+
+/* Remove focus for mouse users but keep for keyboard users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   WEBKIT SCROLLBAR STYLING
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100, #F3F4F8);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300, #D9DCE4);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400, #A9B0BC);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--gray-100, #F3F4F8);
+}
+
+/* ==========================================================================
+   SELECTION STYLING
+   ========================================================================== */
+
+::selection {
+  background: var(--primary, #7A77FF);
+  color: var(--text-inverse, #FFFFFF);
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: var(--primary, #7A77FF);
+  color: var(--text-inverse, #FFFFFF);
+  text-shadow: none;
+}
+
+/* ==========================================================================
+   MOBILE SPECIFIC RESETS
+   ========================================================================== */
+
+/* Prevent zoom on focus for iOS */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* iOS specific resets */
+@supports (-webkit-touch-callout: none) {
+  /* Prevent zoom on double tap */
+  * {
+    touch-action: manipulation;
+  }
+
+  /* Remove iOS button styling */
+  input[type="submit"],
+  input[type="button"],
+  button {
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  /* Fix iOS viewport units */
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Android specific resets */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select {
+    background-image: none;
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES RESET
+   ========================================================================== */
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+
+  a[href^="#"]::after,
+  a[href^="javascript:"]::after {
+    content: "";
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}
+
+/* ==========================================================================
+   UTILITY RESET CLASSES
+   ========================================================================== */
+
+/* Reset button appearance completely */
+.btn-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Reset list appearance completely */
+.list-reset {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset link appearance completely */
+.link-reset {
+  color: inherit;
+  text-decoration: none;
+  background: none;
+}
+
+/* Reset input appearance completely */
+.input-reset {
+  background: none;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+
+/* Optimize repaints for animated elements */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-auto {
+  will-change: auto;
+}
+
+/* GPU acceleration for smooth animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Contain layout changes */
+.contain-layout {
+  contain: layout;
+}
+
+.contain-paint {
+  contain: paint;
+}
+
+.contain-strict {
+  contain: strict;
+}

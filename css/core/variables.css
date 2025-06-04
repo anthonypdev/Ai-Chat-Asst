@@ -1,0 +1,521 @@
+/* ==========================================================================
+   CSS VARIABLES - PARKLAND AI OPUS MAGNUM EDITION
+   Design Token System for Premium Multi-Theme Experience
+   ========================================================================== */
+
+:root {
+  /* ==========================================================================
+     CORE DESIGN TOKENS - Universal Foundation
+     ========================================================================== */
+
+  /* Color Primitives */
+  --white: #FFFFFF;
+  --black: #000000;
+  --transparent: transparent;
+
+  /* Gray Scale - Neutral Palette */
+  --gray-50: #FBFBFC;
+  --gray-100: #F3F4F8;
+  --gray-200: #EBEDF2;
+  --gray-300: #D9DCE4;
+  --gray-400: #A9B0BC;
+  --gray-500: #747C89;
+  --gray-600: #505863;
+  --gray-700: #3D4550;
+  --gray-800: #252A31;
+  --gray-900: #16191E;
+  --gray-950: #0A0C0F;
+
+  /* ==========================================================================
+     DEFAULT THEME - Modern Professional AI Interface
+     ========================================================================== */
+
+  /* Primary Color System */
+  --primary: #7A77FF;
+  --primary-rgb: 122, 119, 255;
+  --primary-dark: #5A57E0;
+  --primary-darker: #403EBA;
+  --primary-darker-rgb: 64, 62, 186;
+  --primary-light: #9C9AFF;
+  --primary-lighter: #BFBDFF;
+  --primary-lighter-rgb: 191, 189, 255;
+
+  /* Secondary & Accent Colors */
+  --accent: #FF4DA8;
+  --accent-rgb: 255, 77, 168;
+  --accent-light: #FF85C2;
+  --accent-lighter: #FFB3D6;
+
+  /* Semantic Colors */
+  --success: #00D15B;
+  --success-rgb: 0, 209, 91;
+  --warning: #FFAA00;
+  --warning-rgb: 255, 170, 0;
+  --error: #E60000;
+  --error-rgb: 230, 0, 0;
+  --info: #00B8FF;
+  --info-rgb: 0, 184, 255;
+
+  /* Background System */
+  --bg-primary: #FFFFFF;
+  --bg-primary-rgb: 255, 255, 255;
+  --bg-secondary: #F9FAFD;
+  --bg-secondary-rgb: 249, 250, 253;
+  --bg-tertiary: #F4F6FA;
+  --bg-tertiary-rgb: 244, 246, 250;
+  --bg-elevated: #FFFFFF;
+  --bg-elevated-rgb: 255, 255, 255;
+  --bg-overlay: rgba(9, 11, 13, 0.92);
+  --bg-backdrop: rgba(9, 11, 13, 0.98);
+
+  /* Text Color System */
+  --text-primary: #16191E;
+  --text-primary-rgb: 22, 25, 30;
+  --text-secondary: #3D4550;
+  --text-secondary-rgb: 61, 69, 80;
+  --text-tertiary: #747C89;
+  --text-tertiary-rgb: 116, 124, 137;
+  --text-muted: #A9B0BC;
+  --text-muted-rgb: 169, 176, 188;
+  --text-inverse: #FFFFFF;
+  --text-inverse-rgb: 255, 255, 255;
+
+  /* Border System */
+  --border: #EBEDF2;
+  --border-rgb: 235, 237, 242;
+  --border-light: #F3F4F8;
+  --border-light-rgb: 243, 244, 248;
+  --border-dark: #D9DCE4;
+  --border-dark-rgb: 217, 220, 228;
+
+  /* ==========================================================================
+     TYPOGRAPHY SYSTEM
+     ========================================================================== */
+
+  /* Font Families */
+  --font-family-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                         Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                         'Segoe UI Emoji';
+  --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  --font-family-heading: var(--font-family-default);
+
+  /* Font Scale - Fluid Typography */
+  --font-size-xs: clamp(0.78rem, 0.9vw, 0.86rem);
+  --font-size-sm: clamp(0.88rem, 1.1vw, 0.98rem);
+  --font-size-base: clamp(1rem, 1.3vw, 1.1rem);
+  --font-size-lg: clamp(1.15rem, 1.5vw, 1.25rem);
+  --font-size-xl: clamp(1.35rem, 1.8vw, 1.5rem);
+  --font-size-2xl: clamp(1.6rem, 2.2vw, 1.85rem);
+  --font-size-3xl: clamp(1.9rem, 2.8vw, 2.25rem);
+  --font-size-4xl: clamp(2.3rem, 3.5vw, 2.75rem);
+  --font-size-5xl: clamp(2.8rem, 4.5vw, 3.75rem);
+  --font-size-6xl: clamp(3.5rem, 6vw, 5rem);
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  /* Font Weights */
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Letter Spacing */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* ==========================================================================
+     SPACING SYSTEM - Harmonious Scale
+     ========================================================================== */
+
+  --space-unit: 4px;
+  --space-px: 1px;
+  --space-0: 0;
+  --space-0-5: calc(0.125 * var(--space-unit)); /* 0.5px */
+  --space-1: calc(0.25 * var(--space-unit));    /* 1px */
+  --space-1-5: calc(0.375 * var(--space-unit)); /* 1.5px */
+  --space-2: calc(0.5 * var(--space-unit));     /* 2px */
+  --space-2-5: calc(0.625 * var(--space-unit)); /* 2.5px */
+  --space-3: calc(0.75 * var(--space-unit));    /* 3px */
+  --space-3-5: calc(0.875 * var(--space-unit)); /* 3.5px */
+  --space-4: var(--space-unit);                 /* 4px */
+  --space-5: calc(1.25 * var(--space-unit));    /* 5px */
+  --space-6: calc(1.5 * var(--space-unit));     /* 6px */
+  --space-7: calc(1.75 * var(--space-unit));    /* 7px */
+  --space-8: calc(2 * var(--space-unit));       /* 8px */
+  --space-9: calc(2.25 * var(--space-unit));    /* 9px */
+  --space-10: calc(2.5 * var(--space-unit));    /* 10px */
+  --space-11: calc(2.75 * var(--space-unit));   /* 11px */
+  --space-12: calc(3 * var(--space-unit));      /* 12px */
+  --space-14: calc(3.5 * var(--space-unit));    /* 14px */
+  --space-16: calc(4 * var(--space-unit));      /* 16px */
+  --space-20: calc(5 * var(--space-unit));      /* 20px */
+  --space-24: calc(6 * var(--space-unit));      /* 24px */
+  --space-28: calc(7 * var(--space-unit));      /* 28px */
+  --space-32: calc(8 * var(--space-unit));      /* 32px */
+  --space-36: calc(9 * var(--space-unit));      /* 36px */
+  --space-40: calc(10 * var(--space-unit));     /* 40px */
+  --space-44: calc(11 * var(--space-unit));     /* 44px */
+  --space-48: calc(12 * var(--space-unit));     /* 48px */
+  --space-52: calc(13 * var(--space-unit));     /* 52px */
+  --space-56: calc(14 * var(--space-unit));     /* 56px */
+  --space-60: calc(15 * var(--space-unit));     /* 60px */
+  --space-64: calc(16 * var(--space-unit));     /* 64px */
+  --space-72: calc(18 * var(--space-unit));     /* 72px */
+  --space-80: calc(20 * var(--space-unit));     /* 80px */
+  --space-96: calc(24 * var(--space-unit));     /* 96px */
+
+  /* Semantic Spacing */
+  --space-xs: var(--space-8);
+  --space-sm: var(--space-12);
+  --space-md: var(--space-16);
+  --space-lg: var(--space-24);
+  --space-xl: var(--space-32);
+  --space-2xl: var(--space-48);
+  --space-3xl: var(--space-64);
+  --space-4xl: var(--space-96);
+
+  /* ==========================================================================
+     SHADOW SYSTEM - Depth & Elevation
+     ========================================================================== */
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-none: none;
+
+  /* Themed Shadows */
+  --shadow-glow: 0 0 20px rgba(var(--primary-rgb), 0.15);
+  --shadow-glow-strong: 0 0 30px rgba(var(--primary-rgb), 0.3);
+  --shadow-colored: 0 4px 14px 0 rgba(var(--primary-rgb), 0.1);
+
+  /* ==========================================================================
+     BORDER RADIUS SYSTEM
+     ========================================================================== */
+
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     ANIMATION & TRANSITION SYSTEM
+     ========================================================================== */
+
+  /* Easing Functions */
+  --ease-linear: cubic-bezier(0, 0, 1, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-back: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Duration Scale */
+  --duration-75: 75ms;
+  --duration-100: 100ms;
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --duration-500: 500ms;
+  --duration-700: 700ms;
+  --duration-1000: 1000ms;
+
+  /* Semantic Durations */
+  --transition-fast: var(--duration-150);
+  --transition-base: var(--duration-300);
+  --transition-slow: var(--duration-500);
+  --transition-slower: var(--duration-700);
+
+  /* ==========================================================================
+     Z-INDEX SYSTEM - Layering Stack
+     ========================================================================== */
+
+  --z-hide: -1;
+  --z-base: 0;
+  --z-docked: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-banner: 1030;
+  --z-overlay: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  --z-maximum: 2147483647;
+
+  /* ==========================================================================
+     BREAKPOINTS - Responsive Design System
+     ========================================================================== */
+
+  --breakpoint-xs: 475px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* ==========================================================================
+     GRADIENTS - Color Transitions
+     ========================================================================== */
+
+  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  --gradient-primary-hover: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+}
+
+/* ==========================================================================
+   JAWS THEME - Deep Ocean Terror
+   ========================================================================== */
+
+[data-theme="jaws"] {
+  /* Primary Color System - Ocean Blues */
+  --primary: #0099DD;
+  --primary-rgb: 0, 153, 221;
+  --primary-dark: #0070A3;
+  --primary-darker: #004066;
+  --primary-darker-rgb: 0, 64, 102;
+  --primary-light: #58C5F5;
+  --primary-lighter: #90DFFF;
+  --primary-lighter-rgb: 144, 223, 255;
+
+  /* Accent Colors - Blood Red Danger */
+  --accent: #FF3333;
+  --accent-rgb: 255, 51, 51;
+  --accent-light: #FF6666;
+  --accent-lighter: #FF9999;
+
+  /* Background System - Abyss Depths */
+  --bg-primary: #000A14;
+  --bg-primary-rgb: 0, 10, 20;
+  --bg-secondary: #00060D;
+  --bg-secondary-rgb: 0, 6, 13;
+  --bg-tertiary: #000307;
+  --bg-tertiary-rgb: 0, 3, 7;
+  --bg-elevated: #010F1C;
+  --bg-elevated-rgb: 1, 15, 28;
+  --bg-overlay: rgba(0, 3, 7, 0.95);
+  --bg-backdrop: rgba(0, 3, 7, 0.98);
+
+  /* Text System - Bioluminescent */
+  --text-primary: #E8F8FF;
+  --text-primary-rgb: 232, 248, 255;
+  --text-secondary: #BDEBFF;
+  --text-secondary-rgb: 189, 235, 255;
+  --text-tertiary: #8AD5FF;
+  --text-tertiary-rgb: 138, 213, 255;
+  --text-muted: #58C5F5;
+  --text-muted-rgb: 88, 197, 245;
+  --text-inverse: #000307;
+  --text-inverse-rgb: 0, 3, 7;
+
+  /* Border System - Tidal Lines */
+  --border: #58C5F5;
+  --border-rgb: 88, 197, 245;
+  --border-light: #90DFFF;
+  --border-light-rgb: 144, 223, 255;
+  --border-dark: #0070A3;
+  --border-dark-rgb: 0, 112, 163;
+
+  /* Typography - Nautical Themed */
+  --font-family-default: 'Inter', var(--font-family-default);
+  --font-family-theme: 'Nosifier', 'Creepster', 'Bangers', 'Pirata One', fantasy;
+  --font-family-heading: var(--font-family-theme);
+
+  /* Shadows - Underwater Glow */
+  --shadow-glow: 0 0 30px rgba(var(--accent-rgb), 0.4), 0 0 15px rgba(var(--primary-light-rgb), 0.3);
+  --shadow-glow-strong: 0 0 50px rgba(var(--accent-rgb), 0.6), 0 0 25px rgba(var(--primary-light-rgb), 0.5);
+
+  /* Gradients - Ocean Depths */
+  --gradient-primary: linear-gradient(180deg, var(--primary) 0%, var(--primary-darker) 100%);
+  --gradient-primary-hover: linear-gradient(180deg, var(--primary-dark) 0%, #002C4A 100%);
+  --gradient-danger: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+
+  /* Environmental Effects */
+  --water-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='water'%3E%3CfeTurbulence baseFrequency='0.02 0.03' numOctaves='3'/%3E%3CfeDisplacementMap scale='2'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='100' height='100' fill='%23004066' filter='url(%23water)'/%3E%3C/svg%3E");
+  --bubble-animation-duration: 8s;
+}
+
+/* ==========================================================================
+   JURASSIC PARK THEME - Prehistoric Amber
+   ========================================================================== */
+
+[data-theme="jurassic"] {
+  /* Primary Color System - Amber & Gold */
+  --primary: #D4AC5A;
+  --primary-rgb: 212, 172, 90;
+  --primary-dark: #B08D45;
+  --primary-darker: #8A6C2F;
+  --primary-darker-rgb: 138, 108, 47;
+  --primary-light: #F0CEA0;
+  --primary-lighter: #F8E5C0;
+  --primary-lighter-rgb: 248, 229, 192;
+
+  /* Accent Colors - Lush Vegetation */
+  --accent: #507D32;
+  --accent-rgb: 80, 125, 50;
+  --accent-light: #78A858;
+  --accent-lighter: #9BC274;
+
+  /* Background System - Ancient Earth */
+  --bg-primary: #1E1A12;
+  --bg-primary-rgb: 30, 26, 18;
+  --bg-secondary: #15120A;
+  --bg-secondary-rgb: 21, 18, 10;
+  --bg-tertiary: #0F0D07;
+  --bg-tertiary-rgb: 15, 13, 7;
+  --bg-elevated: #2A251B;
+  --bg-elevated-rgb: 42, 37, 27;
+  --bg-overlay: rgba(15, 13, 7, 0.94);
+  --bg-backdrop: rgba(15, 13, 7, 0.97);
+
+  /* Text System - Fossil Ivory */
+  --text-primary: #F8E5C0;
+  --text-primary-rgb: 248, 229, 192;
+  --text-secondary: #F0CEA0;
+  --text-secondary-rgb: 240, 206, 160;
+  --text-tertiary: #D4AC5A;
+  --text-tertiary-rgb: 212, 172, 90;
+  --text-muted: #B08D45;
+  --text-muted-rgb: 176, 141, 69;
+  --text-inverse: #0F0D07;
+  --text-inverse-rgb: 15, 13, 7;
+
+  /* Border System - Ancient Metal */
+  --border: #8A6C2F;
+  --border-rgb: 138, 108, 47;
+  --border-light: #B08D45;
+  --border-light-rgb: 176, 141, 69;
+  --border-dark: #685022;
+  --border-dark-rgb: 104, 80, 34;
+
+  /* Typography - Prehistoric Carved */
+  --font-family-default: 'Inter', var(--font-family-default);
+  --font-family-theme: 'Rye', 'Metal Mania', 'Ewert', 'Special Elite', serif;
+  --font-family-heading: var(--font-family-theme);
+
+  /* Shadows - Amber Glow */
+  --shadow-glow: 0 0 25px rgba(var(--accent-rgb), 0.35), 0 0 15px rgba(var(--primary-rgb), 0.25);
+  --shadow-glow-strong: 0 0 40px rgba(var(--accent-rgb), 0.5), 0 0 25px rgba(var(--primary-rgb), 0.4);
+
+  /* Gradients - Weathered Materials */
+  --gradient-primary: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #755827 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #8A6C2F 0%, var(--primary-dark) 50%, #A07C3E 100%);
+  --gradient-amber: radial-gradient(circle, var(--primary-light) 0%, var(--primary) 50%, var(--primary-dark) 100%);
+
+  /* Environmental Effects */
+  --foliage-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='foliage'%3E%3CfeTurbulence baseFrequency='0.05 0.08' numOctaves='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.5 0 0 0 0 0.1 0 0 0 0.3 0'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='100' height='100' fill='%23507D32' filter='url(%23foliage)' opacity='0.6'/%3E%3C/svg%3E");
+  --amber-glow-animation-duration: 3s;
+  --electric-fence-warning: #FFDD00;
+}
+
+/* ==========================================================================
+   COMPONENT-SPECIFIC VARIABLES
+   ========================================================================== */
+
+:root {
+  /* Loading Screen */
+  --loading-duration-total: 6s;
+  --loading-tip-duration: 4s;
+  --loading-logo-size: 6.5rem;
+
+  /* Character System */
+  --character-transition-duration: 1.2s;
+  --walkie-talkie-size: 60px;
+  --mr-dna-size: 80px;
+
+  /* Transition Animations */
+  --theme-transition-duration: 2.8s;
+  --gate-animation-duration: 2.5s;
+  --wave-animation-duration: 2.2s;
+
+  /* Chat Interface */
+  --message-appear-duration: 0.5s;
+  --typing-indicator-duration: 1.5s;
+  --sidebar-width: 320px;
+  --sidebar-width-mobile: 300px;
+
+  /* Input System */
+  --input-height-min: 44px;
+  --input-height-max: 200px;
+  --voice-indicator-size: 30px;
+
+  /* Button System */
+  --button-height-sm: 32px;
+  --button-height-md: 40px;
+  --button-height-lg: 48px;
+  --button-ripple-duration: 0.6s;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+    --transition-slower: 0ms;
+    --theme-transition-duration: 0ms;
+    --character-transition-duration: 0ms;
+    --loading-duration-total: 1s;
+  }
+}
+
+/* ==========================================================================
+   HIGH CONTRAST MODE
+   ========================================================================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --primary: #0066CC;
+    --accent: #CC0000;
+    --bg-primary: #FFFFFF;
+    --text-primary: #000000;
+    --border: #000000;
+    --shadow-xs: none;
+    --shadow-sm: none;
+    --shadow-md: 0 0 0 2px var(--border);
+    --shadow-lg: 0 0 0 3px var(--border);
+    --shadow-xl: 0 0 0 4px var(--border);
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+  :root {
+    --bg-primary: white;
+    --text-primary: black;
+    --shadow-xs: none;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+    --shadow-2xl: none;
+  }
+}
