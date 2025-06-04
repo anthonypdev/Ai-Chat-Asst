@@ -8,7 +8,7 @@
 
 class ParklandUtils {
     constructor() {
-        this.version = '2.0.2'; // Incremented version for this fix
+        this.version = '2.0.3'; // Incremented version for this fix
         this.cache = new Map();
         this.animationFrameCallbacks = new Set();
         this.isAnimationLoopRunning = false;
@@ -132,7 +132,7 @@ class ParklandUtils {
         svg.setAttribute("fill", attributes.fill || "currentColor");
         svg.setAttribute("width", attributes.width || "1em");
         svg.setAttribute("height", attributes.height || "1em");
-        svg.setAttribute("aria-hidden", "true");
+        svg.setAttribute("aria-hidden", "true"); 
 
         let pathData = "";
         switch(iconName) {
@@ -142,7 +142,7 @@ class ParklandUtils {
             case 'trash': pathData = "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"; break;
             case 'refresh': pathData = "M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"; break;
             case 'edit': pathData = "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"; break;
-            default: const text = document.createElementNS(svgNS, "text"); text.setAttribute("x", "50%"); text.setAttribute("y", "50%"); text.setAttribute("dominant-baseline", "middle"); text.setAttribute("text-anchor", "middle"); text.textContent = "?"; svg.appendChild(text); break;
+            default: const text = document.createElementNS(svgNS, "text"); text.setAttribute("x", "50%"); text.setAttribute("y", "50%"); text.setAttribute("dominant-baseline", "middle"); text.setAttribute("text-anchor", "middle"); text.setAttribute("font-size", "14"); text.textContent = iconName.substring(0,1).toUpperCase() || "?"; svg.appendChild(text); break;
         }
         if (pathData) { const path = document.createElementNS(svgNS, "path"); path.setAttribute("d", pathData); svg.appendChild(path); }
         return svg.outerHTML;
@@ -154,7 +154,7 @@ class ParklandUtils {
     requestFrame(callback) { const frameId = requestAnimationFrame(callback); this.animationFrameCallbacks.add(frameId); return frameId; }
     cancelFrame(frameId) { cancelAnimationFrame(frameId); this.animationFrameCallbacks.delete(frameId); }
 
-    animate(element, properties, options = {}) { /* ... (same as previous full version) ... */ 
+    animate(element, properties, options = {}) { 
         return new Promise((resolve) => {
             if (!element || typeof element.style === 'undefined') { resolve(); return; }
             const { duration = 300, easing = 'var(--ease-out)', delay = 0 } = options;
@@ -170,17 +170,17 @@ class ParklandUtils {
             setTimeout(() => { element.removeEventListener('transitionend', onTransitionEnd); element.style.transition = ''; resolve(); }, duration + delay + 50);
         });
     }
-    fadeIn(element, duration = 300, displayType = 'block') { /* ... (same as previous full version) ... */ 
+    fadeIn(element, duration = 300, displayType = 'block') { 
         if (!element || typeof element.style === 'undefined') return Promise.resolve();
         element.style.opacity = '0'; element.style.display = displayType;
         return this.animate(element, { opacity: '1' }, { duration });
     }
-    fadeOut(element, duration = 300) { /* ... (same as previous full version) ... */ 
+    fadeOut(element, duration = 300) { 
         if (!element || typeof element.style === 'undefined') return Promise.resolve();
         return this.animate(element, { opacity: '0' }, { duration })
             .then(() => { if (element.style.opacity === '0') element.style.display = 'none'; });
     }
-    slideDown(element, duration = 300) { /* ... (same as previous full version) ... */ 
+    slideDown(element, duration = 300) { 
         if (!element || typeof element.style === 'undefined') return Promise.resolve();
         return new Promise((resolve) => {
             element.style.display = 'block'; const height = element.scrollHeight + 'px';
@@ -190,7 +190,7 @@ class ParklandUtils {
             this.requestFrame(() => { element.style.height = height; element.style.opacity = '1'; });
             const onTransitionEnd = (event) => {
                 if (event.target === element && (event.propertyName === 'height' || event.propertyName === 'opacity')) {
-                    if (parseFloat(element.style.height) >= parseFloat(height) -1 && parseFloat(element.style.opacity) === 1) {
+                    if (parseFloat(element.style.height) >= (element.scrollHeight -1) && parseFloat(element.style.opacity) === 1) {
                          element.removeEventListener('transitionend', onTransitionEnd);
                          element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = '';
                          resolve();
@@ -201,7 +201,7 @@ class ParklandUtils {
             setTimeout(() => { element.removeEventListener('transitionend', onTransitionEnd); element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = ''; resolve(); }, duration + 50 + (duration*0.2));
         });
     }
-    slideUp(element, duration = 300) { /* ... (same as previous full version) ... */ 
+    slideUp(element, duration = 300) { 
         if (!element || typeof element.style === 'undefined') return Promise.resolve();
         return new Promise((resolve) => {
             element.style.height = element.scrollHeight + 'px'; element.style.overflow = 'hidden';
@@ -210,7 +210,7 @@ class ParklandUtils {
             this.requestFrame(() => { element.style.height = '0'; element.style.opacity = '0'; });
             const onTransitionEnd = (event) => {
                  if (event.target === element && (event.propertyName === 'height' || event.propertyName === 'opacity')) {
-                    if (parseFloat(element.style.height) <= 1 && parseFloat(element.style.opacity) === 0) { // Check if effectively 0
+                    if (parseFloat(element.style.height) <= 1 && parseFloat(element.style.opacity) === 0) { 
                         element.removeEventListener('transitionend', onTransitionEnd);
                         element.style.display = 'none'; element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = '';
                         resolve();
@@ -221,7 +221,7 @@ class ParklandUtils {
             setTimeout(() => { element.removeEventListener('transitionend', onTransitionEnd); element.style.display = 'none'; element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = ''; resolve(); }, duration + 50);
         });
     }
-    shake(element, intensity = 5, duration = 400) { /* ... (same as previous full version using Web Animations API) ... */ 
+    shake(element, intensity = 5, duration = 400) { 
         if (!element || typeof element.animate !== 'function') return Promise.resolve();
         return new Promise(resolve => {
             element.animate([
@@ -233,7 +233,7 @@ class ParklandUtils {
         });
     }
     setupPerformanceMonitoring() { /* Minimal stub */ }
-    startAnimationLoop(callback = null) { this.isAnimationLoopRunning = true; /* ... (full loop logic needed if used) */ }
+    startAnimationLoop(callback = null) { this.isAnimationLoopRunning = true; /* ... */ }
     stopAnimationLoop() { this.isAnimationLoopRunning = false; /* ... */ }
     updatePerformanceMetrics(timestamp) { /* ... */ }
     getCurrentFPS() { return this.performanceMetrics.averageFPS; }
@@ -257,16 +257,25 @@ class ParklandUtils {
     }
 
     throttle(func, limit) {
+        let inThrottle;
         let lastFunc;
         let lastRan;
         return function(...args) {
             const context = this;
-            if (!lastRan) {
+            if (!inThrottle) {
                 func.apply(context, args);
                 lastRan = Date.now();
+                inThrottle = true;
+                setTimeout(() => {
+                    inThrottle = false;
+                    if (lastFunc) {
+                        lastFunc();
+                        lastFunc = null;
+                    }
+                }, limit);
             } else {
                 clearTimeout(lastFunc);
-                lastFunc = setTimeout(function() {
+                lastFunc = setTimeout(() => {
                     if ((Date.now() - lastRan) >= limit) {
                         func.apply(context, args);
                         lastRan = Date.now();
@@ -277,23 +286,22 @@ class ParklandUtils {
     }
 
     // ===========================================
-    // STRING, VALIDATION, DATE/TIME, COLOR, DEVICE, STORAGE, HELPERS (Retained as in previous full version)
+    // STRING, VALIDATION, DATE/TIME, COLOR, DEVICE, STORAGE, HELPERS
     // ===========================================
     escapeHtml(text) { return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]); }
     truncate(str, maxLength, suffix = '...') { if (typeof str !== 'string') return ''; return str.length > maxLength ? str.substring(0, maxLength - suffix.length) + suffix : str; }
     isValidEmail(email) { const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; return re.test(String(email).toLowerCase()); }
     formatRelativeTime(dateInput) {
         const date = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
-        if (isNaN(date.getTime())) return String(dateInput); // Invalid date
-        // Simple time formatting, can be expanded with relative logic (e.g., "5 mins ago")
+        if (isNaN(date.getTime())) return String(dateInput);
         return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
     }
-    hexToRgb(hex) { /* Basic implementation */ const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }
-    getDeviceType() { /* Basic implementation */ const ua = navigator.userAgent; if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return "tablet"; if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) return "mobile"; return "desktop"; }
+    hexToRgb(hex) { const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }
+    getDeviceType() { const ua = navigator.userAgent; if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return "tablet"; if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) return "mobile"; return "desktop"; }
     setStorageItem(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { console.error("Error saving to localStorage:", e); return false; }}
     getStorageItem(key) { try { const item = localStorage.getItem(key); return item ? JSON.parse(item) : null; } catch (e) { console.error("Error reading from localStorage:", e); return null; }}
     removeStorageItem(key) { try { localStorage.removeItem(key); } catch (e) { console.error("Error removing from localStorage:", e); }}
-    clearStoragePrefix(prefix) { /* ... */ }
+    clearStoragePrefix(prefix) { try { Object.keys(localStorage).filter(k => k.startsWith(prefix)).forEach(k => localStorage.removeItem(k)); } catch (e) { console.error("Error clearing storage by prefix:", e); }}
     generateId(prefix = 'id_') { return prefix + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36); }
     deepClone(obj) { if (obj === null || typeof obj !== 'object') return obj; try { return JSON.parse(JSON.stringify(obj)); } catch(e) { const c = Array.isArray(obj) ? [] : {}; for(const k in obj) { if(Object.prototype.hasOwnProperty.call(obj, k)) c[k] = this.deepClone(obj[k]); } return c; } }
     isEmpty(value) { return value === undefined || value === null || (typeof value === 'object' && Object.keys(value).length === 0) || (typeof value === 'string' && value.trim().length === 0); }
@@ -304,6 +312,8 @@ class ParklandUtils {
         this.cache.clear();
         this.animationFrameCallbacks.forEach(id => cancelAnimationFrame(id));
         this.animationFrameCallbacks.clear();
+        // Note: Global error listeners or other persistent effects set up by utils
+        // would need explicit removal here if they were part of this class.
     }
 }
 
