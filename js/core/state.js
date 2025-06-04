@@ -42,6 +42,7 @@ class StateManager {
             lastError: null,
             currentView: 'login', // 'login', 'chat'
             debugMode: false,
+            activeSessionId: null, // Added to track the current loaded/active chat session
             // Add other state properties as needed
         };
 
@@ -49,7 +50,7 @@ class StateManager {
         StateManager.instance = this;
 
         this.loadInitialState(); // Load from persistent storage
-        console.log('👑 StateManager initialized and initial state loaded.');
+        // console.log('👑 StateManager initialized and initial state loaded.'); // Moved log to after loadInitialState potentially sets debugMode
     }
 
     static getInstance() {
@@ -93,35 +94,31 @@ class StateManager {
 
         let changed = false;
         let oldValue;
+        const keys = key.split('.');
+        let current = this._state;
 
-        if (!key.includes('.')) {
-            oldValue = this._state[key];
-            if (this._state[key] !== value) {
-                this._state[key] = value;
-                changed = true;
+        for (let i = 0; i < keys.length - 1; i++) {
+            if (!current[keys[i]] || typeof current[keys[i]] !== 'object') {
+                current[keys[i]] = {}; // Create nested objects if they don't exist
             }
-        } else {
-            // Handle dot notation for nested properties
-            const keys = key.split('.');
-            let current = this._state;
-            for (let i = 0; i < keys.length - 1; i++) {
-                if (!current[keys[i]] || typeof current[keys[i]] !== 'object') {
-                    current[keys[i]] = {}; // Create nested objects if they don't exist
-                }
-                current = current[keys[i]];
-            }
-            oldValue = current[keys[keys.length - 1]];
-            if (current[keys[keys.length - 1]] !== value) {
-                current[keys[keys.length - 1]] = value;
-                changed = true;
-            }
+            current = current[keys[i]];
         }
+
+        oldValue = current[keys[keys.length - 1]];
+        if (oldValue !== value) { // Simple strict equality check, consider deep equality for objects if needed
+            current[keys[keys.length - 1]] = value;
+            changed = true;
+        }
+
 
         if (changed && !silent) {
             this.emit(`change:${key}`, { key, newValue: value, oldValue });
             this.emit('change', { key, newValue: value, oldValue }); // General change event
             if (this.get('debugMode')) {
-                console.log(`%cSTATE CHANGE: ${key}`, 'color: #4CAF50; font-weight: bold;', { newValue: value, oldValue });
+                // For deep values, newValue and oldValue here might be the top-level object if not careful.
+                // Logging the actual changed part is more complex for nested structures without specific old value retrieval.
+                // The current oldValue is correct for the deepest key.
+                console.log(`%cSTATE CHANGE: ${key}`, 'color: #4CAF50; font-weight: bold;', { newValue: value, oldValue: oldValue /* Corrected to log specific old value */});
             }
         }
     }
@@ -170,7 +167,7 @@ class StateManager {
                         message: `Event listener error for ${event}: ${error.message}`,
                         stack: error.stack,
                         timestamp: new Date().toISOString()
-                    });
+                    }, true); // Silent update for lastError to prevent loops if error is in a 'change:lastError' listener
                 }
             });
         }
@@ -182,38 +179,38 @@ class StateManager {
     loadInitialState() {
         try {
             const storedTheme = localStorage.getItem('parklandAI_theme');
-            if (storedTheme) {
-                this.set('currentTheme', storedTheme, true); // Silent as it's initial load
-            }
+            if (storedTheme) this.set('currentTheme', storedTheme, true);
 
             const storedPreferences = localStorage.getItem('parklandAI_userPreferences');
             if (storedPreferences) {
                 const parsedPrefs = JSON.parse(storedPreferences);
-                // Merge carefully to avoid overwriting defaults with missing keys
-                const currentPrefs = this.get('userPreferences');
-                this.set('userPreferences', { ...currentPrefs, ...parsedPrefs }, true);
+                const currentPrefs = this.get('userPreferences'); // Get current defaults
+                // Merge carefully: only update keys present in parsedPrefs, keep defaults for others
+                const mergedPrefs = { ...currentPrefs };
+                for (const key in parsedPrefs) {
+                    if (Object.prototype.hasOwnProperty.call(parsedPrefs, key) && Object.prototype.hasOwnProperty.call(mergedPrefs, key)) {
+                        mergedPrefs[key] = parsedPrefs[key];
+                    }
+                }
+                this.set('userPreferences', mergedPrefs, true);
             }
 
             const storedApiKey = localStorage.getItem('parklandAI_apiKey');
-            if (storedApiKey) {
-                this.set('apiKey', storedApiKey, true);
-            }
+            if (storedApiKey) this.set('apiKey', storedApiKey, true);
             
             const storedActiveChar = localStorage.getItem('parklandAI_activeCharacter');
-             if (storedActiveChar) {
-                this.set('activeCharacter', storedActiveChar, true);
-            }
+            if (storedActiveChar) this.set('activeCharacter', storedActiveChar, true);
+
+            const storedActiveSessionId = localStorage.getItem('parklandAI_activeSessionId');
+            if (storedActiveSessionId) this.set('activeSessionId', storedActiveSessionId, true);
 
 
-            // Detect reduced motion preference
             const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
             this.set('userPreferences.reduceMotion', reduceMotionQuery.matches, true);
             reduceMotionQuery.addEventListener('change', (e) => {
-                this.set('userPreferences.reduceMotion', e.matches);
+                this.set('userPreferences.reduceMotion', e.matches); // This will trigger saveState if preference saving is tied to it
             });
 
-
-            // Initial view based on API key presence
             if (this.get('apiKey')) {
                 this.set('currentView', 'chat', true);
                 this.set('isLoginModalOpen', false, true);
@@ -222,19 +219,17 @@ class StateManager {
                 this.set('isLoginModalOpen', true, true);
             }
 
-
         } catch (error) {
             console.error('Error loading initial state:', error);
-            // Fallback to default state already set in constructor
         }
-        this.set('isLoading', false); // Loading complete after initial state setup
+        this.set('isLoading', false, true); // Initial loading sequence done
+        console.log('👑 StateManager initialized and initial state loaded. Debug mode:', this.get('debugMode'));
     }
 
     /**
      * Saves relevant parts of the current state to persistent storage.
-     * Specific methods should call this rather than calling it on every `set`.
      */
-    saveState(keysToSave = ['currentTheme', 'userPreferences', 'apiKey', 'activeCharacter']) {
+    saveState(keysToSave = ['currentTheme', 'userPreferences', 'apiKey', 'activeCharacter', 'activeSessionId']) {
         if (typeof localStorage === 'undefined') {
             console.warn('LocalStorage is not available. State will not be persisted.');
             return;
@@ -248,20 +243,20 @@ class StateManager {
             }
             if (keysToSave.includes('apiKey')) {
                 const apiKey = this.get('apiKey');
-                if (apiKey) {
-                    localStorage.setItem('parklandAI_apiKey', apiKey);
-                } else {
-                    localStorage.removeItem('parklandAI_apiKey');
-                }
+                if (apiKey) localStorage.setItem('parklandAI_apiKey', apiKey);
+                else localStorage.removeItem('parklandAI_apiKey');
             }
             if (keysToSave.includes('activeCharacter')) {
                  const activeChar = this.get('activeCharacter');
-                if (activeChar) {
-                    localStorage.setItem('parklandAI_activeCharacter', activeChar);
-                } else {
-                    localStorage.removeItem('parklandAI_activeCharacter');
-                }
+                if (activeChar) localStorage.setItem('parklandAI_activeCharacter', activeChar);
+                else localStorage.removeItem('parklandAI_activeCharacter');
             }
+            if (keysToSave.includes('activeSessionId')) {
+                const activeSessionId = this.get('activeSessionId');
+                if(activeSessionId) localStorage.setItem('parklandAI_activeSessionId', activeSessionId);
+                else localStorage.removeItem('parklandAI_activeSessionId');
+            }
+
             if (this.get('debugMode')) {
                 console.log('%cSAVED STATE for keys:', 'color: #FF9800;', keysToSave);
             }
@@ -269,8 +264,6 @@ class StateManager {
             console.error('Error saving state:', error);
         }
     }
-
-    // --- Specific State Management Methods ---
 
     setTheme(themeName) {
         this.set('currentTheme', themeName);
@@ -282,17 +275,18 @@ class StateManager {
         this.saveState(['activeCharacter']);
     }
 
-    addMessageToHistory(message) { // message: { role: 'user'|'assistant', content: string, timestamp: number, character?: string }
+    addMessageToHistory(message) {
         const currentHistory = this.get('chatHistory') || [];
-        // Create a new array to ensure change detection for subscribers expecting a new reference
         const newHistory = [...currentHistory, message];
         this.set('chatHistory', newHistory);
-        // Note: Chat history might become large, consider if it should be saved to localStorage or a different strategy.
-        // For now, not saving full chat history to localStorage by default to avoid storage limits.
+        // Full chat history not saved to localStorage by default to prevent bloat
     }
 
     clearChatHistory() {
         this.set('chatHistory', []);
+        // Potentially clear the active session ID or handle its persistence related to history clearing
+        // this.set('activeSessionId', null);
+        // this.saveState(['activeSessionId']);
     }
 
     updateUserInput(input) {
@@ -306,12 +300,11 @@ class StateManager {
     toggleSidebar(isOpen = null) {
         const current = this.get('isSidebarOpen');
         this.set('isSidebarOpen', isOpen === null ? !current : isOpen);
-        // Consider saving sidebar state if it's a user preference
-        // this.saveState(['isSidebarOpen']); // If it should persist
+        // Not saving sidebar state to localStorage by default
     }
 
-    setModalOpen(modalName, isOpen) { // e.g., modalName = 'isSettingsModalOpen'
-        if (this._state.hasOwnProperty(modalName)) {
+    setModalOpen(modalName, isOpen) {
+        if (Object.prototype.hasOwnProperty.call(this._state, modalName)) {
             this.set(modalName, isOpen);
         } else {
             console.warn(`Modal state key "${modalName}" not found.`);
@@ -319,9 +312,10 @@ class StateManager {
     }
     
     setApiKey(key) {
-        this.set('apiKey', key);
+        const validatedKey = key ? key.trim() : null;
+        this.set('apiKey', validatedKey);
         this.saveState(['apiKey']);
-        if (key) {
+        if (validatedKey) {
             this.set('currentView', 'chat');
             this.set('isLoginModalOpen', false);
         } else {
@@ -330,20 +324,23 @@ class StateManager {
         }
     }
 
-    setUserPreference(key, value) { // Key can be dot-notated e.g., 'voiceOutputEnabled'
+    setUserPreference(key, value) {
         const fullKey = `userPreferences.${key}`;
         this.set(fullKey, value);
         this.saveState(['userPreferences']);
     }
+    
+    setActiveSessionId(sessionId) {
+        this.set('activeSessionId', sessionId);
+        this.saveState(['activeSessionId']);
+    }
 
-
-    // --- Debugging ---
     logState() {
         console.log('%cCURRENT STATE:', 'color: #2196F3; font-weight: bold;', JSON.parse(JSON.stringify(this._state)));
     }
 
     enableDebugging(enable = true) {
-        this.set('debugMode', enable, true); // Silent update to debugMode itself
+        this.set('debugMode', enable, true);
         if (enable) {
             console.log('%cStateManager Debug Mode Enabled', 'color: orange; font-weight: bold;');
             this.logState();
@@ -351,8 +348,11 @@ class StateManager {
     }
 }
 
-// Initialize and export a singleton instance
-const stateManagerInstance = new StateManager();
-// window.stateManager = stateManagerInstance; // Optionally attach to window for easy debugging
+// Expose the class for App.js to use with getInstance()
+window.StateManager = StateManager;
 
-// export default stateManagerInstance; // If using ES modules in the broader project context
+// Auto-instantiate for easy access via window.stateManagerInstance if needed by other standalone scripts,
+// but App.js should use StateManager.getInstance().
+if (!window.stateManagerInstance) {
+    window.stateManagerInstance = StateManager.getInstance(); // Ensures singleton is created and accessible
+}
