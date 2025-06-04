@@ -4,84 +4,47 @@
    ================================================================ */
 
 /* ----------------------------------------------------------------
-   THEME COLOR PALETTE & VARIABLES
+   THEME COLOR PALETTE & VARIABLES (Uses variables from core/variables.css)
+   Any Jaws-specific overrides or new variables would go here.
+   For this regeneration, we assume colors are primarily handled by
+   the [data-theme="jaws"] block in css/core/variables.css.
    ---------------------------------------------------------------- */
 [data-theme="jaws"] {
-  /* Primary Ocean Blues */
-  --primary: #0099DD;
-  --primary-rgb: 0, 153, 221;
-  --primary-dark: #0070A3;
-  --primary-darker: #004066;
-  --primary-darker-rgb: 0, 64, 102;
-  --primary-light: #58C5F5;
-  --primary-lighter: #90DFFF;
-  --primary-lighter-rgb: 144, 223, 255;
+  /* Typography:
+     Font families are now based on system stacks defined in core/variables.css.
+     The 'Jaws' feel will be achieved through font-weight, text-transform,
+     letter-spacing, text-shadows, and color, applied below to specific elements.
+     --font-family-theme from core/variables.css is now a system font stack.
+     --font-family-nautical from core/variables.css is now a system monospace/serif stack.
+  */
 
-  /* Blood Red Accents */
-  --accent: #CC0000;
-  --accent-rgb: 204, 0, 0;
-  --accent-light: #FF3333;
-  --accent-dark: #990000;
+  /* Example of a Jaws-specific typographic variable if needed for certain text elements */
+  --font-family-jaws-display: var(--font-family-system-sans-serif); /* For impactful headings, styled to be bold/distressed */
+  --font-family-jaws-body: var(--font-family-system-serif); /* For a more "logbook" or "typewriter" feel, replacing Special Elite */
+  --font-family-jaws-nautical-script: var(--font-family-system-serif); /* For Pirata One like elements, maybe a slightly more decorative system serif if available or styled heavily */
 
-  /* Ocean Depths Background System */
-  --bg-primary: #000A14;
-  --bg-primary-rgb: 0, 10, 20;
-  --bg-secondary: #00060D;
-  --bg-secondary-rgb: 0, 6, 13;
-  --bg-tertiary: #000307;
-  --bg-tertiary-rgb: 0, 3, 7;
-  --bg-elevated: #010F1C;
-  --bg-elevated-rgb: 1, 15, 28;
-
-  /* Bioluminescent Text */
-  --text-primary: #E8F8FF;
-  --text-primary-rgb: 232, 248, 255;
-  --text-secondary: #BDEBFF;
-  --text-tertiary: #8AD5FF;
-  --text-inverse: #000307;
-  --text-muted: #6BB3D9;
-
-  /* Ocean Current Borders */
-  --border: #58C5F5;
-  --border-light: #90DFFF;
-  --border-dark: #0070A3;
-  --border-rgb: 88, 197, 245;
-
-  /* Depth Shadows */
-  --shadow-ocean-deep: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 50px rgba(0, 153, 221, 0.2);
-  --shadow-surface: 0 4px 16px rgba(0, 153, 221, 0.3), 0 0 25px rgba(144, 223, 255, 0.1);
-  --shadow-abyss: 0 12px 48px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(0, 64, 102, 0.4);
-
-  /* Maritime Typography */
-  --font-family-theme: 'Nosifier', 'Creepster', 'Bangers', 'Pirata One', fantasy;
-  --font-family-nautical: 'Special Elite', 'Courier New', monospace;
-
-  /* Ocean Wave Gradients */
-  --gradient-ocean-surface: linear-gradient(180deg, #58C5F5 0%, #0099DD 30%, #0070A3 70%, #004066 100%);
-  --gradient-ocean-depths: linear-gradient(180deg, #004066 0%, #002233 50%, #000307 100%);
-  --gradient-blood-water: radial-gradient(circle, rgba(204, 0, 0, 0.8) 0%, rgba(0, 64, 102, 0.9) 60%, transparent 100%);
-
-  /* Sonar Effects */
-  --sonar-pulse: 0 0 0 0 rgba(0, 153, 221, 0.7);
-  --sonar-ping: 0 0 20px rgba(88, 197, 245, 0.8), 0 0 40px rgba(88, 197, 245, 0.4);
+  /* Specific Jaws theme values (if not already in core/variables.css) */
+  --jurassic-gate-border-image: none; /* Ensure this doesn't leak if it was global */
 }
 
 /* ----------------------------------------------------------------
    BODY & ROOT OVERRIDES
    ---------------------------------------------------------------- */
 [data-theme="jaws"] body {
-  background: var(--bg-primary);
+  background-color: var(--bg-primary); /* Uses Jaws theme's --bg-primary */
   background-image:
-    radial-gradient(circle at 20% 80%, rgba(0, 153, 221, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(88, 197, 245, 0.08) 0%, transparent 50%),
-    linear-gradient(180deg, rgba(0, 64, 102, 0.2) 0%, rgba(0, 10, 20, 1) 100%);
+    /* Subtle underwater light effects */
+    radial-gradient(circle at 20% 80%, rgba(var(--primary-rgb), 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(var(--primary-lighter-rgb), 0.04) 0%, transparent 50%),
+    /* Base dark ocean gradient */
+    linear-gradient(180deg, rgba(var(--primary-darker-rgb), 0.2) 0%, var(--bg-primary) 100%);
   color: var(--text-primary);
-  text-shadow: 0 0 3px rgba(232, 248, 255, 0.3);
+  text-shadow: 0 0 3px rgba(var(--text-primary-rgb), 0.3); /* Subtle glow for readability */
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* For full-page effects */
 }
 
-/* Underwater Caustics Background Effect */
+/* Underwater Caustics Background Effect (from jaws/animations.css but applied here) */
 [data-theme="jaws"] body::before {
   content: '';
   position: fixed;
@@ -90,43 +53,31 @@
   opacity: 0.3;
   animation: underwaterCaustics 30s ease-in-out infinite alternate;
   pointer-events: none;
-  z-index: -1;
+  z-index: -1; /* Behind content */
 }
 
-@keyframes underwaterCaustics {
-  0% {
-    transform: translateX(0) translateY(0) scale(1);
-    filter: brightness(0.8) contrast(1.2);
-  }
-  50% {
-    transform: translateX(-50px) translateY(-30px) scale(1.05);
-    filter: brightness(1.1) contrast(0.9);
-  }
-  100% {
-    transform: translateX(50px) translateY(30px) scale(0.95);
-    filter: brightness(0.9) contrast(1.1);
-  }
-}
+/* Keyframes for caustics are in jaws/animations.css */
 
 /* ----------------------------------------------------------------
    HEADER & NAVIGATION - MARITIME COMMAND CENTER
    ---------------------------------------------------------------- */
 [data-theme="jaws"] .chat-header {
   background: linear-gradient(to bottom,
-    rgba(0, 64, 102, 0.95) 0%,
-    rgba(0, 70, 163, 0.9) 50%,
-    rgba(204, 0, 0, 0.3) 135%
+    rgba(var(--primary-darker-rgb), 0.95) 0%, /* Darker blue at top */
+    rgba(var(--primary-dark-rgb), 0.9) 50%,
+    rgba(var(--accent-rgb), 0.2) 135% /* Subtle red hint from below */
   );
   border-bottom: 5px ridge var(--accent-light);
   box-shadow:
-    0 8px 24px rgba(204, 0, 0, 0.4),
-    inset 0 -5px 0 var(--accent),
-    0 0 30px rgba(0, 153, 221, 0.3);
-  backdrop-filter: blur(10px) saturate(200%);
+    0 8px 24px rgba(var(--accent-rgb), 0.4),
+    inset 0 -5px 0 var(--accent), /* Sharp accent line */
+    0 0 30px rgba(var(--primary-rgb), 0.3);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%); /* For Safari */
   position: relative;
 }
 
-[data-theme="jaws"] .chat-header::before {
+[data-theme="jaws"] .chat-header::before { /* Radar sweep effect */
   content: '';
   position: absolute;
   top: 0;
@@ -138,24 +89,19 @@
     var(--accent-light) 50%,
     transparent 100%
   );
-  animation: radarSweep 8s linear infinite;
-}
-
-@keyframes radarSweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  animation: radarSweep 8s linear infinite; /* Animation from jaws/animations.css */
 }
 
 [data-theme="jaws"] .brand-name {
-  font-family: var(--font-family-theme);
+  font-family: var(--font-family-jaws-display); /* Using the new system font variable */
   font-size: 1.8rem;
-  font-weight: 900;
+  font-weight: var(--font-weight-black); /* Heavy weight for "Nosifer" feel */
   color: var(--primary-lighter);
   text-shadow:
-    2px 2px 0 var(--primary-darker),
-    0 0 20px var(--accent-light),
-    0 0 40px var(--accent);
-  letter-spacing: 2px;
+    2px 2px 0 var(--primary-darker), /* Hard shadow */
+    0 0 20px var(--accent-light),   /* Red glow */
+    0 0 40px var(--accent);         /* Stronger red glow */
+  letter-spacing: 0.1em; /* Wide spacing for display font */
   text-transform: uppercase;
 }
 
@@ -170,7 +116,7 @@
   overflow: hidden;
 }
 
-[data-theme="jaws"] .brand-icon::before {
+[data-theme="jaws"] .brand-icon::before { /* Shark fin gleam effect */
   content: '';
   position: absolute;
   inset: 0;
@@ -179,534 +125,175 @@
     rgba(255, 255, 255, 0.3) 50%,
     transparent 70%
   );
-  animation: sharkFinGleam 3s ease-in-out infinite;
-}
-
-@keyframes sharkFinGleam {
-  0%, 100% { transform: translateX(-100%) rotate(45deg); }
-  50% { transform: translateX(100%) rotate(45deg); }
+  animation: sharkFinGleam 3s ease-in-out infinite; /* Animation from jaws/animations.css */
 }
 
 /* ----------------------------------------------------------------
-   SIDEBAR - SHIP'S CONTROL PANEL
+   SIDEBAR - SHIP'S CONTROL PANEL (Styles from components/sidebar.css are base)
    ---------------------------------------------------------------- */
-[data-theme="jaws"] .sidebar {
-  background: var(--bg-elevated);
-  border-right: 4px solid var(--primary);
-  box-shadow:
-    8px 0 32px rgba(0, 153, 221, 0.4),
-    inset -15px 0 20px rgba(0, 0, 0, 0.3);
-  position: relative;
-}
-
-[data-theme="jaws"] .sidebar::before {
-  content: '';
-  position: absolute;
-  right: 10px;
-  top: 100px;
-  width: 8px;
-  height: 60%;
-  background: linear-gradient(to bottom,
-    rgba(0, 255, 255, 0.8) 0%,     /* Surface */
-    rgba(0, 153, 221, 0.8) 20%,    /* Sunlight zone */
-    rgba(0, 112, 163, 0.8) 40%,    /* Twilight zone */
-    rgba(0, 64, 102, 0.8) 60%,     /* Midnight zone */
-    rgba(0, 34, 51, 0.8) 80%,      /* Abyssal zone */
-    rgba(0, 3, 7, 0.8) 100%        /* Hadal zone */
-  );
-  border-radius: 4px;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
-  animation: depthGaugePulse 4s ease-in-out infinite;
-}
-
-@keyframes depthGaugePulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; box-shadow: 0 0 25px rgba(0, 255, 255, 0.8); }
-}
-
-[data-theme="jaws"] .sidebar::after {
-  content: '▶';
-  position: absolute;
-  right: 5px;
-  top: calc(30% + var(--scroll-depth, 0px));
-  color: #00FFFF;
-  font-size: 14px;
-  text-shadow: 0 0 10px currentColor;
-  animation: depthIndicatorBlink 2s ease-in-out infinite;
-  transition: top 0.3s ease-out;
-}
-
-@keyframes depthIndicatorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-[data-theme="jaws"] .new-chat-btn {
-  background: var(--primary);
-  border: 4px outset var(--accent-light);
-  color: var(--text-primary);
-  font-family: var(--font-family-theme);
-  font-size: 1.2rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-shadow:
-    2px 2px 0 rgba(0, 0, 0, 0.8),
-    0 0 10px var(--accent-light);
-  box-shadow:
-    0 0 20px var(--accent-light) inset,
-    var(--shadow-ocean-deep),
-    0 4px 8px rgba(0, 0, 0, 0.6);
-  position: relative;
-  overflow: hidden;
-}
-
-[data-theme="jaws"] .new-chat-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-  transition: left 0.6s ease;
-}
-
-[data-theme="jaws"] .new-chat-btn:hover {
-  background: var(--primary-dark);
-  border-color: var(--accent);
-  box-shadow:
-    0 0 40px var(--accent),
-    0 0 25px var(--accent-light) inset,
-    var(--shadow-abyss),
-    0 0 15px var(--primary-light);
-  transform: translateY(-4px) scale(1.05);
-}
-
-[data-theme="jaws"] .new-chat-btn:hover::before {
-  left: 100%;
-}
+/* Jaws specific sidebar style is in css/components/sidebar.css under [data-theme="jaws"] */
 
 /* ----------------------------------------------------------------
-   CHAT HISTORY - LOGBOOK ENTRIES
+   CHAT HISTORY - LOGBOOK ENTRIES (Styles from components/sidebar.css are base)
    ---------------------------------------------------------------- */
-[data-theme="jaws"] .chat-history-item {
-  background: rgba(0, 15, 28, 0.6);
-  border: 2px solid transparent;
-  border-radius: var(--radius-lg);
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-[data-theme="jaws"] .chat-history-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 4px;
-  height: 0;
-  background: var(--accent);
-  transform: translateY(-50%);
-  transition: height 0.3s ease;
-  border-radius: 0 2px 2px 0;
-}
-
-[data-theme="jaws"] .chat-history-item:hover {
-  background: rgba(0, 64, 102, 0.8);
-  border-color: var(--accent);
-  box-shadow:
-    0 0 20px rgba(204, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.4);
-  transform: translateX(8px) scale(1.02);
-}
-
-[data-theme="jaws"] .chat-history-item:hover::before {
-  height: 80%;
-  box-shadow: 0 0 10px var(--accent);
-}
-
-[data-theme="jaws"] .chat-history-item.active {
-  background: var(--gradient-ocean-surface);
-  border-color: var(--accent-light);
-  box-shadow:
-    0 0 25px var(--accent),
-    inset 0 0 15px rgba(144, 223, 255, 0.3);
-}
-
-[data-theme="jaws"] .chat-history-item.active::before {
-  height: 100%;
-  background: var(--accent-light);
-  box-shadow: 0 0 15px var(--accent-light);
-}
+/* Jaws specific chat history item style is in css/components/sidebar.css under [data-theme="jaws"] */
 
 /* ----------------------------------------------------------------
-   MESSAGES - SHIP'S COMMUNICATIONS
+   MESSAGES - SHIP'S COMMUNICATIONS (Styles from components/messages.css are base)
    ---------------------------------------------------------------- */
-[data-theme="jaws"] .messages-container {
-  position: relative;
-}
-
-/* Shark Silhouettes Swimming Past */
-[data-theme="jaws"] .messages-container::before,
-[data-theme="jaws"] .messages-container::after {
-  content: '';
-  position: absolute;
-  width: 120px;
-  height: 60px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60'%3E%3Cpath d='M10 30 Q30 15 50 20 L80 10 L100 25 Q110 30 115 35 L110 40 Q100 35 80 35 L50 40 Q30 45 10 30 Z' fill='rgba(0,64,102,0.3)' stroke='rgba(0,153,221,0.4)' stroke-width='1'/%3E%3Cpath d='M85 25 L90 20 L95 25 L90 30 Z' fill='rgba(204,0,0,0.6)'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
-[data-theme="jaws"] .messages-container::before {
-  top: 15%;
-  animation: sharkSwimLeft 25s linear infinite 2s;
-}
-
-[data-theme="jaws"] .messages-container::after {
-  bottom: 20%;
-  animation: sharkSwimRight 30s linear infinite 8s;
-  transform: scaleX(-1);
-}
-
-@keyframes sharkSwimLeft {
-  0% {
-    left: 100%;
-    opacity: 0.6;
-    transform: translateY(0) scale(1);
-  }
-  20% { opacity: 0.3; }
-  50% {
-    opacity: 0.2;
-    transform: translateY(-20px) scale(1.1);
-  }
-  80% { opacity: 0.3; }
-  100% {
-    left: -20%;
-    opacity: 0;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes sharkSwimRight {
-  0% {
-    right: 100%;
-    opacity: 0.5;
-    transform: scaleX(-1) translateY(0) scale(1);
-  }
-  30% { opacity: 0.2; }
-  60% {
-    opacity: 0.15;
-    transform: scaleX(-1) translateY(15px) scale(0.9);
-  }
-  90% { opacity: 0.2; }
-  100% {
-    right: -20%;
-    opacity: 0;
-    transform: scaleX(-1) translateY(0) scale(1);
-  }
-}
-
-/* Message Bubbles */
-[data-theme="jaws"] .message.user .message-bubble {
-  background: var(--accent);
-  color: var(--text-inverse);
-  border: 2px solid var(--accent-light);
-  box-shadow:
-    0 6px 20px rgba(204, 0, 0, 0.4),
-    inset 0 0 8px rgba(0, 0, 0, 0.3);
-  text-shadow: 1.5px 1.5px 3px rgba(0, 0, 0, 0.8);
-  font-family: var(--font-family-nautical);
-  letter-spacing: 0.5px;
-}
-
+/* Jaws specific message styles are in css/components/messages.css under [data-theme="jaws"] */
 [data-theme="jaws"] .message.assistant .message-bubble {
-  background: linear-gradient(155deg,
-    rgba(0, 112, 163, 0.9) 0%,
-    rgba(1, 15, 28, 0.95) 100%
-  );
-  border: 3px solid var(--primary);
-  color: var(--text-primary);
-  box-shadow:
-    0 8px 24px rgba(204, 0, 0, 0.3),
-    inset 0 0 25px rgba(144, 223, 255, 0.2),
-    0 0 15px rgba(0, 0, 0, 0.8);
-  font-family: var(--font-family-nautical);
-  letter-spacing: 0.8px;
-  line-height: 1.8;
-  text-shadow: 0.5px 0.5px 2px rgba(0, 0, 0, 0.4);
-  position: relative;
+  font-family: var(--font-family-jaws-body); /* Nautical/logbook feel */
+  letter-spacing: 0.02em;
 }
 
-/* Sonar Ping Effect on New Messages */
-[data-theme="jaws"] .message.new-message {
-  animation: sonarPing 2s ease-out;
-}
-
-@keyframes sonarPing {
-  0% {
-    box-shadow: 0 0 0 0 rgba(0, 153, 221, 0.8);
-  }
-  70% {
-    box-shadow: 0 0 0 30px rgba(0, 153, 221, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 153, 221, 0);
-  }
+[data-theme="jaws"] .message.user .message-bubble {
+  font-family: var(--font-family-jaws-body);
 }
 
 /* ----------------------------------------------------------------
-   INPUT AREA - SHIP'S RADIO
+   INPUT AREA - SHIP'S RADIO (Styles from components/forms.css are base)
    ---------------------------------------------------------------- */
-[data-theme="jaws"] .input-area {
-  background: linear-gradient(to top,
-    rgba(0, 64, 102, 0.9) -40%,
-    rgba(1, 15, 28, 0.8) 80%
-  );
-  border-top: 8px ridge var(--accent-light);
-  box-shadow:
-    0 -10px 30px rgba(204, 0, 0, 0.4),
-    0 0 20px var(--primary) inset;
-  backdrop-filter: blur(15px) saturate(200%);
-}
-
-[data-theme="jaws"] .input-wrapper {
-  background: rgba(1, 15, 28, 0.7);
-  border: 4px solid var(--primary);
-  box-shadow:
-    0 0 30px rgba(0, 153, 221, 0.5),
-    inset 0 0 15px rgba(204, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-}
-
-[data-theme="jaws"] .input-wrapper:focus-within {
-  border-color: var(--accent-light);
-  box-shadow:
-    0 0 40px var(--accent),
-    inset 0 0 20px rgba(204, 0, 0, 0.4),
-    0 0 0 4px rgba(204, 0, 0, 0.3);
-}
-
+/* Jaws specific input area styles are in css/components/forms.css under [data-theme="jaws"] */
 [data-theme="jaws"] .chat-input {
-  color: var(--text-primary);
-  font-family: var(--font-family-nautical);
-  font-size: 1.1rem;
-  text-shadow: 0 0 5px rgba(232, 248, 255, 0.3);
+  font-family: var(--font-family-jaws-body);
 }
 
 [data-theme="jaws"] .chat-input::placeholder {
-  color: var(--primary-lighter);
-  font-family: var(--font-family-theme);
-  font-size: 1.2rem;
-  letter-spacing: 1.5px;
-  text-shadow:
-    1px 1px 2px rgba(0, 0, 0, 0.8),
-    0 0 8px var(--primary-lighter);
-  opacity: 0.8;
+  font-family: var(--font-family-jaws-display); /* Use display for placeholder */
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1px; /* Adjusted from 1.5px for better system font fit */
 }
+
 
 /* ----------------------------------------------------------------
-   BUTTONS - MARITIME CONTROLS
+   BUTTONS - MARITIME CONTROLS (Styles from components/buttons.css are base)
    ---------------------------------------------------------------- */
+/* Jaws specific button styles are in css/components/buttons.css under [data-theme="jaws"] */
 [data-theme="jaws"] .btn-primary {
-  background: linear-gradient(175deg,
-    var(--accent-light) 0%,
-    var(--primary-dark) 100%
-  );
-  color: var(--text-inverse);
-  font-family: var(--font-family-theme);
-  font-size: 1.3rem;
-  font-weight: 900;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  text-shadow:
-    2px 2px 4px rgba(0, 0, 0, 0.8),
-    0 0 10px var(--text-inverse);
-  border: 3px outset var(--accent);
-  box-shadow:
-    0 8px 25px rgba(204, 0, 0, 0.4),
-    0 0 20px var(--accent) inset;
+  font-family: var(--font-family-jaws-display); /* System font for "Bangers" feel */
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1.5px; /* Was 2px, adjusted for system font */
 }
 
-[data-theme="jaws"] .btn-primary:hover {
-  background: linear-gradient(175deg,
-    var(--accent) 0%,
-    var(--primary-darker) 100%
-  );
-  box-shadow:
-    0 12px 35px rgba(204, 0, 0, 0.6),
-    0 0 30px var(--accent) inset,
-    0 0 15px var(--primary-light);
-  transform: translateY(-6px) scale(1.08);
-}
-
-[data-theme="jaws"] .btn-secondary {
-  background: var(--bg-elevated);
-  color: var(--text-tertiary);
-  border: 3px solid var(--border-dark);
-  box-shadow:
-    var(--shadow-surface),
-    inset 0 0 8px rgba(0, 0, 0, 0.3);
-  font-family: var(--font-family-nautical);
-}
-
-[data-theme="jaws"] .btn-secondary:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--border);
-  color: var(--text-secondary);
-  box-shadow:
-    var(--shadow-ocean-deep),
-    inset 0 0 12px rgba(0, 0, 0, 0.4);
-}
 
 /* ----------------------------------------------------------------
    VOICE CONTROLS - RADIO COMMUNICATIONS
    ---------------------------------------------------------------- */
-[data-theme="jaws"] .voice-btn.recording {
-  background: var(--accent);
-  box-shadow:
-    0 0 30px var(--accent),
-    inset 0 0 15px rgba(255, 255, 255, 0.3);
-  animation: recordingPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes recordingPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow:
-      0 0 30px var(--accent),
-      inset 0 0 15px rgba(255, 255, 255, 0.3);
-  }
-  50% {
-    transform: scale(1.1);
-    box-shadow:
-      0 0 50px var(--accent),
-      inset 0 0 25px rgba(255, 255, 255, 0.5);
-  }
-}
-
+/* Jaws specific voice control styles are in css/components/buttons.css (for voice-btn)
+   and potentially app.js for dynamic class toggling, or default/theme.css for .voice-indicator */
 [data-theme="jaws"] .voice-indicator {
-  background: rgba(1, 15, 28, 0.9);
+  background: rgba(var(--primary-darker-rgb), 0.95); /* Dark, thematic background */
   border: 2px solid var(--primary);
-  color: var(--text-secondary);
   box-shadow:
-    0 0 20px var(--primary),
-    inset 0 0 10px rgba(0, 153, 221, 0.2);
+    0 5px 20px rgba(var(--primary-rgb), 0.4),
+    inset 0 0 20px rgba(var(--primary-rgb), 0.2);
+}
+
+[data-theme="jaws"] .voice-bar {
+  background: linear-gradient(to top, var(--primary-darker) 0%, var(--primary-lighter) 100%);
+  box-shadow: 0 0 5px var(--primary-lighter);
 }
 
 /* ----------------------------------------------------------------
-   MODALS - SHIP'S CONTROL PANELS
+   MODALS - SHIP'S CONTROL PANELS (Styles from components/modals.css are base)
    ---------------------------------------------------------------- */
-[data-theme="jaws"] .modal {
-  background: var(--bg-elevated);
-  border: 3px solid var(--border-dark);
-  box-shadow:
-    var(--shadow-abyss),
-    0 0 60px rgba(0, 153, 221, 0.3),
-    0 0 30px rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(20px) saturate(200%);
-}
-
-[data-theme="jaws"] .modal-header {
-  background: linear-gradient(to right,
-    var(--primary-darker) 0%,
-    var(--primary-dark) 100%
-  );
-  border-bottom: 3px solid var(--border-dark);
-  box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.6),
-    inset 0 -2px 0 var(--accent);
-}
-
+/* Jaws specific modal styles are in css/components/modals.css under [data-theme="jaws"] */
 [data-theme="jaws"] .modal-title {
-  color: var(--primary-lighter);
-  font-family: var(--font-family-theme);
-  text-shadow:
-    2px 2px 4px rgba(0, 0, 0, 0.8),
-    0 0 8px var(--accent);
+  font-family: var(--font-family-jaws-display); /* System font for "Nosifier" feel */
+  font-weight: var(--font-weight-black);
 }
 
-[data-theme="jaws"] .modal-footer {
-  background: var(--bg-elevated);
-  border-top: 3px solid var(--border-dark);
+[data-theme="jaws"] .modal .form-label,
+[data-theme="jaws"] .modal .form-input,
+[data-theme="jaws"] .modal small {
+  font-family: var(--font-family-jaws-body); /* Consistent nautical script/typewriter feel */
 }
+
 
 /* ----------------------------------------------------------------
    SETTINGS DROPDOWN - NAVIGATION INSTRUMENTS
    ---------------------------------------------------------------- */
+/* Jaws specific settings dropdown styles are in main.css (base .settings-dropdown)
+   and potentially themed further here if needed, or in components/ if structure is complex.
+   For now, assuming main.css and default/theme.css cover its structure, and variable overrides handle color.
+*/
 [data-theme="jaws"] .settings-dropdown {
-  background: var(--bg-elevated);
+  background: var(--bg-elevated); /* Jaws theme variable */
   border: 3px solid var(--border-dark);
-  box-shadow:
-    var(--shadow-abyss),
-    0 0 40px rgba(0, 153, 221, 0.4);
-  backdrop-filter: blur(15px) saturate(180%);
+  box-shadow: var(--shadow-abyss), 0 0 40px rgba(var(--primary-rgb), 0.4);
 }
 
 [data-theme="jaws"] .settings-item:hover {
-  background: rgba(0, 64, 102, 0.6);
+  background: rgba(var(--primary-dark-rgb), 0.6); /* Darker blue hover */
   color: var(--primary-light);
-  box-shadow:
-    0 0 15px rgba(0, 153, 221, 0.3),
-    inset 0 0 8px rgba(144, 223, 255, 0.2);
 }
 
 [data-theme="jaws"] .settings-item[aria-checked="true"] {
   background: var(--primary);
-  color: var(--text-inverse);
-  font-weight: 700;
-  box-shadow:
-    0 0 20px var(--accent),
-    inset 0 0 10px rgba(255, 255, 255, 0.3);
+  color: var(--text-inverse); /* Ensure contrast */
+  font-weight: var(--font-weight-bold);
+  box-shadow: 0 0 20px var(--accent), inset 0 0 10px rgba(255,255,255,0.3);
 }
+
 
 /* ----------------------------------------------------------------
    RESPONSIVE ADJUSTMENTS
    ---------------------------------------------------------------- */
 @media (max-width: 768px) {
-  [data-theme="jaws"] .sidebar::before,
-  [data-theme="jaws"] .sidebar::after {
-    display: none; /* Hide depth gauge on mobile */
-  }
-
-  [data-theme="jaws"] .messages-container::before,
-  [data-theme="jaws"] .messages-container::after {
-    display: none; /* Hide shark animations on mobile */
-  }
-
   [data-theme="jaws"] .brand-name {
-    font-size: 1.4rem;
+    font-size: 1.4rem; /* Adjust for smaller screens */
     letter-spacing: 1px;
   }
+  /* Other Jaws-specific responsive adjustments */
 }
 
 /* ----------------------------------------------------------------
    ACCESSIBILITY ENHANCEMENTS
    ---------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  [data-theme="jaws"] *,
-  [data-theme="jaws"] *::before,
-  [data-theme="jaws"] *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  [data-theme="jaws"] body::before, /* Caustics */
+  [data-theme="jaws"] .chat-header::before, /* Radar sweep */
+  [data-theme="jaws"] .brand-icon::before, /* Fin gleam */
+  [data-theme="jaws"] .new-chat-btn:hover, /* Disable hover transform */
+  [data-theme="jaws"] .btn-primary:hover {
+    animation: none !important;
+    /* For hover transforms, explicitly set to base state or remove transform */
   }
+   [data-theme="jaws"] .new-chat-btn:hover,
+   [data-theme="jaws"] .btn-primary:hover {
+    transform: none;
+   }
 }
 
 @media (prefers-contrast: high) {
   [data-theme="jaws"] {
-    --primary: #00CCFF;
-    --accent: #FF0000;
-    --text-primary: #FFFFFF;
+    --primary: #00aaff; /* Brighter blue for high contrast */
+    --accent: #ff0000; /* Standard red */
+    --text-primary: #ffffff;
     --bg-primary: #000000;
-    --border: #00CCFF;
+    --border: #00aaff;
   }
+  [data-theme="jaws"] body,
+  [data-theme="jaws"] .chat-header,
+  [data-theme="jaws"] .sidebar,
+  [data-theme="jaws"] .modal,
+  [data-theme="jaws"] .input-area,
+  [data-theme="jaws"] .message-bubble {
+    text-shadow: none; /* Remove text shadows for clarity */
+  }
+  [data-theme="jaws"] .brand-name,
+  [data-theme="jaws"] .modal-title {
+     -webkit-text-stroke: none; /* Remove stroke for high contrast */
+     text-stroke: none;
+  }
+}
+
+/* Ensure Jaws theme specific character UI is visible */
+[data-theme="jaws"] .theme-jaws-only {
+    display: block; /* Or appropriate display type */
+}
+[data-theme="default"] .theme-jaws-only,
+[data-theme="jurassic"] .theme-jaws-only {
+    display: none;
 }
