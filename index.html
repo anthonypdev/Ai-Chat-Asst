@@ -1,302 +1,720 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Parkland AI - Opus Magnum Edition</title>
-    <meta name="description" content="Parkland AI - Opus Magnum Edition: A multi-themed, voice-interactive AI chat application.">
-    <meta name="author" content="Adept Architect AI">
-    <meta name="theme-color" content="#7A77FF" id="metaThemeColor"> <link rel="icon" href="assets/icons/favicon.ico" sizes="any" id="faviconIco">
-    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" id="faviconSvg">
-    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" id="appleTouchIcon"/>
+/**
+ * Parkland AI - Opus Magnum Edition
+ * Main Application Controller (App.js)
+ *
+ * Orchestrates all core components, manages UI interactions,
+ * and handles the main application lifecycle.
+ */
 
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" defer>
+class App {
+    constructor() {
+        // Core Modules (using global instances created in their respective files)
+        if (!window.Utils || !window.StateManager || !window.AppEvents) {
+            // This is a critical failure, means core scripts haven't loaded correctly.
+            // Log an error and prevent further execution.
+            const errorMsg = "Critical Error: Core utility scripts (Utils, StateManager, AppEvents) not found. App cannot initialize.";
+            console.error(errorMsg);
+            document.body.innerHTML = `<div style="color: red; font-family: sans-serif; padding: 20px;">${errorMsg} Please check console and script loading order in index.html.</div>`;
+            throw new Error(errorMsg);
+        }
+        this.utils = window.UtilsInstance; // From utils.js (assuming UtilsInstance from your utils.js)
+        this.stateManager = window.StateManager.getInstance(); // From state.js
+        this.eventEmitter = window.AppEvents; // From events.js (assuming AppEvents from your events.js)
 
 
-    </head>
-<body>
-    <div id="loadingOverlay">
-        <div class="loading-logo-container">
-             <div class="loading-logo">[PA]</div>
-        </div>
-        <div class="loading-text">Initializing Parkland AI...</div>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="loadingProgressBar"></div>
-        </div>
-        <div class="loading-tip" id="loadingTip">Did you know? AI is transforming industries!</div>
-    </div>
+        // Feature Modules (instances to be created in init)
+        this.themePersistence = null;
+        this.themeTransition = null;
+        this.characterManager = null;
+        this.themeManager = null; // Must be after CharacterManager if it's a dependency
 
-    <div id="appContainer" class="app-container sidebar-open">
+        this.apiService = null;
+        this.voiceRecognition = null;
+        this.voiceSynthesis = null;
+        this.chatHistory = null;
+        this.chatMessages = null;
+        this.markdownProcessor = null;
+        this.soundEffects = null;
 
-        <div id="loginContainer" class="login-container hidden">
-            <div class="login-card animate-in">
-                <div class="brand-icon login-brand-icon">[PA]</div>
-                <h1 class="login-title">Parkland AI</h1>
-                <p class="login-subtitle">Opus Magnum Edition</p>
-                <form id="loginForm" class="login-form">
-                    <div class="form-group">
-                        <label for="apiKeyInput" class="form-label">Enter Your API Key</label>
-                        <input type="password" id="apiKeyInput" class="form-input" placeholder="sk-..." required>
-                        <small class="form-help">Your API key is stored locally and never sent to our servers.</small>
-                    </div>
-                    <button type="submit" id="loginButton" class="btn btn-primary btn-full">Access Parkland AI</button>
-                    <p id="loginErrorMessage" class="form-error-message"></p>
-                </form>
-                 <p class="login-footer-note">No API key? This is a conceptual application.</p>
-            </div>
-        </div>
+        this.ui = {};
+        this.isInitialized = false;
+        this.chatViewShownBefore = false; // Flag for initial chat view presentation
 
-        <div id="chatContainer" class="chat-container hidden">
-            <aside class="sidebar open" id="appSidebar" role="navigation" aria-label="Chat History and Settings">
-                <div class="sidebar-header">
-                    <button class="btn btn-icon btn-ghost" id="sidebarToggle" aria-label="Toggle Sidebar">
-                        <span class="icon" id="sidebarToggleIcon">
-                           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
-                        </span>
-                    </button>
-                    <div class="brand">
-                        <div class="brand-icon">[PA]</div>
-                        <span class="brand-name">Parkland AI</span>
-                    </div>
-                    <button class="btn btn-primary new-chat-btn" id="newChatBtn">
-                        <span class="icon">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg>
-                        </span>
-                        <span class="btn-text">New Chat</span>
-                    </button>
-                </div>
-                <div class="sidebar-content">
-                    <nav class="chat-history-nav" aria-labelledby="chatHistoryHeading">
-                        <h2 id="chatHistoryHeading" class="sr-only">Chat History</h2>
-                        <ul class="chat-history-list">
-                        </ul>
-                    </nav>
-                </div>
-                <div class="sidebar-footer">
-                    <button class="btn btn-secondary btn-icon" id="settingsBtn" aria-label="Open Settings">
-                        <span class="icon">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg>
-                        </span>
-                    </button>
-                </div>
-            </aside>
+        this._handleVisibilityChange = this._handleVisibilityChange.bind(this);
 
-            <main class="chat-area" role="main">
-                <header class="chat-header">
-                    <div class="chat-title" id="currentChatTitle">Chat</div>
-                    <div class="header-actions">
-                    </div>
-                </header>
-                <div class="messages-container">
-                    <div class="messages-inner">
-                    </div>
-                    <div class="empty-state-container hidden">
-                         <div class="empty-state-icon">[AI]</div>
-                         <h2 class="empty-state-title">How can I help you today?</h2>
-                         <p class="empty-state-subtitle">Ask me anything, or try one of these suggestions:</p>
-                         <div class="suggestion-cards-container">
-                         </div>
-                    </div>
-                </div>
-                <footer class="input-area">
-                    <form id="chatInputForm" class="chat-input-form">
-                        <textarea id="chatInput" class="form-input chat-input" placeholder="Send a message to Parkland AI..." rows="1" aria-label="Chat message input"></textarea>
-                        <button type="button" class="btn btn-icon btn-ghost" id="micBtn" aria-label="Use microphone">
-                            <span class="icon">
-                               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>
-                            </span>
-                        </button>
-                        <button type="submit" class="btn btn-primary btn-icon" id="sendBtn" aria-label="Send message">
-                            <span class="icon">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-                            </span>
-                        </button>
-                    </form>
-                </footer>
-            </main>
-        </div>
+        if (this.stateManager.get('debugMode')) {
+            console.log('App constructor: Debug mode is ON.');
+        }
+    }
 
-        <div id="quintCharacterUI" class="character-ui hidden"></div>
-        <div id="brodyCharacterUI" class="character-ui hidden"></div>
-        <div id="hooperCharacterUI" class="character-ui hidden"></div>
-        <div class="muldoon-walkie-container character-ui hidden" id="muldoonCharacterUI">
-            <div class="walkie-body">
-                <div class="walkie-antenna"></div>
-                <div class="walkie-speaker">
-                    <div class="static-bars">
-                        <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div>
-                    </div>
-                </div>
-                <div class="walkie-led idle"></div>
-                <div class="walkie-controls">
-                    <div class="walkie-button"></div> <div class="walkie-button"></div>
-                </div>
-                <div class="walkie-dial"></div>
-                <div class="walkie-label">JP COMM</div>
-            </div>
-        </div>
-        <div class="mr-dna-container character-ui hidden" id="mrDnaCharacterUI">
-            <div class="mr-dna-canvas"></div>
-            <div class="dna-speech-bubble" aria-live="polite"></div>
-        </div>
-    </div>
+    /**
+     * Initializes the application.
+     */
+    async init() {
+        if (this.isInitialized) {
+            console.warn('App already initialized.');
+            return;
+        }
 
-    <div id="appSettingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
-        <div class="modal">
-            <header class="modal-header">
-                <h2 id="settingsModalTitle" class="modal-title">Application Settings</h2>
-                <button class="modal-close" id="closeSettingsModalBtn" aria-label="Close settings">
-                    <span class="icon">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-                    </span>
-                </button>
-            </header>
-            <section class="modal-body">
-                <form id="settingsForm">
-                    <fieldset>
-                        <legend>API & Model</legend>
-                        <div class="form-group">
-                            <label for="apiKeySetting" class="form-label">API Key</label>
-                            <input type="password" id="apiKeySetting" name="apiKeySetting" class="form-input" placeholder="Enter your API key">
-                        </div>
-                        <div class="form-group">
-                            <label for="modelSelection" class="form-label">AI Model (Claude)</label>
-                            <select id="modelSelection" name="modelSelection" class="form-select">
-                                <option value="claude-3-opus-20240229">Claude 3 Opus</option>
-                                <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
-                                <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                                <option value="claude-2.1">Claude 2.1</option>
-                            </select>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Theme & Appearance</legend>
-                        <div class="form-group">
-                            <label for="themeSelectorSetting" class="form-label">Theme</label>
-                            <select id="themeSelectorSetting" name="themeSelectorSetting" class="form-select">
-                            </select>
-                        </div>
-                         <div class="form-group">
-                            <label class="form-checkbox">
-                                <input type="checkbox" id="reduceMotion" name="reduceMotion">
-                                <span class="checkbox-indicator"></span>
-                                <span class="checkbox-label">Reduce Motion</span>
-                            </label>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Chat & Interaction</legend>
-                        <div class="form-group">
-                            <label class="form-checkbox">
-                                <input type="checkbox" id="autoScroll" name="autoScroll">
-                                <span class="checkbox-indicator"></span>
-                                <span class="checkbox-label">Auto-scroll chat</span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-checkbox">
-                                <input type="checkbox" id="sendOnEnter" name="sendOnEnter">
-                                <span class="checkbox-indicator"></span>
-                                <span class="checkbox-label">Send message on Enter (Shift+Enter for newline)</span>
-                            </label>
-                        </div>
-                         <div class="form-group">
-                            <label class="form-checkbox">
-                                <input type="checkbox" id="markdownRendering" name="markdownRendering">
-                                <span class="checkbox-indicator"></span>
-                                <span class="checkbox-label">Render Markdown in responses</span>
-                            </label>
-                        </div>
-                    </fieldset>
-                     <fieldset>
-                        <legend>Voice & Audio</legend>
-                         <div class="form-group">
-                            <label class="form-checkbox">
-                                <input type="checkbox" id="voiceInputEnabled" name="voiceInputEnabled">
-                                <span class="checkbox-indicator"></span>
-                                <span class="checkbox-label">Enable Voice Input (Microphone)</span>
-                            </label>
-                        </div>
-                         <div class="form-group">
-                            <label class="form-checkbox">
-                                <input type="checkbox" id="voiceOutputEnabled" name="voiceOutputEnabled">
-                                <span class="checkbox-indicator"></span>
-                                <span class="checkbox-label">Enable Voice Output (Text-to-Speech)</span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="characterVoiceSelector" class="form-label">Preferred Character Voice (for TTS)</label>
-                            <select id="characterVoiceSelector" name="characterVoiceSelector" class="form-select">
-                            </select>
-                        </div>
-                         <div class="form-group">
-                            <label class="form-checkbox">
-                                <input type="checkbox" id="soundEffectsEnabled" name="soundEffectsEnabled">
-                                <span class="checkbox-indicator"></span>
-                                <span class="checkbox-label">Enable Sound Effects</span>
-                            </label>
-                        </div>
-                    </fieldset>
-                </form>
-            </section>
-            <footer class="modal-footer">
-                <button type="button" class="btn btn-secondary modal-cancel-btn" data-modal-close="#appSettingsModal">Cancel</button>
-                <button type="submit" form="settingsForm" class="btn btn-primary">Save Settings</button>
-            </footer>
-        </div>
-    </div>
+        console.log('🚀 Parkland AI - Opus Magnum Edition: Initializing App...');
+        // isLoading is true by default from StateManager, body class added here.
+        document.body.classList.add('app-loading');
+        if (this.ui.loadingOverlay) this.utils.removeClass(this.ui.loadingOverlay, 'hidden'); // Ensure it's visible
 
-    <div id="themeTransitionOverlay" class="theme-transition-overlay hidden">
-        <div id="jawsWaveTransitionContainer" class="transition-animation-container hidden">
-        </div>
-        <div id="jurassicGateTransitionContainer" class="transition-animation-container hidden">
-             <div class="jurassic-gate-container">
-                <div class="jurassic-gate left">
-                    <div class="gate-layer gate-concrete"></div><div class="gate-layer gate-metal-frame"></div><div class="gate-layer gate-weathering"></div>
-                    <div class="gate-logo">JURASSIC PARK</div>
-                </div>
-                <div class="jurassic-gate right">
-                    <div class="gate-layer gate-concrete"></div><div class="gate-layer gate-metal-frame"></div><div class="gate-layer gate-weathering"></div>
-                </div>
-            </div>
-            <div class="gate-lights-container"></div><div class="electric-warning"></div>
-            <div class="spotlight-container"><div class="spotlight"></div></div>
-            <div class="fog-layer"></div><div class="rain-overlay"></div><div class="jurassic-dust-container"></div>
-            <div class="jurassic-environment-layer"></div>
-        </div>
-    </div>
+        this._selectUIElements();
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/14.0.0/markdown-it.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+        // Initialize Feature Modules in correct order
+        this.markdownProcessor = new MarkdownProcessor(); // Assumes MarkdownProcessor is globally defined
 
-    <script src="js/core/utils.js" defer></script>
-    <script src="js/core/state.js" defer></script>
-    <script src="js/core/events.js" defer></script>
+        // API Service
+        this.apiService = new ClaudeAPIService(this.stateManager, this.utils); // Assumes ClaudeAPIService
 
-    <script src="js/features/api/errors.js" defer></script>
-    <script src="js/features/api/claude.js" defer></script>
-    <script src="js/features/chat/markdown.js" defer></script>
-    <script src="js/features/chat/messages.js" defer></script>
-    <script src="js/features/chat/history.js" defer></script>
-    <script src="js/features/themes/persistence.js" defer></script>
-    <script src="js/features/voice/synthesis.js" defer></script>
-    <script src="js/features/voice/recognition.js" defer></script>
+        this.chatMessages = new ChatMessages(this.ui.chatMessagesContainer, this.utils, this.markdownProcessor, this.stateManager);
+        this.chatHistory = new ChatHistory(this.ui.chatHistoryContainer, this.utils, this.eventEmitter, this.stateManager);
 
-    <script src="js/animations/characters/mr-dna-sprite.js" defer></script>
-    <script src="js/animations/transitions/jaws-wave.js" defer></script>
-    <script src="js/animations/transitions/jurassic-gate.js" defer></script>
+        this.voiceRecognition = new VoiceRecognition(this.stateManager, this.eventEmitter, this.utils, this.ui.micBtn);
+        if (this.voiceRecognition.isSupported()) this.voiceRecognition.init(); // Init if supported
 
-    <script src="js/characters/base-character.js" defer></script>
-    <script src="js/characters/jaws/quint.js" defer></script>
-    <script src="js/characters/jaws/brody.js" defer></script>
-    <script src="js/characters/jaws/hooper.js" defer></script>
-    <script src="js/characters/jurassic/muldoon.js" defer></script>
-    <script src="js/characters/jurassic/mr-dna.js" defer></script>
+        this.voiceSynthesis = new VoiceSynthesis(this.stateManager, this.eventEmitter, this.utils);
+        this.voiceSynthesis.init(); // Init to load voices
 
-    <script src="js/features/voice/characters.js" defer></script> <script src="js/features/themes/transitions.js" defer></script> <script src="js/features/themes/manager.js" defer></script>   <script src="js/core/app.js" defer></script>
+        this.themePersistence = new ThemePersistence(this.stateManager); // Assumes ThemePersistence class
+        this.themeTransition = new ThemeTransition(this.utils, this.stateManager); // Assumes ThemeTransition class
 
-</body>
-</html>
+        // Instantiate CharacterManager first, passing null for themeManager initially
+        // CharacterManager, ThemeManager, BaseCharacter, and specific characters classes need to be defined globally or loaded
+        this.characterManager = new CharacterManager(this.stateManager, this.eventEmitter, this.utils, null);
+
+        // Now instantiate ThemeManager, passing the created characterManager
+        this.themeManager = new ThemeManager(
+            this.stateManager,
+            this.utils,
+            this.eventEmitter,
+            this.themePersistence,
+            this.themeTransition,
+            this.characterManager // this.characterManager is now defined
+        );
+
+        // Now that themeManager exists, provide it to characterManager.
+        // The CharacterManager's constructor event listener for 'themeChanged' will use this.
+        this.characterManager.themeManager = this.themeManager;
+
+        // Sound Effects (AudioProcessor worker)
+        if (window.Worker) {
+            try {
+                // Assuming audio-processor.js is in 'workers/' directory relative to where JS is served
+                this.audioWorker = new Worker('workers/audio-processor.js');
+                this.soundEffects = {
+                    playSoundEffect: (effectName, volume = 1.0, loop = false, soundId = null) => {
+                        if (this.stateManager.get('userPreferences.soundEffectsEnabled') || effectName.includes('force')) { // Allow forced sounds
+                            this.audioWorker.postMessage({ type: 'PLAY_SOUND', payload: { effectName, volume, loop, soundId } });
+                        }
+                    },
+                    stopSoundEffect: (soundId) => {
+                         this.audioWorker.postMessage({ type: 'STOP_SOUND', payload: { soundId } });
+                    },
+                    preload: (effectNames) => {
+                        this.audioWorker.postMessage({ type: 'PRELOAD_SOUNDS', payload: { effectNames } });
+                    }
+                };
+                 // Listen for messages back from audio worker if needed (e.g., errors, ready state)
+                this.audioWorker.onmessage = (event) => {
+                    if (this.stateManager.get('debugMode')) console.log('Msg from AudioWorker:', event.data);
+                    if (event.data.type === 'SOUND_ERROR') console.error('AudioWorker Sound Error:', event.data.payload);
+                };
+                this.audioWorker.onerror = (error) => {
+                    console.error("Error initializing AudioWorker:", error.message, error);
+                    this.soundEffects = null; // Disable sound effects if worker fails
+                };
+                 // Example preloads:
+                // this.soundEffects.preload(['uiClick', 'messageSent', 'messageReceived', 'error']);
+            } catch (error) {
+                console.error("Failed to create AudioProcessor worker:", error);
+                this.soundEffects = null;
+            }
+        } else {
+            console.warn("Web Workers not supported. Sound effects will be limited or disabled.");
+            this.soundEffects = null;
+        }
+        // Make soundEffects globally accessible if needed by other modules easily, or pass instance
+        if (this.soundEffects) window.soundEffects = this.soundEffects;
+
+
+        await this.themeManager.init(); // Loads current theme, which might trigger 'themeChanged'
+        this.characterManager.initCharacters(); // Now this has access to a fully init'd themeManager
+
+        this._registerEventListeners();
+        this._setupStateSubscriptions();
+        this._updateUIBasedOnState();
+
+        if (this.stateManager.get('apiKey')) {
+            this._showChatView();
+        } else {
+            this._showLoginView();
+        }
+        
+        this.isInitialized = true;
+        console.log('✅ App initialized successfully.');
+
+        // Use StateManager to control loading state to ensure all subscribers react
+        setTimeout(() => {
+            this.stateManager.set('isLoading', false); // This will trigger _hideLoading via subscription
+        }, 500); // Slightly longer delay for more complex init
+    }
+
+    _selectUIElements() {
+        this.ui.loadingOverlay = this.utils.$('#loadingOverlay');
+        this.ui.appContainer = this.utils.$('#appContainer');
+        this.ui.loginContainer = this.utils.$('#loginContainer');
+        this.ui.chatContainer = this.utils.$('#chatContainer');
+        this.ui.loginForm = this.utils.$('#loginForm');
+        this.ui.apiKeyInput = this.utils.$('#apiKeyInput');
+        this.ui.loginButton = this.utils.$('#loginButton');
+        this.ui.loginErrorMessage = this.utils.$('#loginErrorMessage');
+        this.ui.sidebar = this.utils.$('#appSidebar'); // Used ID from index.html
+        this.ui.chatHeader = this.utils.$('.chat-header'); // Assuming only one
+        this.ui.chatInputForm = this.utils.$('#chatInputForm');
+        this.ui.chatInput = this.utils.$('#chatInput');
+        this.ui.sendBtn = this.utils.$('#sendBtn');
+        this.ui.micBtn = this.utils.$('#micBtn');
+        this.ui.chatMessagesContainer = this.utils.$('.messages-container .messages-inner');
+        this.ui.chatHistoryContainer = this.utils.$('.sidebar-content .chat-history-list');
+        this.ui.newChatBtn = this.utils.$('#newChatBtn');
+        // Theme selector is now in settings modal
+        this.ui.settingsBtn = this.utils.$('#settingsBtn');
+        this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle');
+        this.ui.settingsModal = this.utils.$('#appSettingsModal');
+        this.ui.settingsForm = this.utils.$('#settingsForm', this.ui.settingsModal); // Scope to modal
+        this.ui.closeSettingsModalBtn = this.utils.$('#closeSettingsModalBtn', this.ui.settingsModal);
+        this.ui.emptyStateContainer = this.utils.$('.empty-state-container');
+    }
+
+    _registerEventListeners() {
+        if (this.ui.loginForm) {
+            this.ui.loginForm.addEventListener('submit', this._handleLoginSubmit.bind(this));
+        } else if (this.ui.loginButton) {
+            this.ui.loginButton.addEventListener('click', (e) => {
+                 e.preventDefault(); // Prevent default if it's a button in a form
+                 this._handleLoginSubmit(e);
+            });
+        }
+
+        if(this.ui.chatInputForm) this.ui.chatInputForm.addEventListener('submit', this._handleSendMessage.bind(this));
+        if(this.ui.chatInput) this.ui.chatInput.addEventListener('keydown', this._handleInputKeyDown.bind(this));
+        if(this.ui.sendBtn) this.ui.sendBtn.addEventListener('click', this._handleSendMessage.bind(this));
+        if(this.ui.micBtn && this.voiceRecognition) this.ui.micBtn.addEventListener('click', () => this.voiceRecognition.toggleListening());
+        if(this.ui.newChatBtn) this.ui.newChatBtn.addEventListener('click', this._handleNewChat.bind(this));
+
+        if (this.ui.settingsBtn) {
+            this.ui.settingsBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', true));
+        }
+        if (this.ui.closeSettingsModalBtn) {
+            this.ui.closeSettingsModalBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', false));
+        }
+         // Handle modal overlay click to close settings modal
+        const settingsModalOverlay = this.utils.$('#appSettingsModal');
+        if (settingsModalOverlay) {
+            settingsModalOverlay.addEventListener('click', (event) => {
+                if (event.target === settingsModalOverlay) { // Clicked on overlay itself, not modal content
+                    this.stateManager.setModalOpen('isSettingsModalOpen', false);
+                }
+            });
+        }
+
+        if (this.ui.settingsForm) {
+            this.ui.settingsForm.addEventListener('submit', this._handleSettingsSave.bind(this));
+            this.utils.$$('input, select', this.ui.settingsForm).forEach(input => {
+                input.addEventListener('change', this._handlePreferenceChange.bind(this));
+            });
+        }
+
+        if (this.ui.sidebarToggleBtn) {
+            this.ui.sidebarToggleBtn.addEventListener('click', () => this.stateManager.toggleSidebar());
+        }
+
+        window.addEventListener('keydown', this._handleGlobalKeyDown.bind(this));
+        window.addEventListener('resize', this.utils.debounce(this._handleResize.bind(this), 200));
+        document.addEventListener('visibilitychange', this._handleVisibilityChange);
+
+        this.eventEmitter.on('errorDisplay', this._displayError.bind(this));
+        this.eventEmitter.on('notificationDisplay', this._displayNotification.bind(this));
+        this.eventEmitter.on('playSound', (payload) => { // Updated to match worker post message
+            if (this.soundEffects) {
+                this.soundEffects.playSoundEffect(payload.soundName, payload.volume, payload.loop, payload.soundId);
+            }
+        });
+        this.eventEmitter.on('stopSound', (payload) => {
+            if (this.soundEffects) {
+                this.soundEffects.stopSoundEffect(payload.soundId);
+            }
+        });
+         this.eventEmitter.on('character:speakRequested', ({ characterKey, text, voiceConfig, options }) => {
+            if (this.voiceSynthesis) {
+                // Pass characterKey to allow VoiceSynthesis to use its voiceConfig
+                // VoiceSynthesis.speak now takes characterKey as second param.
+                this.voiceSynthesis.speak(text, characterKey, options);
+            }
+        });
+    }
+
+    _setupStateSubscriptions() {
+        this.stateManager.subscribe('change:isLoading', ({ newValue }) => {
+            newValue ? this._showLoadingScreen() : this._hideLoadingScreen();
+        });
+        this.stateManager.subscribe('change:currentTheme', ({ newValue }) => {
+            if (this.themeManager) this.themeManager.applyThemeToBody(newValue);
+             // Potentially update theme selector in settings modal if open
+            const themeSelectSetting = this.utils.$('#themeSelectorSetting', this.ui.settingsForm);
+            if (themeSelectSetting && this.stateManager.get('isSettingsModalOpen')) {
+                themeSelectSetting.value = newValue;
+            }
+        });
+        this.stateManager.subscribe('change:chatHistory', ({ newValue, oldValue }) => {
+            this.chatMessages.renderHistory(newValue); // ChatMessages handles scrolling if needed
+            this._toggleEmptyState(newValue.length === 0);
+            if (newValue.length > (oldValue ? oldValue.length : 0)) { // If a new message was added
+                this.chatHistory.addOrUpdateCurrentSession(); // Save session and update sidebar
+            }
+        });
+        this.stateManager.subscribe('change:isSidebarOpen', ({ newValue }) => {
+             this.ui.sidebar.classList.toggle('open', newValue);
+             this.ui.sidebar.classList.toggle('collapsed', !newValue);
+             this.ui.appContainer.classList.toggle('sidebar-collapsed', !newValue);
+        });
+        this.stateManager.subscribe('change:isLoginModalOpen', ({ newValue }) => {
+            // This state now controls the visibility of the login *view*
+            if (newValue) this._showLoginView(); else this._showChatView();
+        });
+        this.stateManager.subscribe('change:isSettingsModalOpen', ({ newValue }) => {
+            this._toggleModal(this.ui.settingsModal, newValue);
+             if (newValue) this._populateSettingsForm();
+        });
+        this.stateManager.subscribe('change:isMicListening', ({newValue}) => {
+            if(this.ui.micBtn) {
+                this.ui.micBtn.classList.toggle('active', newValue); // 'active' class from buttons.css
+                this.ui.micBtn.classList.toggle('listening', newValue); // More specific class
+                this.ui.micBtn.setAttribute('aria-pressed', newValue.toString());
+            }
+        });
+        this.stateManager.subscribe('change:userInput', ({newValue}) => {
+            if(this.ui.chatInput && this.ui.chatInput.value !== newValue) {
+                this.ui.chatInput.value = newValue;
+                // Adjust height if needed, though keydown also handles it
+                this.ui.chatInput.style.height = 'auto';
+                this.ui.chatInput.style.height = (this.ui.chatInput.scrollHeight) + 'px';
+            }
+        });
+        this.stateManager.subscribe('change:activeCharacter', ({newValue}) => {
+             if (this.characterManager) {
+                // This might be redundant if switchCharacter already handles UI updates
+                // this.characterManager._updateCharacterUI(newValue, true);
+             }
+             // Update preferred voice in settings modal if it's open
+            const characterVoiceSelect = this.utils.$('#characterVoiceSelector', this.ui.settingsForm);
+            if (characterVoiceSelect && this.stateManager.get('isSettingsModalOpen')) {
+                // If user has a specific character voice preference, it might differ from active character.
+                // This should reflect userPreferences.voiceCharacter.
+                // _populateSettingsForm handles setting this select's value correctly.
+            }
+        });
+    }
+
+    _updateUIBasedOnState() {
+        if (this.themeManager) this.themeManager.applyThemeToBody(this.stateManager.get('currentTheme'));
+        const isSidebarOpen = this.stateManager.get('isSidebarOpen');
+        if(this.ui.sidebar) {
+            this.ui.sidebar.classList.toggle('open', isSidebarOpen);
+            this.ui.sidebar.classList.toggle('collapsed', !isSidebarOpen);
+        }
+        if(this.ui.appContainer) this.ui.appContainer.classList.toggle('sidebar-collapsed', !isSidebarOpen);
+
+        this.chatHistory.renderHistoryList();
+        this.chatMessages.renderHistory(this.stateManager.get('chatHistory'));
+        this._toggleEmptyState(this.stateManager.get('chatHistory').length === 0);
+
+        const apiKey = this.stateManager.get('apiKey');
+        if (apiKey) this._showChatView(); else this._showLoginView();
+    }
+
+    _handleLoginSubmit(event) {
+        event.preventDefault();
+        const apiKey = this.ui.apiKeyInput.value.trim();
+        if (this.apiService.validateApiKey(apiKey)) {
+            this.stateManager.setApiKey(apiKey); // This will trigger view change via state subscription
+            if(this.ui.loginErrorMessage) this.ui.loginErrorMessage.textContent = '';
+            if (this.soundEffects) this.soundEffects.playSoundEffect('loginSuccess');
+        } else {
+            if(this.ui.loginErrorMessage) this.ui.loginErrorMessage.textContent = 'Invalid API Key format or value.';
+            if (this.soundEffects) this.soundEffects.playSoundEffect('error');
+            this.utils.shake(this.ui.loginForm);
+        }
+    }
+
+    _showLoginView() {
+        if(this.ui.chatContainer) this.utils.addClass(this.ui.chatContainer, 'hidden');
+        if(this.ui.loginContainer) this.utils.removeClass(this.ui.loginContainer, 'hidden');
+        this.stateManager.set('currentView', 'login', true); // Silent as it's a direct consequence
+        if(this.ui.apiKeyInput) this.ui.apiKeyInput.focus();
+    }
+
+    _showChatView() {
+        if(this.ui.loginContainer) this.utils.addClass(this.ui.loginContainer, 'hidden');
+        if(this.ui.chatContainer) this.utils.removeClass(this.ui.chatContainer, 'hidden');
+        this.stateManager.set('currentView', 'chat', true); // Silent
+        this.chatMessages.scrollToBottom();
+        if(this.ui.chatInput) this.ui.chatInput.focus();
+
+        if(!this.chatViewShownBefore) {
+            this.eventEmitter.emit('chatViewReady'); // For character intros, etc.
+            this.chatViewShownBefore = true;
+        }
+    }
+
+    _handleSendMessage(event) {
+        if (event) event.preventDefault();
+        const messageText = this.stateManager.get('userInput').trim();
+        if (!messageText) return;
+
+        if (this.soundEffects) this.soundEffects.playSoundEffect('messageSent');
+
+        const userMessage = {
+            id: `msg-user-${Date.now()}`, // Add ID for potential later reference
+            role: 'user',
+            content: messageText,
+            timestamp: Date.now()
+        };
+        this.stateManager.addMessageToHistory(userMessage); // This triggers chatHistory save and UI update
+
+        this.stateManager.set('userInput', '');
+        this.ui.chatInput.value = '';
+        this.ui.chatInput.style.height = 'auto';
+        this.ui.chatInput.focus(); // Keep focus on input
+
+        this._showTypingIndicator(true);
+
+        this.apiService.sendMessage(messageText, this.stateManager.get('chatHistory'))
+            .then(response => this._processAssistantResponse(response))
+            .catch(error => this._handleApiError(error))
+            .finally(() => this._showTypingIndicator(false));
+    }
+    
+    _processAssistantResponse(apiResponse) {
+        let content = '';
+        let character = this.stateManager.get('activeCharacter');
+
+        if (typeof apiResponse === 'string') content = apiResponse;
+        else if (apiResponse && typeof apiResponse.content === 'string') {
+            content = apiResponse.content;
+            if (apiResponse.character) character = apiResponse.character;
+        } else {
+            content = "Sorry, I received an unexpected response.";
+        }
+
+        const assistantMessage = {
+            id: `msg-assistant-${Date.now()}`,
+            role: 'assistant',
+            content: content,
+            timestamp: Date.now(),
+            character: character
+        };
+        this.stateManager.addMessageToHistory(assistantMessage); // Triggers save & UI update
+
+        if (this.stateManager.get('userPreferences.voiceOutputEnabled') && this.voiceSynthesis) {
+            this.voiceSynthesis.speak(assistantMessage.content, assistantMessage.character);
+        }
+        if (this.soundEffects) this.soundEffects.playSoundEffect('messageReceived');
+    }
+
+    _handleApiError(error) {
+        console.error("API Error in App:", error);
+        const errorMessage = error.message || "An unknown API error occurred.";
+        const errorResponseMessage = {
+            id: `msg-error-${Date.now()}`,
+            role: 'assistant',
+            content: `⚠️ ${errorMessage}`,
+            timestamp: Date.now(),
+            isError: true
+        };
+        this.stateManager.addMessageToHistory(errorResponseMessage);
+        this.eventEmitter.emit('errorDisplay', { message: errorMessage, type: 'api' });
+    }
+
+    _showTypingIndicator(show) {
+        this.eventEmitter.emit('typingIndicator', { show }); // ChatMessages listens to this
+    }
+
+    _handleInputKeyDown(event) {
+        this.stateManager.set('userInput', event.target.value, true); // Silent update for input value state
+
+        const sendOnEnter = this.stateManager.get('userPreferences.sendOnEnter');
+        if (event.key === 'Enter' && sendOnEnter && !event.shiftKey) {
+            event.preventDefault();
+            this._handleSendMessage();
+        }
+        // Auto-resize textarea (ensure it doesn't exceed max-height if defined in CSS)
+        event.target.style.height = 'auto';
+        const maxHeight = parseInt(this.utils.getStyle(event.target, 'max-height'), 10) || Infinity;
+        event.target.style.height = Math.min(event.target.scrollHeight, maxHeight) + 'px';
+    }
+
+    _handleNewChat() {
+        this.stateManager.clearChatHistory(); // This also triggers history update
+        this.stateManager.set('activeSessionId', null); // Crucial for starting a new session
+        this.chatHistory.renderHistoryList(); // Re-render sidebar to reflect new/no active session
+        if(this.ui.chatInput) this.ui.chatInput.focus();
+        this._toggleEmptyState(true);
+        if (this.soundEffects) this.soundEffects.playSoundEffect('newChat');
+        this.eventEmitter.emit('newChatStarted');
+    }
+    
+    _populateSettingsForm() {
+        if (!this.ui.settingsForm) return;
+        const prefs = this.stateManager.get('userPreferences');
+        const apiKey = this.stateManager.get('apiKey');
+        const currentProvider = this.stateManager.get('currentApiProvider');
+        const currentApiModel = this.stateManager.get(`modelPreferences.${currentProvider}.model`);
+
+        this.utils.$('#apiKeySetting', this.ui.settingsForm).value = apiKey || '';
+        const modelSelect = this.utils.$('#modelSelection', this.ui.settingsForm);
+        if(modelSelect) modelSelect.value = currentApiModel || 'claude-3-haiku-20240307';
+
+        this.utils.$('#autoScroll', this.ui.settingsForm).checked = prefs.autoScroll;
+        this.utils.$('#sendOnEnter', this.ui.settingsForm).checked = prefs.sendOnEnter;
+        this.utils.$('#markdownRendering', this.ui.settingsForm).checked = prefs.markdownRendering;
+        this.utils.$('#voiceInputEnabled', this.ui.settingsForm).checked = prefs.voiceInputEnabled;
+        this.utils.$('#voiceOutputEnabled', this.ui.settingsForm).checked = prefs.voiceOutputEnabled;
+        this.utils.$('#soundEffectsEnabled', this.ui.settingsForm).checked = prefs.soundEffectsEnabled;
+        this.utils.$('#reduceMotion', this.ui.settingsForm).checked = prefs.reduceMotion;
+
+        const themeSelect = this.utils.$('#themeSelectorSetting', this.ui.settingsForm);
+        if (themeSelect) {
+            themeSelect.innerHTML = ''; // Clear old options
+            this.themeManager.getAvailableThemes().forEach(theme => {
+                const option = this.utils.createElement('option', { value: theme.key }, theme.name);
+                themeSelect.appendChild(option);
+            });
+            themeSelect.value = this.stateManager.get('currentTheme');
+        }
+        const characterVoiceSelect = this.utils.$('#characterVoiceSelector', this.ui.settingsForm);
+        if (characterVoiceSelect && this.characterManager) {
+            characterVoiceSelect.innerHTML = '';
+            const defaultOpt = this.utils.createElement('option', { value: 'default'}, 'Default Voice');
+            characterVoiceSelect.appendChild(defaultOpt);
+            const characters = this.characterManager.getAvailableCharacters();
+            for (const key in characters) {
+                const option = this.utils.createElement('option', { value: key }, characters[key].name);
+                characterVoiceSelect.appendChild(option);
+            }
+            characterVoiceSelect.value = prefs.voiceCharacter || 'default';
+        }
+    }
+
+    _handleSettingsSave(event) {
+        event.preventDefault();
+        const formData = new FormData(this.ui.settingsForm);
+        
+        const newApiKey = formData.get('apiKeySetting')?.trim() || null; // Ensure null if empty
+        if (newApiKey !== this.stateManager.get('apiKey')) {
+            if (newApiKey === null || this.apiService.validateApiKey(newApiKey)) {
+                this.stateManager.setApiKey(newApiKey); // This saves and updates view
+            } else {
+                this.utils.shake(this.utils.$('#apiKeySetting', this.ui.settingsForm));
+                this.eventEmitter.emit('notificationDisplay', {message: 'Invalid API key format.', type: 'error'});
+                return;
+            }
+        }
+
+        const newTheme = formData.get('themeSelectorSetting');
+        if (newTheme && newTheme !== this.stateManager.get('currentTheme')) {
+            this.themeManager.setCurrentTheme(newTheme);
+        }
+
+        ['autoScroll', 'sendOnEnter', 'markdownRendering', 'voiceInputEnabled', 'voiceOutputEnabled', 'soundEffectsEnabled', 'reduceMotion'].forEach(key => {
+            this.stateManager.setUserPreference(key, formData.has(key));
+        });
+        this.stateManager.setUserPreference('voiceCharacter', formData.get('characterVoiceSelector') || 'default');
+
+        const newModel = formData.get('modelSelection');
+        if (newModel) {
+            const currentProvider = this.stateManager.get('currentApiProvider');
+            this.stateManager.set(`modelPreferences.${currentProvider}.model`, newModel);
+            // this.stateManager.saveState(['modelPreferences']); // If model prefs need separate save
+        }
+
+        if (this.soundEffects) this.soundEffects.playSoundEffect('settingsSaved');
+        this.stateManager.setModalOpen('isSettingsModalOpen', false);
+        this.eventEmitter.emit('notificationDisplay', {message: 'Settings saved!', type: 'success'});
+    }
+
+    _handlePreferenceChange(event) {
+        const target = event.target;
+        const key = target.name || target.id; // Use name or id
+        let prefKey = key;
+
+        // Map specific IDs/names to preference keys if they differ
+        if (key === 'apiKeySetting' || key === 'modelSelection' || key === 'themeSelectorSetting' || key === 'characterVoiceSelector') {
+            return; // These are handled on save explicitly, not as general preferences here
+        }
+        // For checkboxes that directly map to userPreferences keys:
+        // e.g., if input name="autoScroll", prefKey is 'autoScroll'
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+
+        // For "instant apply" preferences like reduceMotion or soundEffectsEnabled
+        if (prefKey === 'reduceMotion' || prefKey === 'soundEffectsEnabled') {
+            this.stateManager.setUserPreference(prefKey, value);
+        }
+    }
+
+    _handleGlobalKeyDown(event) {
+        if (event.key === 'Escape') {
+            if (this.stateManager.get('isSettingsModalOpen')) {
+                this.stateManager.setModalOpen('isSettingsModalOpen', false);
+            }
+        }
+    }
+
+    _handleResize() {
+        this.eventEmitter.emit('appResized', { width: window.innerWidth, height: window.innerHeight });
+    }
+
+    _handleVisibilityChange() {
+        if (document.hidden) {
+            this.eventEmitter.emit('appHidden');
+            if(this.voiceRecognition && this.stateManager.get('isMicListening')) this.voiceRecognition.stopListening();
+            if(this.voiceSynthesis && this.stateManager.get('isSpeaking')) this.voiceSynthesis.cancel();
+        } else {
+            this.eventEmitter.emit('appVisible');
+        }
+    }
+
+    _showLoadingScreen() { // Renamed from _showLoading
+        if (this.ui.loadingOverlay) {
+            this.utils.removeClass(this.ui.loadingOverlay, 'hidden');
+            this.utils.fadeIn(this.ui.loadingOverlay, 100); // Quick fade for consistency
+        }
+        document.body.classList.add('app-loading');
+    }
+
+    _hideLoadingScreen() { // Renamed from _hideLoading
+        if (this.ui.loadingOverlay) this.utils.fadeOut(this.ui.loadingOverlay, 500);
+        document.body.classList.remove('app-loading');
+    }
+
+    _toggleModal(modalElement, show) {
+        const overlay = modalElement && modalElement.classList.contains('modal-overlay') ? modalElement : modalElement.closest('.modal-overlay');
+        if (!overlay) return;
+
+        if (show) {
+            this.utils.removeClass(overlay, 'hidden');
+            this.utils.requestFrame(() => { // Ensure display:block is applied before adding .active for transition
+                this.utils.addClass(overlay, 'active');
+                const focusable = this.utils.$$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', modalElement || overlay)[0];
+                if (focusable) focusable.focus();
+            });
+        } else {
+            this.utils.removeClass(overlay, 'active');
+            // Listen for transition end to add 'hidden' for accessibility
+            const onTransitionEnd = () => {
+                overlay.removeEventListener('transitionend', onTransitionEnd);
+                if (!overlay.classList.contains('active')) { // Check if still meant to be hidden
+                    this.utils.addClass(overlay, 'hidden');
+                }
+            };
+            overlay.addEventListener('transitionend', onTransitionEnd);
+            // Fallback timeout in case transitionend doesn't fire reliably
+            setTimeout(() => {
+                 if (!overlay.classList.contains('active')) this.utils.addClass(overlay, 'hidden');
+            }, 500); // Match typical transition duration
+        }
+    }
+    
+    _toggleEmptyState(show) {
+        if (!this.ui.emptyStateContainer) return;
+        if (show) {
+            this.utils.removeClass(this.ui.emptyStateContainer, 'hidden');
+            this.utils.addClass(this.ui.emptyStateContainer, 'animate-in');
+        } else {
+            this.utils.addClass(this.ui.emptyStateContainer, 'hidden');
+            this.utils.removeClass(this.ui.emptyStateContainer, 'animate-in');
+        }
+    }
+
+    _displayError({ message, type = 'general' }) {
+        console.error(`App Error (${type}):`, message);
+        this.stateManager.set('lastError', { message, type, timestamp: Date.now() });
+        // Future: Integrate with a visual toast/notification system
+        alert(`Error: ${message}`); // Simple alert for now
+    }
+
+    _displayNotification({ message, type = 'info', duration = 3000}) {
+        console.log(`Notification (${type}): ${message}`);
+        // Future: Integrate with a visual toast/notification system
+        // Simple alert for now, if not an error
+        if(type !== 'error') alert(`Info: ${message}`);
+    }
+
+    destroy() {
+        console.log('🛑 Destroying App...');
+        // Remove global event listeners - ensure debounced/throttled functions are properly handled if stored
+        // window.removeEventListener('resize', this._debouncedResizeHandler || this._handleResize);
+        document.removeEventListener('visibilitychange', this._handleVisibilityChange);
+        if(this.voiceRecognition) this.voiceRecognition.destroy();
+        if(this.voiceSynthesis) this.voiceSynthesis.destroy();
+        if(this.themeManager) this.themeManager.destroy();
+        if(this.characterManager) { /* characterManager might not have explicit destroy */ }
+        if(this.audioWorker) this.audioWorker.terminate();
+
+        this.stateManager.enableDebugging(false);
+        this.isInitialized = false;
+    }
+}
+
+// Global error handling & App instantiation
+// These are kept as in the original file but placed after App class definition.
+window.addEventListener('error', (event) => {
+    console.error('Unhandled global error:', event.error || event.message, event);
+    if (window.StateManager && typeof StateManager.getInstance === 'function' && StateManager.getInstance()) {
+        StateManager.getInstance().set('lastError', {
+            message: 'Unhandled global error: ' + (event.error ? event.error.message : event.message),
+            stack: event.error ? event.error.stack : null,
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+     if (window.StateManager && typeof StateManager.getInstance === 'function' && StateManager.getInstance()) {
+        StateManager.getInstance().set('lastError', {
+            message: 'Unhandled promise rejection: ' + (event.reason && event.reason.message ? event.reason.message : event.reason),
+            stack: event.reason ? event.reason.stack : null,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Ensure core global singletons/classes are ready
+    if (!window.UtilsInstance || !window.StateManager || !window.AppEvents) {
+        const criticalErrorMsg = "FATAL: Core Singleton JS files (Utils, StateManager, AppEvents) failed to load or initialize their globals correctly. App cannot start.";
+        console.error(criticalErrorMsg);
+        document.body.innerHTML = `<div style="font-family:sans-serif;color:red;padding:20px;">${criticalErrorMsg} Check script order and definitions.</div>`;
+        return;
+    }
+
+    const parklandApp = new App();
+    window.parklandApp = parklandApp;
+    parklandApp.init().catch(err => {
+        console.error("Fatal error during app initialization sequence:", err);
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.innerHTML = `<div class="loading-text" style="color:red; font-size:16px; padding:20px;">Critical Error Initializing Application. Details in console. Please refresh.</div>`;
+            if(loadingOverlay.classList.contains('hidden')) loadingOverlay.classList.remove('hidden');
+            loadingOverlay.style.opacity = '1';
+            loadingOverlay.style.visibility = 'visible';
+        }
+    });
+});
