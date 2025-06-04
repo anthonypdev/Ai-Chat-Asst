@@ -1,225 +1,213 @@
 /**
  * Parkland AI - Opus Magnum Edition
- * MrDnaCharacter Class (Jurassic Park Theme)
+ * JawsWaveAnimation Module
  *
- * Represents the Mr. DNA animated character from Jurassic Park.
- * Extends BaseCharacter and integrates with MrDnaSpriteAnimator for visuals.
+ * Manages the Jaws-themed wave transition effect.
+ * This class is responsible for orchestrating the CSS animations defined
+ * in css/themes/jaws/transitions.css by adding/removing classes.
  */
 
-class MrDnaCharacter extends BaseCharacter {
+class JawsWaveAnimation {
     /**
-     * @param {StateManager} stateManager
-     * @param {EventEmitter} eventEmitter
-     * @param {ParklandUtils} utils
+     * @param {HTMLElement} containerElement - The main container for the Jaws wave effect (e.g., #jawsWaveTransitionContainer).
+     * @param {ParklandUtils} utils - Instance of ParklandUtils.
      */
-    constructor(stateManager, eventEmitter, utils) {
-        const mrDnaConfig = {
-            name: 'Mr. DNA',
-            theme: 'jurassic',
-            uiElementSelector: '.mr-dna-container', // Main container for Mr. DNA visuals
-            systemPrompt: "Howdy! I'm Mr. DNA! Your guide to the wonders of genetic science at Jurassic Park! I make complex topics like DNA, cloning, and dinosaur creation super easy and fun to understand. Bingo! Dino DNA! Always be cheerful, use simple analogies, and keep it snappy and informative!",
-            voiceConfig: {
-                voiceNameKeywords: ['male', 'american english', 'friendly', 'cartoon'], // Hints
-                lang: 'en-US',
-                pitch: 1.25, // Higher, friendly, slightly cartoonish
-                rate: 1.15,  // Upbeat and quick
-                volume: 0.9
-            },
-            // spriteConfig is not directly used by BaseCharacter if we manage sprite via MrDnaSpriteAnimator
+    constructor(containerElement, utils) {
+        if (!containerElement || !utils) {
+            throw new Error("JawsWaveAnimation requires a containerElement and Utils instance.");
+        }
+        this.containerElement = containerElement;
+        this.utils = utils;
+        this.stateManager = window.StateManager.getInstance(); // Get global instance
+
+        // Select UI elements for the animation within the container
+        this.ui = {
+            oceanDepth: this.utils.$('.wave-ocean-depth', this.containerElement),
+            waveLayers: this.utils.$$('.wave-layer', this.containerElement), // Gets all elements with class 'wave-layer'
+            sharkFin: this.utils.$('.shark-fin', this.containerElement),
+            waterParticlesContainer: this.utils.$('.water-particles', this.containerElement),
+            foamSprays: this.utils.$$('.foam-spray', this.containerElement),
+            underwaterDistortion: this.utils.$('.underwater-distortion', this.containerElement)
+            // Note: Individual water droplets are often dynamically created or are many static elements
+            // styled by nth-child. If they need JS interaction, they'd be selected here.
         };
 
-        super('mr-dna', mrDnaConfig, stateManager, eventEmitter, utils);
-
-        this.spriteAnimator = null; // Will be instance of MrDnaSpriteAnimator
-        this.speechEndListener = null; // To store bound listener for removal
+        this._isActive = false;
 
         if (this.stateManager.get('debugMode')) {
-            console.log(`MrDnaCharacter instantiated with config:`, mrDnaConfig);
+            console.log('🌊 JawsWaveAnimation initialized.');
+            if (!this.ui.oceanDepth) console.warn("JawsWave: oceanDepth element not found.");
+            if (this.ui.waveLayers.length === 0) console.warn("JawsWave: waveLayer elements not found.");
+            // Add similar checks for other critical elements if necessary
         }
     }
 
     /**
-     * Mr. DNA-specific initialization.
-     * Instantiates and initializes the sprite animator.
+     * Plays the "cover screen" part of the wave animation.
+     * @returns {Promise<{covered: boolean, duration: number}>} Resolves when the screen is considered covered.
      */
-    init() {
-        super.init(); // Finds this.uiElement
-        if (this.uiElement) {
-            this.utils.addClass(this.uiElement, 'character-mr-dna'); // For specific CSS targeting
-            try {
-                // Assuming MrDnaSpriteAnimator is globally available or loaded
-                if (typeof MrDnaSpriteAnimator === 'function') {
-                    // The MrDnaSpriteAnimator might need a specific canvas or div inside this.uiElement
-                    const spriteCanvas = this.utils.$('.mr-dna-canvas', this.uiElement); // Assuming a canvas child
-                    if (spriteCanvas) {
-                        this.spriteAnimator = new MrDnaSpriteAnimator(spriteCanvas, this.utils);
-                        this.spriteAnimator.init(); // Load sprite sheet, etc.
-                        if (this.stateManager.get('debugMode')) {
-                            console.log("Mr. DNA Sprite Animator initialized.");
-                        }
-                    } else {
-                        console.warn("MrDnaCharacter: Canvas element for sprite animator not found within", this.uiElementSelector);
-                    }
-                } else {
-                    console.warn("MrDnaCharacter: MrDnaSpriteAnimator class not found.");
-                }
-            } catch (error) {
-                console.error("MrDnaCharacter: Error initializing sprite animator:", error);
-            }
+    playWaveAnimation() {
+        if (this._isActive) {
+            console.warn("JawsWaveAnimation: playWaveAnimation called while already active.");
+            return Promise.resolve({ covered: false, duration: 0 });
         }
-    }
+        this._isActive = true;
+        this.utils.addClass(this.containerElement, 'animation-phase-cover');
+        this.utils.removeClass(this.containerElement, 'animation-phase-reveal');
 
-    /**
-     * Activates Mr. DNA. Shows UI and starts idle animation.
-     */
-    activate() {
-        super.activate(); // BaseCharacter show()
-        if (this.spriteAnimator) {
-            this.spriteAnimator.playAnimation('idle');
-        }
-        this.eventEmitter.emit('playSound', { soundName: 'mr_dna_hello', character: this.key });
-    }
 
-    /**
-     * Deactivates Mr. DNA. Hides UI and stops animation.
-     */
-    deactivate() {
-        super.deactivate(); // BaseCharacter hide()
-        if (this.spriteAnimator) {
-            this.spriteAnimator.stopAnimation();
-        }
-    }
+        // Reset elements to initial state (remove active classes that might persist)
+        this._resetElements();
 
-    /**
-     * Mr. DNA's idle animation.
-     * This is controlled by the sprite animator.
-     */
-    startIdleAnimation() {
-        // super.startIdleAnimation(); // Base class might add a generic CSS class
-        if (this.spriteAnimator && this.isVisible) { // Only play if visible
-            this.spriteAnimator.playAnimation('idle');
-        }
-    }
-
-    stopIdleAnimation() {
-        // super.stopIdleAnimation();
-        if (this.spriteAnimator) {
-            // Sprite animator might stop automatically when a different animation is played,
-            // or have its own logic for returning to idle.
-            // If explicit stop is needed for idle, call it.
-            // For now, assume playing another animation (like 'talking') overrides 'idle'.
-        }
-    }
-
-    /**
-     * Makes Mr. DNA speak and triggers talking animation.
-     * @param {string} text - The text for Mr. DNA to speak.
-     * @param {Object} [options={}] - Optional parameters for speech synthesis.
-     */
-    speak(text, options = {}) {
-        if (!this.isActive && !options.forceSpeakIfNotActive) {
-            console.warn("Mr. DNA is not active, cannot speak unless forced.");
-            return;
-        }
-
-        if (this.spriteAnimator) {
-            this.spriteAnimator.playAnimation('talking');
-        }
-        this.updateStatus('talking');
-
-        // Handle reverting to idle animation after speech ends
-        // Remove previous listener if any to avoid multiple bindings
-        if (this.speechEndListener) {
-            this.eventEmitter.off('speech:end', this.speechEndListener);
-        }
-        this.speechEndListener = ({ characterKey }) => {
-            if (characterKey === this.key) { // Ensure it's this character's speech that ended
-                if (this.spriteAnimator && this.isActive) { // Check if still active
-                    this.spriteAnimator.playAnimation('idle');
-                }
-                this.updateStatus('idle');
-                this.eventEmitter.off('speech:end', this.speechEndListener); // Clean up
-                this.speechEndListener = null;
-            }
+        // Durations are based on the CSS animations in jaws/transitions.css
+        const timings = {
+            oceanDepthDelay: 0,
+            oceanDepthDuration: 4000, // Matches its animation: oceanDepthPulse 8s (half for cover) or main wave build
+            waveLayerBaseDelay: 200,
+            waveLayerStagger: 300, // Delay between each wave layer appearing
+            waveLayerDuration: 4000, // Longest wave layer animation for cover
+            sharkFinDelay: 1500,     // Shark appears mid-wave
+            sharkFinDuration: 4000,  // Duration of its swim pass during cover
+            particlesDelay: 1800,
+            particlesDuration: 2000,
+            foamDelay: 2000,
+            foamDuration: 1800,
+            distortionDelay: 500,
+            distortionDuration: 4000,
+            contentRefractionDelay: 0 // Starts with transition overlay
         };
-        this.eventEmitter.on('speech:end', this.speechEndListener);
 
+        // Screen is considered "covered" when the main wave layers are at their peak.
+        // This is roughly waveLayerBaseDelay + (numLayers * stagger) + waveLayerDuration / 2 (peak)
+        // Or more simply, when the last foam/crest layer (wave-layer-5) is fully active and covering.
+        // The waveLayerFoam animation is 4s, starts at 1.2s after the first wave.
+        // Total time for all wave layers to be active: timings.waveLayerBaseDelay + (4 * timings.waveLayerStagger) + timings.waveLayerDuration
+        // For simplicity, let's say screen is covered around when foam is peaking.
+        const screenCoveredTime = timings.waveLayerBaseDelay + (4 * timings.waveLayerStagger) + (timings.waveLayerDuration * 0.6); // Approx 3000-3500ms
 
-        super.speak(text, options); // Call BaseCharacter's speak method
-    }
+        return new Promise(resolve => {
+            // Activate ocean depth
+            if (this.ui.oceanDepth) this.utils.addClass(this.ui.oceanDepth, 'active');
 
-    /**
-     * Mr. DNA explains a DNA concept with a specific animation.
-     * @param {string} explanationText - The text of the explanation.
-     */
-    explainDnaConcept(explanationText) {
-        if (!this.isVisible || !this.isActive) return;
+            // Activate wave layers sequentially
+            this.ui.waveLayers.forEach((layer, index) => {
+                setTimeout(() => {
+                    this.utils.addClass(layer, 'active');
+                }, timings.waveLayerBaseDelay + (index * timings.waveLayerStagger));
+            });
 
-        if (this.stateManager.get('debugMode')) {
-            console.log(`${this.name} explaining DNA concept.`);
-        }
-        
-        if (this.spriteAnimator) {
-            this.spriteAnimator.playAnimation('explaining'); // Or a more specific animation
-        }
-        this.updateStatus('explaining');
+            // Activate shark fin
+            if (this.ui.sharkFin) {
+                setTimeout(() => {
+                    this.utils.addClass(this.ui.sharkFin, 'active');
+                }, timings.sharkFinDelay);
+            }
 
-        this.speak(explanationText, { interrupt: true });
+            // Activate particles
+            if (this.ui.waterParticlesContainer) {
+                setTimeout(() => {
+                    this.utils.addClass(this.ui.waterParticlesContainer, 'active');
+                }, timings.particlesDelay);
+            }
 
-        // Revert to idle after speech (already handled by the speak method's onend listener)
-    }
+            // Activate foam sprays
+            this.ui.foamSprays.forEach((foam, index) => {
+                setTimeout(() => {
+                    this.utils.addClass(foam, 'active');
+                }, timings.foamDelay + (index * 300)); // Stagger foam sprays
+            });
 
-    /**
-     * Mr. DNA shows a double helix (triggers an animation).
-     */
-    showDoubleHelix() {
-        if (!this.isVisible || !this.isActive) return;
+            // Activate distortion
+            if (this.ui.underwaterDistortion) {
+                setTimeout(() => {
+                    this.utils.addClass(this.ui.underwaterDistortion, 'active');
+                }, timings.distortionDelay);
+            }
+            
+            // Content Refraction is handled by CSS on .chat-container when overlay is active
+            // No direct JS needed here for its start if CSS is set up for it.
 
-        if (this.stateManager.get('debugMode')) {
-            console.log(`${this.name} showing double helix animation.`);
-        }
-        this.updateStatus('action-helix');
-
-        if (this.spriteAnimator && typeof this.spriteAnimator.playAnimation === 'function') {
-            // Assuming 'doubleHelixReveal' is a defined animation key in MrDnaSpriteAnimator
-            this.spriteAnimator.playAnimation('doubleHelixReveal');
-        } else if (this.uiElement) {
-            // Fallback to CSS class if sprite animator or specific animation is not available
-            this.utils.addClass(this.uiElement, 'mr-dna-helix-animation');
+            // Resolve promise when screen is considered covered
             setTimeout(() => {
-                if (this.uiElement) this.utils.removeClass(this.uiElement, 'mr-dna-helix-animation');
-                if(this.isActive) this.updateStatus('idle'); // Revert if still active
-            }, 3000); // Duration of CSS animation
-        }
-        this.eventEmitter.emit('playSound', { soundName: 'dna_reveal_sparkle', character: this.key });
+                if (this.stateManager.get('debugMode')) {
+                    console.log('JawsWaveAnimation: Screen covered.');
+                }
+                resolve({ covered: true, duration: screenCoveredTime });
+            }, screenCoveredTime);
+        });
     }
-
 
     /**
-     * Updates Mr. DNA's visual status.
-     * @param {string} status - 'idle', 'talking', 'explaining', 'action-helix'.
+     * Plays the "reveal screen" part of the wave animation.
+     * @returns {Promise<{revealed: boolean, duration: number}>} Resolves when the screen is clear.
      */
-    updateStatus(status) {
-        super.updateStatus(status); // Adds generic class like .mr-dna-status-talking
+    hideWaveAnimation() {
+        if (!this._isActive) {
+            console.warn("JawsWaveAnimation: hideWaveAnimation called but not active.");
+            return Promise.resolve({ revealed: false, duration: 0 });
+        }
+        this.utils.removeClass(this.containerElement, 'animation-phase-cover');
+        this.utils.addClass(this.containerElement, 'animation-phase-reveal');
 
-        // Mr. DNA might not need further specific UI updates here if sprite animator handles states.
-        // If sprite animator needs explicit state set:
-        // if (this.spriteAnimator && typeof this.spriteAnimator.setState === 'function') {
-        //    this.spriteAnimator.setState(status);
-        // }
+        // Durations for revealing (can be same as cover or different)
+        const revealDuration = 1500; // Total time for all elements to clear
+
+        // Logic to reverse or hide elements.
+        // This usually involves removing 'active' classes, and CSS handles the transition out.
+        // The key is the timing.
+
+        if (this.ui.oceanDepth) this.utils.removeClass(this.ui.oceanDepth, 'active');
+        this.ui.waveLayers.forEach(layer => this.utils.removeClass(layer, 'active'));
+        if (this.ui.sharkFin) this.utils.removeClass(this.ui.sharkFin, 'active');
+        if (this.ui.waterParticlesContainer) this.utils.removeClass(this.ui.waterParticlesContainer, 'active');
+        this.ui.foamSprays.forEach(foam => this.utils.removeClass(foam, 'active'));
+        if (this.ui.underwaterDistortion) this.utils.removeClass(this.ui.underwaterDistortion, 'active');
+
+        // Content Refraction is handled by CSS when overlay is no longer active.
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                this._isActive = false; // Mark as no longer active
+                // Final cleanup of classes if needed after animations finish
+                this.utils.removeClass(this.containerElement, 'animation-phase-reveal');
+                if (this.stateManager.get('debugMode')) {
+                    console.log('JawsWaveAnimation: Screen revealed.');
+                }
+                resolve({ revealed: true, duration: revealDuration });
+            }, revealDuration);
+        });
     }
 
+    /**
+     * Resets all animated elements to their initial (pre-animation) state.
+     * @private
+     */
+    _resetElements() {
+        if (this.ui.oceanDepth) this.utils.removeClass(this.ui.oceanDepth, 'active');
+        this.ui.waveLayers.forEach(layer => {
+            this.utils.removeClass(layer, 'active');
+            // Reset inline styles if JS was directly manipulating them,
+            // but class-based approach should handle this via CSS.
+        });
+        if (this.ui.sharkFin) this.utils.removeClass(this.ui.sharkFin, 'active');
+        if (this.ui.waterParticlesContainer) this.utils.removeClass(this.ui.waterParticlesContainer, 'active');
+        this.ui.foamSprays.forEach(foam => this.utils.removeClass(foam, 'active'));
+        if (this.ui.underwaterDistortion) this.utils.removeClass(this.ui.underwaterDistortion, 'active');
+    }
+
+    /**
+     * Call this method if the animation needs to be abruptly stopped and cleaned up.
+     */
     destroy() {
-        if (this.speechEndListener) {
-            this.eventEmitter.off('speech:end', this.speechEndListener);
-            this.speechEndListener = null;
+        this._resetElements();
+        this.utils.removeClass(this.containerElement, 'animation-phase-cover');
+        this.utils.removeClass(this.containerElement, 'animation-phase-reveal');
+        this._isActive = false;
+        if (this.stateManager.get('debugMode')) {
+            console.log('🌊 JawsWaveAnimation destroyed and elements reset.');
         }
-        if (this.spriteAnimator && typeof this.spriteAnimator.destroy === 'function') {
-            this.spriteAnimator.destroy();
-        }
-        super.destroy();
     }
 }
 
 // If not using ES modules:
-// window.MrDnaCharacter = MrDnaCharacter;
+// window.JawsWaveAnimation = JawsWaveAnimation;
