@@ -4,42 +4,50 @@
 /* === CHARACTER CONTAINER SYSTEM === */
 .character-interface {
   position: fixed;
-  z-index: var(--z-character-ui, 1200);
+  z-index: var(--z-popover); /* Using z-index variable from core */
   pointer-events: none;
-  transition: all 0.4s var(--ease-out);
+  transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+  will-change: opacity, transform;
 }
 
 [data-theme="jaws"] .character-interface {
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.6))
-          drop-shadow(0 0 10px rgba(0, 153, 221, 0.3));
+          drop-shadow(0 0 10px rgba(var(--primary-rgb), 0.3));
 }
 
-/* === WALKIE-TALKIE RADIO INTERFACE === */
-.walkie-talkie {
+/* === WALKIE-TALKIE RADIO INTERFACE (Example, if a character used one visually) === */
+/* This specific implementation is more aligned with Muldoon from Jurassic,
+   but keeping structure for potential Jaws characters if they had a similar device.
+   Jaws theme in App.js doesn't describe a walkie-talkie visual for its characters,
+   so this might be less utilized unless a character like Brody is visually represented with one.
+   For now, styling based on original, replacing hardcoded values.
+*/
+.walkie-talkie { /* General class, might be specifically .jaws-radio-device if needed */
   position: fixed;
   bottom: 120px;
   right: 25px;
   width: 85px;
   height: 180px;
-  background: linear-gradient(135deg, #2C3E50 0%, #34495E 50%, #1A252F 100%);
+  background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-600) 50%, var(--gray-800) 100%); /* Using gray vars */
   border-radius: 8px 8px 4px 4px;
-  border: 2px solid #1A252F;
+  border: 2px solid var(--gray-800);
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-    0 8px 25px rgba(0, 0, 0, 0.5),
-    0 0 15px rgba(0, 153, 221, 0.2);
+    inset 0 2px 4px rgba(var(--white-rgb, 255, 255, 255), 0.1), /* Assuming white-rgb is defined */
+    inset 0 -2px 4px rgba(var(--black-rgb, 0, 0, 0), 0.3),    /* Assuming black-rgb is defined */
+    0 8px 25px rgba(var(--black-rgb, 0, 0, 0), 0.5),
+    0 0 15px rgba(var(--primary-rgb), 0.2);
   transform-style: preserve-3d;
   transition: all 0.3s var(--ease-out);
+  will-change: transform, box-shadow;
 }
 
 .walkie-talkie:hover {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-2px) scale(1.02) translateZ(0);
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
-    0 12px 35px rgba(0, 0, 0, 0.6),
-    0 0 20px rgba(0, 153, 221, 0.3);
+    inset 0 2px 4px rgba(var(--white-rgb, 255, 255, 255), 0.15),
+    inset 0 -2px 4px rgba(var(--black-rgb, 0, 0, 0), 0.4),
+    0 12px 35px rgba(var(--black-rgb, 0, 0, 0), 0.6),
+    0 0 20px rgba(var(--primary-rgb), 0.3);
 }
 
 /* Radio Antenna */
@@ -48,19 +56,19 @@
   position: absolute;
   top: -25px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 3px;
   height: 30px;
-  background: linear-gradient(to top, #555, #888, #AAA);
+  background: linear-gradient(to top, var(--gray-600), var(--gray-400), var(--gray-200));
   border-radius: 1.5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 5px rgba(var(--black-rgb, 0, 0, 0), 0.5);
   animation: antennaSwayJaws 4s ease-in-out infinite;
 }
 
 @keyframes antennaSwayJaws {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  25% { transform: translateX(-50%) rotate(2deg); }
-  75% { transform: translateX(-50%) rotate(-2deg); }
+  0%, 100% { transform: translateX(-50%) rotate(0deg) translateZ(0); }
+  25% { transform: translateX(-50%) rotate(2deg) translateZ(0); }
+  75% { transform: translateX(-50%) rotate(-2deg) translateZ(0); }
 }
 
 /* Radio Speaker Grille */
@@ -68,12 +76,12 @@
   position: absolute;
   top: 15px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 60px;
   height: 45px;
-  background: radial-gradient(circle at center, #1A1A1A 30%, #2C2C2C 100%);
+  background: radial-gradient(circle at center, var(--gray-900) 30%, var(--gray-700) 100%);
   border-radius: 8px;
-  border: 1px solid #444;
+  border: 1px solid var(--gray-600);
   overflow: hidden;
 }
 
@@ -85,8 +93,8 @@
     repeating-linear-gradient(0deg,
       transparent 0px,
       transparent 2px,
-      rgba(255, 255, 255, 0.1) 2px,
-      rgba(255, 255, 255, 0.1) 3px
+      rgba(var(--white-rgb, 255, 255, 255), 0.1) 2px,
+      rgba(var(--white-rgb, 255, 255, 255), 0.1) 3px
     );
 }
 
@@ -112,7 +120,7 @@
 
 .audio-bar {
   width: 3px;
-  background: linear-gradient(to top, #0099DD, #00DDFF);
+  background: linear-gradient(to top, var(--primary), var(--primary-light));
   border-radius: 1px;
   animation: audioBarJaws 0.8s ease-in-out infinite;
 }
@@ -123,7 +131,7 @@
 .audio-bar:nth-child(4) { animation-delay: 0.3s; }
 .audio-bar:nth-child(5) { animation-delay: 0.4s; }
 
-@keyframes audioBarJaws {
+@keyframes audioBarJaws { /* Animating height is less performant, but for small elements can be ok */
   0%, 100% { height: 2px; opacity: 0.3; }
   50% { height: 12px; opacity: 1; }
 }
@@ -136,41 +144,41 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #000;
-  border: 2px solid #333;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  background: var(--black);
+  border: 2px solid var(--gray-700);
+  box-shadow: inset 0 1px 2px rgba(var(--black-rgb,0,0,0), 0.5);
   transition: all 0.3s ease;
 }
 
 .status-led.off {
-  background: #1A1A1A;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  background: var(--gray-800);
+  box-shadow: inset 0 1px 2px rgba(var(--black-rgb,0,0,0), 0.8);
 }
 
-.status-led.standby {
-  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500);
+.status-led.standby { /* Yellowish for standby */
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500); /* Hardcoded gold/orange */
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 1px 2px rgba(var(--white-rgb, 255,255,255), 0.3),
     0 0 10px rgba(255, 215, 0, 0.6);
   animation: ledPulseJaws 2s ease-in-out infinite;
 }
 
-.status-led.active {
-  background: radial-gradient(circle at 30% 30%, #FF4444, #CC0000);
+.status-led.active { /* Using Jaws accent (red) for active */
+  background: radial-gradient(circle at 30% 30%, var(--accent-light), var(--accent));
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.3),
-    0 0 15px rgba(255, 68, 68, 0.8);
+    inset 0 1px 2px rgba(var(--white-rgb, 255,255,255), 0.3),
+    0 0 15px rgba(var(--accent-rgb), 0.8);
   animation: ledActiveJaws 0.5s ease-in-out infinite;
 }
 
 @keyframes ledPulseJaws {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.1); }
+  0%, 100% { opacity: 0.7; transform: scale(1) translateZ(0); }
+  50% { opacity: 1; transform: scale(1.1) translateZ(0); }
 }
 
 @keyframes ledActiveJaws {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  0%, 100% { opacity: 1; transform: scale(1) translateZ(0); }
+  50% { opacity: 0.8; transform: scale(1.05) translateZ(0); }
 }
 
 /* Radio Brand Label */
@@ -178,11 +186,11 @@
   position: absolute;
   bottom: 25px;
   left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Courier New', monospace;
+  transform: translateX(-50%) translateZ(0);
+  font-family: var(--font-family-system-monospace); /* System font */
   font-size: 8px;
-  font-weight: bold;
-  color: #888;
+  font-weight: var(--font-weight-bold);
+  color: var(--gray-400);
   text-align: center;
   letter-spacing: 0.5px;
 }
@@ -208,95 +216,87 @@
   cursor: pointer;
   transition: all 0.4s var(--ease-out);
   opacity: 0.7;
-  transform: scale(0.9);
+  transform: scale(0.9) translateZ(0);
+  will-change: transform, opacity, border-color, box-shadow;
 }
 
 .character-avatar.active {
   opacity: 1;
-  transform: scale(1);
-  border-color: #0099DD;
+  transform: scale(1) translateZ(0);
+  border-color: var(--primary); /* Jaws primary blue */
   box-shadow:
-    0 0 20px rgba(0, 153, 221, 0.6),
-    0 0 40px rgba(0, 153, 221, 0.3),
-    inset 0 0 20px rgba(0, 153, 221, 0.2);
+    0 0 20px rgba(var(--primary-rgb), 0.6),
+    0 0 40px rgba(var(--primary-rgb), 0.3),
+    inset 0 0 20px rgba(var(--primary-rgb), 0.2);
   animation: activeCharacterGlow 2s ease-in-out infinite;
 }
 
 .character-avatar.deceased {
   opacity: 0.3;
   filter: grayscale(100%) brightness(0.5);
-  transform: scale(0.8);
-  border-color: #666;
+  transform: scale(0.8) translateZ(0);
+  border-color: var(--gray-600);
 }
 
 @keyframes activeCharacterGlow {
   0%, 100% {
     box-shadow:
-      0 0 20px rgba(0, 153, 221, 0.6),
-      0 0 40px rgba(0, 153, 221, 0.3),
-      inset 0 0 20px rgba(0, 153, 221, 0.2);
+      0 0 20px rgba(var(--primary-rgb), 0.6),
+      0 0 40px rgba(var(--primary-rgb), 0.3),
+      inset 0 0 20px rgba(var(--primary-rgb), 0.2);
   }
   50% {
     box-shadow:
-      0 0 30px rgba(0, 153, 221, 0.8),
-      0 0 60px rgba(0, 153, 221, 0.5),
-      inset 0 0 30px rgba(0, 153, 221, 0.3);
+      0 0 30px rgba(var(--primary-rgb), 0.8),
+      0 0 60px rgba(var(--primary-rgb), 0.5),
+      inset 0 0 30px rgba(var(--primary-rgb), 0.3);
   }
 }
 
-/* Character Specific Avatars */
+/* Character Specific Avatars - Using background colors + emoji for simplicity and system font compliance */
 .character-avatar.quint {
-  background-image: linear-gradient(135deg,
-    rgba(139, 69, 19, 0.9) 0%,
-    rgba(160, 82, 45, 0.9) 100%
-  );
+  background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-800) 100%); /* Weathered, dark color */
 }
 
 .character-avatar.quint::before {
-  content: '🦈';
+  content: '🦈'; /* Quint's emoji */
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 2px 2px 4px rgba(var(--black-rgb,0,0,0), 0.8);
 }
 
 .character-avatar.brody {
-  background-image: linear-gradient(135deg,
-    rgba(25, 25, 112, 0.9) 0%,
-    rgba(65, 105, 225, 0.9) 100%
-  );
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-darker) 100%); /* Police blue-ish */
 }
 
 .character-avatar.brody::before {
-  content: '👮';
+  content: '👮'; /* Brody's emoji */
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 2px 2px 4px rgba(var(--black-rgb,0,0,0), 0.8);
 }
 
 .character-avatar.hooper {
-  background-image: linear-gradient(135deg,
-    rgba(34, 139, 34, 0.9) 0%,
-    rgba(50, 205, 50, 0.9) 100%
-  );
+  background: linear-gradient(135deg, var(--gray-500) 0%, var(--gray-600) 100%); /* Neutral, scientific color */
 }
 
 .character-avatar.hooper::before {
-  content: '🔬';
+  content: '🔬'; /* Hooper's emoji */
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 2px 2px 4px rgba(var(--black-rgb,0,0,0), 0.8);
 }
 
 /* Character Status Indicator */
@@ -307,54 +307,55 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid #0A0C0F;
+  border: 2px solid var(--bg-tertiary); /* Jaws bg-tertiary for contrast */
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
 }
 
 .character-status.alive {
-  background: radial-gradient(circle, #00FF00, #00AA00);
-  color: #FFF;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  background: radial-gradient(circle, #00FF00, #00AA00); /* Standard green */
+  color: var(--white);
+  text-shadow: 1px 1px 2px rgba(var(--black-rgb,0,0,0), 0.8);
 }
 
 .character-status.speaking {
-  background: radial-gradient(circle, #FFD700, #FF8C00);
-  color: #000;
+  background: radial-gradient(circle, #FFD700, #FF8C00); /* Standard yellow/orange */
+  color: var(--black);
   animation: speakingPulse 1s ease-in-out infinite;
 }
 
 .character-status.deceased {
-  background: radial-gradient(circle, #FF4444, #AA0000);
-  color: #FFF;
+  background: radial-gradient(circle, var(--accent-light), var(--accent)); /* Jaws accent red */
+  color: var(--white);
 }
 
 @keyframes speakingPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
+  0%, 100% { transform: scale(1) translateZ(0); opacity: 1; }
+  50% { transform: scale(1.2) translateZ(0); opacity: 0.8; }
 }
 
 /* === CHARACTER NAMEPLATE === */
 .character-nameplate {
   position: absolute;
-  bottom: -35px;
+  bottom: -35px; /* Position below avatar */
   left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: #0099DD;
+  transform: translateX(-50%) translateZ(0);
+  background: rgba(var(--black-rgb,0,0,0), 0.8);
+  color: var(--primary); /* Jaws primary blue */
   padding: 4px 8px;
   border-radius: 4px;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-family-system-monospace); /* System font */
   font-size: 11px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   text-align: center;
   min-width: 60px;
-  border: 1px solid rgba(0, 153, 221, 0.3);
+  border: 1px solid rgba(var(--primary-rgb), 0.3);
   opacity: 0;
   transition: opacity 0.3s ease;
+  will-change: opacity;
 }
 
 .character-avatar:hover .character-nameplate,
@@ -362,20 +363,21 @@
   opacity: 1;
 }
 
-/* === BOAT DASHBOARD ELEMENTS === */
+/* === BOAT DASHBOARD ELEMENTS (Conceptual - if needed for Jaws theme) === */
 .boat-controls {
   position: fixed;
   top: 50%;
-  right: -150px;
-  transform: translateY(-50%);
+  right: -150px; /* Hidden by default */
+  transform: translateY(-50%) translateZ(0);
   width: 140px;
   height: 200px;
-  background: linear-gradient(135deg, #2C3E50 0%, #1A252F 100%);
+  background: linear-gradient(135deg, var(--gray-700) 0%, var(--bg-tertiary) 100%); /* Jaws dark colors */
   border-radius: 8px 0 0 8px;
-  border: 2px solid #34495E;
+  border: 2px solid var(--gray-600);
   border-right: none;
   transition: right 0.4s var(--ease-out);
-  z-index: var(--z-character-ui);
+  z-index: var(--z-popover); /* From core variables */
+  will-change: right;
 }
 
 .boat-controls.active {
@@ -386,24 +388,24 @@
   position: absolute;
   top: 20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: radial-gradient(circle, #0A0A0A 30%, #1A1A1A 100%);
-  border: 3px solid #444;
+  background: radial-gradient(circle, var(--bg-tertiary) 30%, var(--bg-secondary) 100%);
+  border: 3px solid var(--gray-500);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-family-system-monospace); /* System font */
   font-size: 10px;
-  color: #0099DD;
+  color: var(--primary); /* Jaws primary blue */
 }
 
 .depth-gauge::before {
   content: attr(data-depth) ' FT';
   position: absolute;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   text-shadow: 0 0 5px currentColor;
 }
 
@@ -411,12 +413,12 @@
   position: absolute;
   bottom: 30px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: radial-gradient(circle, #003300 0%, #001100 100%);
-  border: 2px solid #0099DD;
+  background: radial-gradient(circle, rgba(var(--primary-darker-rgb),0.5) 0%, var(--bg-tertiary) 100%);
+  border: 2px solid var(--primary);
   overflow: hidden;
 }
 
@@ -427,127 +429,67 @@
   background: radial-gradient(circle,
     transparent 0%,
     transparent 40%,
-    rgba(0, 153, 221, 0.2) 50%,
+    rgba(var(--primary-rgb), 0.2) 50%,
     transparent 60%
   );
-  animation: sonarSweep 3s linear infinite;
+  animation: sonarSweep 3s linear infinite; /* Animation from jaws/animations.css */
 }
 
-@keyframes sonarSweep {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* === OCEAN AMBIENCE EFFECTS === */
-.ocean-bubbles {
+/* === OCEAN AMBIENCE EFFECTS (Bubbles - from jaws/animations.css but structure here) === */
+.ocean-bubbles { /* This would be a container element in HTML */
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: var(--z-character-ui);
-  opacity: 0.3;
+  z-index: var(--z-base); /* Behind most content */
+  opacity: 0.3; /* Subtle effect */
+  overflow: hidden; /* Prevent bubbles from creating scrollbars */
 }
 
-.bubble {
+.bubble { /* Individual bubble styling */
   position: absolute;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%,
-    rgba(255, 255, 255, 0.8),
-    rgba(255, 255, 255, 0.1)
+    rgba(var(--white-rgb,255,255,255), 0.8),
+    rgba(var(--white-rgb,255,255,255), 0.1)
   );
-  animation: bubbleRise 8s linear infinite;
+  animation: bubbleRise 8s linear infinite; /* Animation from jaws/animations.css */
+  will-change: transform, opacity;
 }
 
-.bubble:nth-child(1) {
-  left: 10%;
-  width: 8px;
-  height: 8px;
-  animation-delay: 0s;
-  animation-duration: 6s;
-}
+/* Example bubble instantiations (could be JS-generated) */
+.bubble.b1 { left: 10%; width: 8px; height: 8px; animation-delay: 0s; animation-duration: 6s; }
+.bubble.b2 { left: 30%; width: 12px; height: 12px; animation-delay: 2s; animation-duration: 8s; }
+/* etc. */
 
-.bubble:nth-child(2) {
-  left: 30%;
-  width: 12px;
-  height: 12px;
-  animation-delay: 2s;
-  animation-duration: 8s;
-}
-
-.bubble:nth-child(3) {
-  left: 70%;
-  width: 6px;
-  height: 6px;
-  animation-delay: 4s;
-  animation-duration: 7s;
-}
-
-.bubble:nth-child(4) {
-  left: 90%;
-  width: 10px;
-  height: 10px;
-  animation-delay: 6s;
-  animation-duration: 9s;
-}
-
-@keyframes bubbleRise {
-  0% {
-    bottom: -20px;
-    opacity: 0;
-    transform: translateX(0) scale(0.5);
-  }
-  10% {
-    opacity: 1;
-    transform: translateX(5px) scale(1);
-  }
-  90% {
-    opacity: 1;
-    transform: translateX(-5px) scale(1.2);
-  }
-  100% {
-    bottom: 100vh;
-    opacity: 0;
-    transform: translateX(10px) scale(0.8);
-  }
-}
 
 /* === EMERGENCY ALERT SYSTEM === */
 .shark-alert {
   position: fixed;
   top: 20px;
   left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #CC0000 0%, #FF4444 100%);
-  color: white;
+  transform: translateX(-50%) translateY(-100px) translateZ(0); /* Start off-screen */
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  color: var(--white);
   padding: 12px 24px;
-  border-radius: 8px;
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-family-system-monospace); /* System font */
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 2px;
-  border: 2px solid #AA0000;
-  box-shadow: 0 4px 20px rgba(204, 0, 0, 0.5);
+  border: 2px solid var(--accent-dark);
+  box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.5);
   opacity: 0;
-  transform: translateX(-50%) translateY(-100px);
   transition: all 0.5s var(--ease-out);
-  z-index: calc(var(--z-character-ui) + 100);
+  z-index: var(--z-toast); /* High z-index from core variables */
+  will-change: transform, opacity;
 }
 
 .shark-alert.active {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  animation: alertFlash 1s ease-in-out infinite;
+  transform: translateX(-50%) translateY(0) translateZ(0);
+  animation: alertFlash 1s ease-in-out infinite; /* Animation from jaws/animations.css */
 }
 
-@keyframes alertFlash {
-  0%, 100% {
-    background: linear-gradient(135deg, #CC0000 0%, #FF4444 100%);
-    box-shadow: 0 4px 20px rgba(204, 0, 0, 0.5);
-  }
-  50% {
-    background: linear-gradient(135deg, #FF6666 0%, #FF8888 100%);
-    box-shadow: 0 4px 30px rgba(255, 102, 102, 0.8);
-  }
-}
 
 /* === RESPONSIVE DESIGN === */
 @media (max-width: 768px) {
@@ -561,6 +503,7 @@
   .character-avatars {
     bottom: 15px;
     left: 15px;
+    gap: 8px; /* Slightly reduce gap */
   }
 
   .character-avatar {
@@ -568,13 +511,14 @@
     height: 50px;
   }
 
-  .character-avatar::before {
+  .character-avatar::before { /* Emoji size */
     font-size: 22px;
   }
 
   .boat-controls {
     width: 120px;
     height: 160px;
+    /* Consider hiding or simplifying on very small screens if it clutters */
   }
 
   .depth-gauge {
@@ -587,6 +531,11 @@
     width: 45px;
     height: 45px;
   }
+
+  .shark-alert {
+    padding: 10px 18px;
+    font-size: 0.9em;
+  }
 }
 
 /* === ACCESSIBILITY === */
@@ -595,16 +544,24 @@
   .character-avatar,
   .status-led,
   .bubble,
-  .shark-alert {
+  .shark-alert,
+  .walkie-talkie::before, /* Antenna */
+  .sonar-ping::before,
+  .character-avatar.active {
     animation: none !important;
   }
-
-  .walkie-talkie::before {
-    animation: none !important;
+   /* Ensure elements are in their 'final' or most readable state */
+  .walkie-talkie:hover,
+  .status-led.standby,
+  .status-led.active {
+    transform: none;
+  }
+  .character-avatar.active {
+    transform: scale(1) translateZ(0); /* Base active state */
   }
 }
 
-/* === THEME ACTIVATION === */
+/* === THEME ACTIVATION (from base-theme.css, ensures visibility control) === */
 [data-theme="jaws"] .character-interface {
   opacity: 1;
   visibility: visible;
