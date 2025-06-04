@@ -16,7 +16,7 @@
   height: 180px;
   pointer-events: none;
   transform: translateZ(0);
-  will-change: transform, filter;
+  will-change: transform, opacity, filter;
   opacity: 0;
   animation: walkieSlideIn 1.2s var(--ease-bounce) 2s forwards;
 }
@@ -24,15 +24,15 @@
 @keyframes walkieSlideIn {
   0% {
     opacity: 0;
-    transform: translateX(100px) rotateZ(25deg) scale(0.7);
+    transform: translateX(100px) rotateZ(25deg) scale(0.7) translateZ(0);
   }
   60% {
     opacity: 1;
-    transform: translateX(-10px) rotateZ(-5deg) scale(1.05);
+    transform: translateX(-10px) rotateZ(-5deg) scale(1.05) translateZ(0);
   }
   100% {
     opacity: 1;
-    transform: translateX(0) rotateZ(0deg) scale(1);
+    transform: translateX(0) rotateZ(0deg) scale(1) translateZ(0);
   }
 }
 
@@ -41,23 +41,23 @@
   width: 85px;
   height: 140px;
   background: linear-gradient(145deg,
-    #2C2C2C 0%,
-    #1A1A1A 25%,
-    #0F0F0F 50%,
-    #1A1A1A 75%,
-    #2C2C2C 100%
+    var(--gray-700) 0%,    /* Dark gray */
+    var(--gray-800) 25%,   /* Even darker */
+    var(--gray-900) 50%,   /* Near black */
+    var(--gray-800) 75%,
+    var(--gray-700) 100%
   );
   border-radius: 8px 8px 6px 6px;
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
-    0 4px 12px rgba(0, 0, 0, 0.6),
-    0 1px 3px rgba(0, 0, 0, 0.8);
-  border: 1px solid #333;
+    inset 0 2px 4px rgba(var(--white-rgb), 0.05), /* Softer inset highlight */
+    inset 0 -2px 4px rgba(var(--black-rgb), 0.4),
+    0 4px 12px rgba(var(--black-rgb), 0.6),
+    0 1px 3px rgba(var(--black-rgb), 0.8);
+  border: 1px solid var(--gray-600); /* Slightly lighter border */
   overflow: hidden;
 }
 
-.walkie-body::before {
+.walkie-body::before { /* Top highlight */
   content: '';
   position: absolute;
   top: 5px;
@@ -66,13 +66,13 @@
   height: 2px;
   background: linear-gradient(90deg,
     transparent,
-    rgba(255, 255, 255, 0.2),
+    rgba(var(--gray-400-rgb), 0.2), /* Use variable */
     transparent
   );
   border-radius: 1px;
 }
 
-.walkie-body::after {
+.walkie-body::after { /* Speaker grille area background texture */
   content: '';
   position: absolute;
   top: 10px;
@@ -81,58 +81,59 @@
   bottom: 40px;
   background:
     repeating-linear-gradient(0deg,
-      #111 0px,
-      #111 1px,
-      #222 1px,
-      #222 2px
+      var(--gray-900) 0px,
+      var(--gray-900) 1px,
+      var(--gray-800) 1px,
+      var(--gray-800) 2px
     ),
     radial-gradient(ellipse at center,
-      #333 30%,
-      #111 70%
+      var(--gray-700) 30%,
+      var(--gray-900) 70%
     );
   border-radius: 3px;
-  border: 1px solid #000;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--black);
+  box-shadow: inset 0 0 8px rgba(var(--black-rgb), 0.8);
 }
 
 /* Antenna */
 .walkie-antenna {
   position: absolute;
-  top: -40px;
+  top: -40px; /* Original position seems fine relative to body */
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 3px;
   height: 40px;
   background: linear-gradient(to bottom,
-    #666 0%,
-    #444 50%,
-    #222 100%
+    var(--gray-500) 0%, /* Using grays */
+    var(--gray-600) 50%,
+    var(--gray-700) 100%
   );
   border-radius: 1.5px;
   box-shadow:
-    0 0 2px rgba(0, 0, 0, 0.5),
-    inset 1px 0 0 rgba(255, 255, 255, 0.2);
+    0 0 2px rgba(var(--black-rgb), 0.5),
+    inset 1px 0 0 rgba(var(--gray-200-rgb), 0.2);
   transform-origin: bottom center;
   animation: antennaSubtleSway 4s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes antennaSubtleSway {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  25% { transform: translateX(-50%) rotate(1.5deg); }
-  75% { transform: translateX(-50%) rotate(-1.5deg); }
+  0%, 100% { transform: translateX(-50%) rotate(0deg) translateZ(0); }
+  25% { transform: translateX(-50%) rotate(1.5deg) translateZ(0); }
+  75% { transform: translateX(-50%) rotate(-1.5deg) translateZ(0); }
 }
 
-.walkie-antenna::before {
+.walkie-antenna::before { /* Antenna tip */
   content: '';
   position: absolute;
   top: -3px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 5px;
   height: 5px;
-  background: #444;
+  background: var(--gray-600);
   border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 2px rgba(var(--black-rgb), 0.5);
 }
 
 /* LED Indicator */
@@ -143,40 +144,41 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  background: var(--gray-900); /* Off state */
+  border: 1px solid var(--gray-700);
   box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
+    inset 0 1px 2px rgba(var(--black-rgb), 0.8),
+    0 0 0 1px rgba(var(--gray-200-rgb), 0.1);
+  transition: all 0.3s var(--ease-out);
+  will-change: background, box-shadow;
 }
 
-.walkie-led.idle {
-  background: radial-gradient(circle at 30% 30%, #2a2a2a, #0a0a0a);
+.walkie-led.idle { /* Matched to original .idle if it was separate, else same as off */
+  background: radial-gradient(circle at 30% 30%, var(--gray-800), var(--gray-950));
   box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+    inset 0 1px 2px rgba(var(--black-rgb), 0.8),
+    0 0 0 1px rgba(var(--gray-200-rgb), 0.1);
 }
 
-.walkie-led.receiving {
-  background: radial-gradient(circle at 30% 30%, #FFB347, #FF8C00);
+.walkie-led.receiving { /* Amber/Orange for Jurassic receiving */
+  background: radial-gradient(circle at 30% 30%, var(--warning), var(--primary-darker)); /* Jurassic warning and primary */
   box-shadow:
-    inset 0 1px 2px rgba(255, 140, 0, 0.5),
-    0 0 8px rgba(255, 140, 0, 0.6),
-    0 0 15px rgba(255, 140, 0, 0.3);
+    inset 0 1px 2px rgba(var(--warning-rgb), 0.5),
+    0 0 8px rgba(var(--warning-rgb), 0.6),
+    0 0 15px rgba(var(--warning-rgb), 0.3);
   animation: ledPulse 1s ease-in-out infinite;
 }
 
-.walkie-led.transmitting {
-  background: radial-gradient(circle at 30% 30%, #FF4444, #CC0000);
+.walkie-led.transmitting { /* Red for transmitting */
+  background: radial-gradient(circle at 30% 30%, var(--danger-light), var(--danger)); /* Jurassic danger colors */
   box-shadow:
-    inset 0 1px 2px rgba(204, 0, 0, 0.5),
-    0 0 10px rgba(255, 68, 68, 0.8),
-    0 0 20px rgba(255, 68, 68, 0.4);
-  animation: ledPulse 0.5s ease-in-out infinite;
+    inset 0 1px 2px rgba(var(--danger-rgb), 0.5),
+    0 0 10px rgba(var(--danger-rgb), 0.8),
+    0 0 20px rgba(var(--danger-rgb), 0.4);
+  animation: ledPulse 0.5s ease-in-out infinite; /* Faster pulse */
 }
 
-@keyframes ledPulse {
+@keyframes ledPulse { /* Retained */
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
@@ -188,22 +190,22 @@
   left: 12px;
   right: 12px;
   height: 25px;
-  background: #0a0a0a;
+  background: var(--gray-950); /* Darkest gray */
   border-radius: 2px;
-  border: 1px solid #333;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--gray-700);
+  box-shadow: inset 0 0 5px rgba(var(--black-rgb), 0.8);
   overflow: hidden;
 }
 
-.walkie-speaker::before {
+.walkie-speaker::before { /* Grille lines */
   content: '';
   position: absolute;
   inset: 2px;
   background: repeating-linear-gradient(0deg,
-    #111 0px,
-    #111 1.5px,
-    #000 1.5px,
-    #000 3px
+    var(--gray-900) 0px,
+    var(--gray-900) 1.5px,
+    var(--black) 1.5px,
+    var(--black) 3px
   );
   opacity: 0.8;
 }
@@ -219,7 +221,7 @@
   align-items: flex-end;
   gap: 1px;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s var(--ease-out);
 }
 
 .walkie-led.receiving ~ .walkie-speaker .static-bars,
@@ -229,16 +231,17 @@
 
 .static-bar {
   flex: 1;
-  background: var(--primary-light);
+  background: var(--primary-light); /* Jurassic amber/light color */
   border-radius: 0.5px;
   height: 20%;
   animation: staticVisualization 0.15s linear infinite;
 }
-
+/* nth-child delays for static-bar retained from original */
 .static-bar:nth-child(2) { animation-delay: 0.05s; }
 .static-bar:nth-child(3) { animation-delay: 0.1s; }
 .static-bar:nth-child(4) { animation-delay: 0.15s; }
 .static-bar:nth-child(5) { animation-delay: 0.2s; }
+
 
 @keyframes staticVisualization {
   0%, 100% { height: 10%; opacity: 0.3; }
@@ -258,12 +261,12 @@
 
 .walkie-button {
   height: 12px;
-  background: linear-gradient(145deg, #333, #111);
+  background: linear-gradient(145deg, var(--gray-700), var(--gray-900));
   border-radius: 2px;
-  border: 1px solid #222;
+  border: 1px solid var(--gray-800);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 1px 2px rgba(0, 0, 0, 0.5);
+    inset 0 1px 0 rgba(var(--gray-200-rgb), 0.05), /* Softer highlight */
+    0 1px 2px rgba(var(--black-rgb), 0.5);
   position: relative;
 }
 
@@ -274,7 +277,7 @@
   left: 3px;
   right: 3px;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(var(--gray-200-rgb), 0.05);
   border-radius: 0.5px;
 }
 
@@ -285,24 +288,30 @@
   right: 8px;
   width: 18px;
   height: 18px;
-  background: radial-gradient(circle at 30% 30%, #444, #111);
+  background: radial-gradient(circle at 30% 30%, var(--gray-600), var(--gray-900));
   border-radius: 50%;
-  border: 1px solid #222;
+  border: 1px solid var(--gray-800);
   box-shadow:
-    inset 0 0 3px rgba(0, 0, 0, 0.8),
-    0 1px 2px rgba(0, 0, 0, 0.5);
+    inset 0 0 3px rgba(var(--black-rgb), 0.8),
+    0 1px 2px rgba(var(--black-rgb), 0.5);
 }
 
-.walkie-dial::before {
+.walkie-dial::before { /* Dial indicator */
   content: '';
   position: absolute;
   top: 2px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%)  translateZ(0);
   width: 1px;
   height: 6px;
-  background: #666;
+  background: var(--gray-400);
   border-radius: 0.5px;
+}
+
+/* Label on walkie talkie */
+.walkie-label { /* Assuming this class is added in HTML or JS */
+    font-family: var(--font-family-system-monospace);
+    /* Other styles like font-size, color, position from original */
 }
 
 /* ===================
@@ -319,7 +328,7 @@
   pointer-events: auto;
   cursor: pointer;
   transform: translateZ(0);
-  will-change: transform;
+  will-change: transform, opacity;
   opacity: 0;
   animation: dnaSlideIn 1.5s var(--ease-bounce) 1s forwards;
 }
@@ -327,15 +336,15 @@
 @keyframes dnaSlideIn {
   0% {
     opacity: 0;
-    transform: translateX(-100px) scale(0.3) rotateY(-90deg);
+    transform: translateX(-100px) scale(0.3) rotateY(-90deg) translateZ(0);
   }
   70% {
     opacity: 1;
-    transform: translateX(10px) scale(1.1) rotateY(15deg);
+    transform: translateX(10px) scale(1.1) rotateY(15deg) translateZ(0);
   }
   100% {
     opacity: 1;
-    transform: translateX(0) scale(1) rotateY(0deg);
+    transform: translateX(0) scale(1) rotateY(0deg) translateZ(0);
   }
 }
 
@@ -345,21 +354,14 @@
   height: 120px;
   transform-origin: bottom center;
   animation: dnaIdle 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes dnaIdle {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg) scale(1);
-  }
-  25% {
-    transform: translateY(-5px) rotate(2deg) scale(1.02);
-  }
-  50% {
-    transform: translateY(-8px) rotate(0deg) scale(1.05);
-  }
-  75% {
-    transform: translateY(-3px) rotate(-2deg) scale(1.02);
-  }
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1) translateZ(0); }
+  25% { transform: translateY(-5px) rotate(2deg) scale(1.02) translateZ(0); }
+  50% { transform: translateY(-8px) rotate(0deg) scale(1.05) translateZ(0); }
+  75% { transform: translateY(-3px) rotate(-2deg) scale(1.02) translateZ(0); }
 }
 
 /* DNA Body (Helix Structure) */
@@ -367,32 +369,27 @@
   position: absolute;
   bottom: 20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0); /* Base transform */
   width: 40px;
   height: 80px;
   background: linear-gradient(to bottom,
-    var(--primary-light) 0%,
+    var(--primary-light) 0%, /* Jurassic theme colors */
     var(--primary) 50%,
     var(--primary-dark) 100%
   );
   border-radius: 20px;
   box-shadow:
     0 0 15px rgba(var(--primary-rgb), 0.4),
-    inset 0 0 10px rgba(255, 255, 255, 0.2);
+    inset 0 0 10px rgba(var(--white-rgb), 0.2);
   overflow: hidden;
   animation: helixUndulate 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes helixUndulate {
-  0%, 100% {
-    transform: translateX(-50%) scaleX(1) scaleY(1);
-  }
-  25% {
-    transform: translateX(-50%) scaleX(1.08) scaleY(0.98);
-  }
-  75% {
-    transform: translateX(-50%) scaleX(0.95) scaleY(1.05);
-  }
+  0%, 100% { transform: translateX(-50%) scaleX(1) scaleY(1) translateZ(0); }
+  25% { transform: translateX(-50%) scaleX(1.08) scaleY(0.98) translateZ(0); }
+  75% { transform: translateX(-50%) scaleX(0.95) scaleY(1.05) translateZ(0); }
 }
 
 .dna-helix::before,
@@ -405,14 +402,15 @@
     repeating-linear-gradient(45deg,
       transparent 0px,
       transparent 3px,
-      rgba(255, 255, 255, 0.3) 3px,
-      rgba(255, 255, 255, 0.3) 6px,
+      rgba(var(--primary-lighter-rgb), 0.3) 3px, /* Lighter for strands */
+      rgba(var(--primary-lighter-rgb), 0.3) 6px,
       transparent 6px,
       transparent 9px,
-      rgba(255, 255, 255, 0.1) 9px,
-      rgba(255, 255, 255, 0.1) 12px
+      rgba(var(--primary-lighter-rgb), 0.1) 9px,
+      rgba(var(--primary-lighter-rgb), 0.1) 12px
     );
   animation: helixSpiral 4s linear infinite;
+  will-change: transform;
 }
 
 .dna-helix::after {
@@ -421,8 +419,8 @@
 }
 
 @keyframes helixSpiral {
-  0% { transform: translateY(0px); }
-  100% { transform: translateY(-24px); }
+  0% { transform: translateY(0px) translateZ(0); }
+  100% { transform: translateY(-24px) translateZ(0); } /* Creates illusion of spiraling */
 }
 
 /* DNA Head */
@@ -430,7 +428,7 @@
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 45px;
   height: 45px;
   background: radial-gradient(circle at 35% 35%,
@@ -442,7 +440,8 @@
   border: 2px solid var(--primary-darker);
   box-shadow:
     0 0 12px rgba(var(--primary-rgb), 0.5),
-    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    inset 0 2px 4px rgba(var(--white-rgb), 0.3);
+  will-change: transform; /* For headBob animation */
 }
 
 /* Eyes */
@@ -450,7 +449,7 @@
   position: absolute;
   top: 12px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   display: flex;
   gap: 8px;
 }
@@ -458,25 +457,26 @@
 .dna-eye {
   width: 8px;
   height: 10px;
-  background: #000;
+  background: var(--text-inverse); /* Use theme text-inverse (dark for Jurassic) */
   border-radius: 50%;
   position: relative;
   animation: eyeBlink 4s ease-in-out infinite;
+  will-change: height; /* Less ideal, but for small element OK */
 }
 
-@keyframes eyeBlink {
+@keyframes eyeBlink { /* Height animation */
   0%, 92%, 100% { height: 10px; }
   94%, 96% { height: 2px; }
 }
 
-.dna-eye::before {
+.dna-eye::before { /* Pupil highlight */
   content: '';
   position: absolute;
   top: 1px;
   left: 1px;
   width: 3px;
   height: 3px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(var(--primary-lighter-rgb), 0.8); /* Lighter pupil highlight */
   border-radius: 50%;
 }
 
@@ -485,30 +485,25 @@
   position: absolute;
   bottom: 8px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 12px;
   height: 6px;
-  border: 2px solid #000;
+  border: 2px solid var(--text-inverse); /* Dark border */
   border-top: none;
   border-radius: 0 0 12px 12px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(var(--text-inverse-rgb), 0.3);
   animation: mouthTalk 0.5s ease-in-out infinite;
-  animation-play-state: paused;
+  animation-play-state: paused; /* Controlled by JS */
+  will-change: height, border-radius;
 }
 
 .mr-dna-container.talking .dna-mouth {
   animation-play-state: running;
 }
 
-@keyframes mouthTalk {
-  0%, 100% {
-    height: 6px;
-    border-radius: 0 0 12px 12px;
-  }
-  50% {
-    height: 10px;
-    border-radius: 0 0 8px 8px;
-  }
+@keyframes mouthTalk { /* Height animation */
+  0%, 100% { height: 6px; border-radius: 0 0 12px 12px; }
+  50% { height: 10px; border-radius: 0 0 8px 8px; }
 }
 
 /* DNA Particles */
@@ -516,102 +511,93 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  overflow: hidden;
+  overflow: hidden; /* Ensure particles don't overflow container */
 }
 
 .dna-particle {
   position: absolute;
+  bottom: 0; /* Initial position for translateY animation */
   width: 4px;
   height: 4px;
-  background: var(--accent);
+  background: var(--accent); /* Jurassic vegetation green */
   border-radius: 50%;
   opacity: 0;
   animation: particleFloat 3s ease-in-out infinite;
+  will-change: transform, opacity;
 }
-
-.dna-particle:nth-child(1) {
-  left: 20%;
-  animation-delay: 0s;
-}
-
-.dna-particle:nth-child(2) {
-  left: 50%;
-  animation-delay: 1s;
-}
-
-.dna-particle:nth-child(3) {
-  left: 80%;
-  animation-delay: 2s;
-}
+/* nth-child delays for dna-particle retained */
+.dna-particle:nth-child(1) { left: 20%; animation-delay: 0s; }
+.dna-particle:nth-child(2) { left: 50%; animation-delay: 1s; }
+.dna-particle:nth-child(3) { left: 80%; animation-delay: 2s; }
 
 @keyframes particleFloat {
   0% {
-    bottom: 0;
     opacity: 0;
-    transform: translateX(0) scale(0.5);
+    transform: translateY(0) translateX(0) scale(0.5) translateZ(0);
   }
   50% {
     opacity: 1;
-    transform: translateX(10px) scale(1);
+    transform: translateY(-60px) translateX(10px) scale(1) translateZ(0); /* Move up */
   }
   100% {
-    bottom: 120px;
     opacity: 0;
-    transform: translateX(-10px) scale(0.3);
+    transform: translateY(-120px) translateX(-10px) scale(0.3) translateZ(0); /* Continue up and fade */
   }
 }
+
 
 /* Speech Bubble */
 .dna-speech-bubble {
   position: absolute;
-  top: -50px;
+  top: -50px; /* Position above head */
   left: 50%;
-  transform: translateX(-50%);
-  background: rgba(var(--bg-elevated-rgb), 0.95);
+  transform: translateX(-50%) translateY(10px) scale(0.8) translateZ(0); /* Initial hidden state */
+  background: rgba(var(--bg-elevated-rgb), 0.95); /* Jurassic bg */
   padding: 8px 12px;
   border-radius: 12px;
-  border: 2px solid var(--primary);
+  border: 2px solid var(--primary); /* Jurassic primary */
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(var(--black-rgb), 0.3),
     0 0 8px rgba(var(--primary-rgb), 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   font-size: 11px;
+  font-family: var(--font-family-jurassic-body); /* Jurassic body font */
   color: var(--text-primary);
   white-space: nowrap;
   opacity: 0;
-  transform: translateX(-50%) translateY(10px) scale(0.8);
   transition: all 0.3s var(--ease-out);
-  z-index: 1;
+  z-index: 1; /* Above sprite */
+  will-change: transform, opacity;
 }
 
-.dna-speech-bubble::after {
+.dna-speech-bubble::after { /* Bubble tail */
   content: '';
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   width: 0;
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 8px solid var(--primary);
+  border-top: 8px solid var(--primary); /* Match border color */
 }
 
-.mr-dna-container.talking .dna-speech-bubble {
+.mr-dna-container.talking .dna-speech-bubble { /* Active state from JS */
   opacity: 1;
-  transform: translateX(-50%) translateY(0) scale(1);
+  transform: translateX(-50%) translateY(0) scale(1) translateZ(0);
 }
 
 /* Hover Effects */
 .mr-dna-container:hover .mr-dna-sprite {
-  animation-duration: 1.5s;
+  animation-duration: 1.5s; /* Speed up idle on hover */
 }
 
 .mr-dna-container:hover .dna-helix {
   box-shadow:
     0 0 25px rgba(var(--primary-rgb), 0.6),
-    inset 0 0 15px rgba(255, 255, 255, 0.3);
+    inset 0 0 15px rgba(var(--white-rgb), 0.3);
 }
 
 .mr-dna-container:hover .dna-particles .dna-particle {
@@ -620,14 +606,14 @@
 
 /* Active State (When Speaking) */
 .mr-dna-container.talking {
-  z-index: calc(var(--z-popover) + 1);
+  z-index: calc(var(--z-popover) + 1); /* Ensure it's above other popovers if any */
 }
 
 .mr-dna-container.talking .dna-helix {
-  animation-duration: 1s;
+  animation-duration: 1s; /* Faster undulation when talking */
   box-shadow:
-    0 0 30px rgba(var(--accent-rgb), 0.8),
-    inset 0 0 20px rgba(255, 255, 255, 0.4);
+    0 0 30px rgba(var(--accent-rgb), 0.8), /* Jurassic accent (green) glow */
+    inset 0 0 20px rgba(var(--primary-lighter-rgb), 0.4);
 }
 
 .mr-dna-container.talking .dna-head {
@@ -635,22 +621,22 @@
 }
 
 @keyframes headBob {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-3px); }
+  0%, 100% { transform: translateX(-50%) translateY(0) translateZ(0); }
+  50% { transform: translateX(-50%) translateY(-3px) translateZ(0); }
 }
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
   .muldoon-walkie-container {
-    bottom: 140px;
+    bottom: 140px; /* From original */
     right: 10px;
-    transform: scale(0.8);
+    transform: scale(0.8) translateZ(0);
   }
 
   .mr-dna-container {
-    bottom: 10px;
+    bottom: 10px; /* From original */
     left: 10px;
-    transform: scale(0.8);
+    transform: scale(0.8) translateZ(0);
   }
 
   .dna-speech-bubble {
@@ -662,25 +648,26 @@
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .muldoon-walkie-container,
-  .mr-dna-container {
-    animation: none;
-    opacity: 1;
+  .mr-dna-container,
+  .walkie-antenna, /* Added antenna here */
+  .mr-dna-sprite,
+  .dna-helix,
+  .dna-eye,
+  .dna-mouth,
+  .dna-particle,
+  .dna-head { /* Added head for headBob */
+    animation: none !important;
   }
-
-  .antennaSubtleSway,
-  .dnaIdle,
-  .helixUndulate,
-  .helixSpiral,
-  .eyeBlink,
-  .particleFloat {
-    animation-duration: 0.01ms;
+  .muldoon-walkie-container,
+  .mr-dna-container {
+    opacity: 1; /* Ensure visibility if entrance animation is off */
   }
 }
 
-/* Theme Integration */
+/* Theme Integration (Show/Hide based on active theme) */
 [data-theme="jurassic"] .muldoon-walkie-container,
 [data-theme="jurassic"] .mr-dna-container {
-  display: block;
+  display: block; /* Or initial display property if not block */
 }
 
 [data-theme="default"] .muldoon-walkie-container,
