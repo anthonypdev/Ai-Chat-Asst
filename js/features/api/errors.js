@@ -1,490 +1,195 @@
 /**
- * API Error Handler - Manages error states and user feedback
- * Provides themed error messages and recovery strategies
+ * Parkland AI - Opus Magnum Edition
+ * Custom API Error Classes
+ *
+ * Defines a set of custom error classes to provide more specific information
+ * about errors encountered during API interactions.
  */
 
-import { EventBus } from '../../core/events.js';
-import { AppState } from '../../core/state.js';
+/**
+ * Base class for all API-related errors.
+ */
+class APIError extends Error {
+    /**
+     * @param {string} message - The error message.
+     * @param {number} [status] - The HTTP status code, if applicable.
+     * @param {string} [type] - A specific error type string (e.g., 'authentication_error').
+     * @param {Error} [originalError] - The original error object, if any.
+     */
+    constructor(message, status, type, originalError) {
+        super(message);
+        this.name = this.constructor.name; // Set the error name to the class name
+        this.status = status; // HTTP status code
+        this.type = type;     // Specific error type (e.g., from API response)
+        this.originalError = originalError; // Store the underlying error
 
-export class APIErrorHandler {
-    constructor() {
-        this.errorHistory = [];
-        this.maxErrorHistory = 50;
-        this.connectionRetryAttempts = 0;
-        this.maxConnectionRetries = 3;
-        this.retryDelay = 2000; // 2 seconds
-
-        this.errorCategories = {
-            NETWORK: 'network',
-            AUTH: 'authentication',
-            QUOTA: 'quota',
-            SERVER: 'server',
-            CLIENT: 'client',
-            UNKNOWN: 'unknown'
-        };
-
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        EventBus.on('api:error', this.handleAPIError.bind(this));
-        EventBus.on('api:connection-lost', this.handleConnectionLost.bind(this));
-        EventBus.on('api:connection-restored', this.handleConnectionRestored.bind(this));
-
-        // Monitor network status
-        window.addEventListener('online', () => {
-            this.connectionRetryAttempts = 0;
-            EventBus.emit('error:connection-restored');
-        });
-
-        window.addEventListener('offline', () => {
-            this.handleOfflineState();
-        });
-    }
-
-    handleAPIError(data) {
-        const { error, context = {} } = data;
-
-        const errorInfo = this.analyzeError(error);
-        this.logError(errorInfo, context);
-
-        const userMessage = this.generateUserFriendlyMessage(errorInfo);
-        const recoveryActions = this.getRecoveryActions(errorInfo);
-
-        // Show error to user
-        this.displayError(userMessage, recoveryActions, errorInfo);
-
-        // Attempt automatic recovery if appropriate
-        if (errorInfo.autoRecoverable) {
-            this.attemptAutoRecovery(errorInfo, context);
+        // Maintain proper stack trace (if available)
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, this.constructor);
         }
+    }
+}
 
-        EventBus.emit('error:handled', { errorInfo, userMessage, recoveryActions });
+/**
+ * Error for authentication issues (e.g., invalid API key).
+ * Typically corresponds to HTTP 401 or 403.
+ */
+class AuthenticationError extends APIError {
+    constructor(message = 'Authentication failed. Please check your API key.', status = 401, originalError) {
+        super(message, status, 'authentication_error', originalError);
+    }
+}
+
+/**
+ * Error for rate limiting issues (e.g., too many requests).
+ * Typically corresponds to HTTP 429.
+ */
+class RateLimitError extends APIError {
+    constructor(message = 'API rate limit exceeded. Please try again later.', status = 429, originalError) {
+        super(message, status, 'rate_limit_error', originalError);
+    }
+}
+
+/**
+ * Error for server-side issues on the API provider's end.
+ * Typically corresponds to HTTP 5xx status codes.
+ */
+class ServerError extends APIError {
+    constructor(message = 'The API server encountered an error. Please try again later.', status = 500, originalError) {
+        super(message, status, 'server_error', originalError);
+    }
+}
+
+/**
+ * Error for invalid requests (e.g., malformed parameters, validation errors).
+ * Typically corresponds to HTTP 400.
+ */
+class InvalidRequestError extends APIError {
+    constructor(message = 'The request was invalid or malformed.', status = 400, originalError) {
+        super(message, status, 'invalid_request_error', originalError);
+    }
+}
+
+/**
+ * Error for when a requested resource is not found.
+ * Typically corresponds to HTTP 404.
+ */
+class NotFoundError extends APIError {
+    constructor(message = 'The requested API resource was not found.', status = 404, originalError) {
+        super(message, status, 'not_found_error', originalError);
+    }
+}
+
+/**
+ * Error for request timeouts.
+ * Not directly tied to an HTTP status, but represents a client-side timeout.
+ */
+class TimeoutError extends APIError {
+    constructor(message = 'The API request timed out.', status, originalError) { // Status might not be relevant here
+        super(message, status, 'timeout_error', originalError);
+    }
+}
+
+/**
+ * General network error (e.g., DNS resolution failure, connection refused).
+ * Not directly tied to an HTTP status from the API server itself.
+ */
+class NetworkError extends APIError {
+    constructor(message = 'A network error occurred. Please check your connection.', status, originalError) {
+        super(message, status, 'network_error', originalError);
+    }
+}
+
+/**
+ * Error when the API request is aborted, e.g., by an AbortController.
+ */
+class AbortError extends APIError {
+    constructor(message = 'The API request was aborted.', status, originalError) {
+        super(message, status, 'abort_error', originalError);
+    }
+}
+
+
+/**
+ * Helper function to create and throw an appropriate API error based on
+ * an HTTP response object and potentially parsed response data.
+ * This function can be used within API service classes.
+ *
+ * @param {Response} response - The Fetch API Response object.
+ * @param {Object} [responseData] - Optional parsed JSON data from the response body.
+ * @param {Error} [originalFetchError] - Optional error object from the fetch call itself (e.g., network error).
+ * @throws {APIError} Throws an instance of a custom API error.
+ */
+function createApiErrorFromResponse(response, responseData, originalFetchError) {
+    const status = response ? response.status : (originalFetchError ? undefined : 500);
+    let message = `API request failed with status ${status}.`;
+    let type = 'unknown_error';
+    let errorDetails = responseData && responseData.error ? responseData.error : null;
+
+    if (originalFetchError) { // If it's a network error before getting a response
+        if (originalFetchError.name === 'AbortError') {
+            throw new AbortError(originalFetchError.message || 'Request aborted by client.', undefined, originalFetchError);
+        }
+        throw new NetworkError(originalFetchError.message || 'Network error during API request.', undefined, originalFetchError);
     }
 
-    analyzeError(error) {
-        const errorInfo = {
-            originalError: error,
-            category: this.errorCategories.UNKNOWN,
-            severity: 'medium',
-            autoRecoverable: false,
-            userAction: null,
-            technicalDetails: error.message || 'Unknown error',
-            timestamp: new Date().toISOString()
-        };
+    if (errorDetails) {
+        message = `Error ${errorDetails.type || status}: ${errorDetails.message || 'Unknown API error.'}`;
+        type = errorDetails.type || type;
+    } else if (responseData && typeof responseData.detail === 'string') { // Some APIs put error in detail
+        message = `Error ${status}: ${responseData.detail}`;
+        type = 'detail_error';
+    } else if (response && response.statusText) {
+        message = `API Error ${status}: ${response.statusText}`;
+    }
 
-        // Analyze error type
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            errorInfo.category = this.errorCategories.NETWORK;
-            errorInfo.autoRecoverable = true;
-            errorInfo.userAction = 'Check your internet connection';
-        } else if (error.status) {
-            switch (error.status) {
-                case 401:
-                case 403:
-                    errorInfo.category = this.errorCategories.AUTH;
-                    errorInfo.severity = 'high';
-                    errorInfo.userAction = 'Check API key configuration';
-                    break;
-                case 429:
-                    errorInfo.category = this.errorCategories.QUOTA;
-                    errorInfo.autoRecoverable = true;
-                    errorInfo.userAction = 'Wait before sending another message';
-                    break;
-                case 500:
-                case 502:
-                case 503:
-                case 504:
-                    errorInfo.category = this.errorCategories.SERVER;
-                    errorInfo.autoRecoverable = true;
-                    errorInfo.userAction = 'Try again in a few moments';
-                    break;
-                case 400:
-                    errorInfo.category = this.errorCategories.CLIENT;
-                    errorInfo.userAction = 'Check your input and try again';
-                    break;
+    switch (status) {
+        case 400:
+            throw new InvalidRequestError(message, status, errorDetails || responseData);
+        case 401:
+        case 403: // Often permission issues are also 403
+            throw new AuthenticationError(message, status, errorDetails || responseData);
+        case 404:
+            throw new NotFoundError(message, status, errorDetails || responseData);
+        case 429:
+            throw new RateLimitError(message, status, errorDetails || responseData);
+        default:
+            if (status >= 500 && status < 600) {
+                throw new ServerError(message, status, errorDetails || responseData);
             }
-        } else if (error.message) {
-            // Analyze error message content
-            const message = error.message.toLowerCase();
-
-            if (message.includes('api key') || message.includes('auth')) {
-                errorInfo.category = this.errorCategories.AUTH;
-                errorInfo.severity = 'high';
-            } else if (message.includes('network') || message.includes('connection')) {
-                errorInfo.category = this.errorCategories.NETWORK;
-                errorInfo.autoRecoverable = true;
-            } else if (message.includes('quota') || message.includes('limit')) {
-                errorInfo.category = this.errorCategories.QUOTA;
-            } else if (message.includes('timeout')) {
-                errorInfo.category = this.errorCategories.NETWORK;
-                errorInfo.autoRecoverable = true;
-            }
-        }
-
-        return errorInfo;
+            // For other 4xx errors or unhandled cases
+            throw new APIError(message, status, type, errorDetails || responseData);
     }
+}
 
-    generateUserFriendlyMessage(errorInfo) {
-        const theme = AppState.currentTheme || 'default';
-        const { category, originalError } = errorInfo;
 
-        const baseMessages = this.getBaseErrorMessages(category, originalError);
+// Exporting the classes for use in other modules
+// If not using ES modules, they would be available globally or attached to a namespace.
+// export {
+//     APIError,
+//     AuthenticationError,
+//     RateLimitError,
+//     ServerError,
+//     InvalidRequestError,
+//     NotFoundError,
+//     TimeoutError,
+//     NetworkError,
+//     AbortError,
+//     createApiErrorFromResponse
+// };
 
-        if (theme === 'default') {
-            return baseMessages.default;
-        }
-
-        return this.getThemedErrorMessage(theme, category, baseMessages);
-    }
-
-    getBaseErrorMessages(category, error) {
-        const messages = {
-            default: "I'm encountering some technical difficulties. Please try your request again in a few moments.",
-            jaws: "Blimey! Something's gone fishy in the digital depths!",
-            jurassic: "System anomaly detected. Initiating containment protocols..."
-        };
-
-        switch (category) {
-            case this.errorCategories.AUTH:
-                messages.default = "Authentication with the AI service has failed. Please ensure your Access Token is correctly entered and valid in the Application Settings.";
-                messages.jaws = "AVAST! The digital lockbox be sealed tighter than Davy Jones' locker! Check yer API credentials, matey!";
-                messages.jurassic = "CONTAINMENT BREACH! Unauthorized access attempt detected! Your InGen credentials appear to be... *extinct*. Re-authenticate immediately, Ranger!";
-                break;
-
-            case this.errorCategories.QUOTA:
-                messages.default = "I have temporarily reached my request processing capacity. Please attempt your query again shortly.";
-                messages.jaws = "BATTEN DOWN THE HATCHES! We've hit our message quota harder than a harpoon to the hull! The digital seas need time to calm, savvy?";
-                messages.jurassic = "WARNING: EMERGENCY POWER SHUNT! The mainframe has exceeded designated processing quotas. Mr. Hammond is... displeased. Stand by for system stabilization.";
-                break;
-
-            case this.errorCategories.NETWORK:
-                messages.default = "I'm having trouble connecting to the network. Please verify your internet connection and try again.";
-                messages.jaws = "LOST IN THE BERMUDA TRIANGLE OF BYTES! My connection to the digital mainland has vanished like a ghost ship! Check yer own rigging, mate!";
-                messages.jurassic = "COMMUNICATIONS ARRAY FAILURE! A severe electromagnetic storm has disrupted our uplink to Isla Nublar Command! Check your connection, Ranger!";
-                break;
-
-            case this.errorCategories.SERVER:
-                messages.default = "The AI service is currently experiencing high demand. Please try again in a few moments.";
-                messages.jaws = "KRAKEN ATTACK ON THE SERVER FARM! The digital sea monsters be overwhelmin' our systems! Give 'em a moment to retreat to the depths!";
-                messages.jurassic = "CRITICAL SYSTEM OVERLOAD! The mainframe is experiencing a... *raptor pack attack* of data requests! Stand clear until the chaos subsides!";
-                break;
-
-            case this.errorCategories.CLIENT:
-                messages.default = "There seems to be an issue with your request. Please check your input and try again.";
-                messages.jaws = "SOMETHING'S ROTTEN IN THE STATE OF DENMARK... er, yer message! Check what ye've typed and cast yer line again!";
-                messages.jurassic = "INPUT VALIDATION FAILURE! Your query contains... *unexpected genetic sequences*. Please verify your data and resubmit, Ranger.";
-                break;
-        }
-
-        return messages;
-    }
-
-    getThemedErrorMessage(theme, category, baseMessages) {
-        return baseMessages[theme] || baseMessages.default;
-    }
-
-    getRecoveryActions(errorInfo) {
-        const actions = [];
-
-        switch (errorInfo.category) {
-            case this.errorCategories.AUTH:
-                actions.push({
-                    label: 'Open Settings',
-                    action: 'openSettings',
-                    primary: true
-                });
-                actions.push({
-                    label: 'Check API Key',
-                    action: 'checkApiKey',
-                    primary: false
-                });
-                break;
-
-            case this.errorCategories.QUOTA:
-                actions.push({
-                    label: 'Try Again Later',
-                    action: 'retryLater',
-                    primary: true,
-                    delay: 60000 // 1 minute
-                });
-                break;
-
-            case this.errorCategories.NETWORK:
-                actions.push({
-                    label: 'Retry Now',
-                    action: 'retryNow',
-                    primary: true
-                });
-                actions.push({
-                    label: 'Check Connection',
-                    action: 'checkConnection',
-                    primary: false
-                });
-                break;
-
-            case this.errorCategories.SERVER:
-                actions.push({
-                    label: 'Retry in 30s',
-                    action: 'retryDelayed',
-                    primary: true,
-                    delay: 30000
-                });
-                break;
-
-            default:
-                actions.push({
-                    label: 'Try Again',
-                    action: 'retryNow',
-                    primary: true
-                });
-        }
-
-        return actions;
-    }
-
-    displayError(message, actions, errorInfo) {
-        // Create error message element
-        const errorData = {
-            role: 'assistant',
-            content: message,
-            timestamp: new Date().toISOString(),
-            error: true,
-            errorInfo: errorInfo,
-            actions: actions
-        };
-
-        EventBus.emit('chat:add-message', errorData);
-        EventBus.emit('audio:play-ui-sound', { sound: 'error' });
-
-        // Show temporary toast notification for high severity errors
-        if (errorInfo.severity === 'high') {
-            this.showErrorToast(message, actions);
-        }
-    }
-
-    showErrorToast(message, actions) {
-        // Create a temporary toast notification
-        const toast = document.createElement('div');
-        toast.className = 'error-toast';
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--error);
-            color: white;
-            padding: 16px 20px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            z-index: 10000;
-            max-width: 400px;
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.3s ease;
-        `;
-
-        const shortMessage = message.length > 100 ? message.substring(0, 97) + '...' : message;
-        toast.innerHTML = `
-            <div style="font-weight: 600; margin-bottom: 8px;">Error</div>
-            <div style="font-size: 14px; line-height: 1.4;">${shortMessage}</div>
-        `;
-
-        document.body.appendChild(toast);
-
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(0)';
-        });
-
-        // Remove after delay
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 300);
-        }, 5000);
-    }
-
-    attemptAutoRecovery(errorInfo, context) {
-        if (!errorInfo.autoRecoverable) return;
-
-        const { category } = errorInfo;
-
-        switch (category) {
-            case this.errorCategories.NETWORK:
-                this.attemptNetworkRecovery(context);
-                break;
-            case this.errorCategories.QUOTA:
-                this.scheduleRetry(context, 60000); // Retry in 1 minute
-                break;
-            case this.errorCategories.SERVER:
-                this.scheduleRetry(context, 30000); // Retry in 30 seconds
-                break;
-        }
-    }
-
-    attemptNetworkRecovery(context) {
-        if (this.connectionRetryAttempts >= this.maxConnectionRetries) {
-            return;
-        }
-
-        this.connectionRetryAttempts++;
-
-        setTimeout(async () => {
-            if (navigator.onLine) {
-                try {
-                    // Test connection
-                    const response = await fetch('https://api.anthropic.com', {
-                        method: 'HEAD',
-                        mode: 'no-cors'
-                    });
-
-                    EventBus.emit('error:recovery-success', {
-                        method: 'network',
-                        attempts: this.connectionRetryAttempts
-                    });
-
-                    // Reset retry counter
-                    this.connectionRetryAttempts = 0;
-
-                    // Optionally retry the original request
-                    if (context.retryCallback) {
-                        context.retryCallback();
-                    }
-                } catch (error) {
-                    if (this.connectionRetryAttempts < this.maxConnectionRetries) {
-                        this.attemptNetworkRecovery(context);
-                    }
-                }
-            }
-        }, this.retryDelay);
-    }
-
-    scheduleRetry(context, delay) {
-        setTimeout(() => {
-            if (context.retryCallback) {
-                context.retryCallback();
-            }
-        }, delay);
-    }
-
-    handleConnectionLost() {
-        const message = this.generateConnectionLostMessage();
-        this.displayError(message, [
-            {
-                label: 'Check Connection',
-                action: 'checkConnection',
-                primary: true
-            }
-        ], {
-            category: this.errorCategories.NETWORK,
-            severity: 'high'
-        });
-    }
-
-    handleConnectionRestored() {
-        const message = this.generateConnectionRestoredMessage();
-
-        EventBus.emit('chat:add-system-message', {
-            content: message,
-            timestamp: new Date().toISOString()
-        });
-
-        EventBus.emit('audio:play-ui-sound', { sound: 'success' });
-    }
-
-    handleOfflineState() {
-        const theme = AppState.currentTheme || 'default';
-        let message = "You're currently offline. Please check your internet connection.";
-
-        if (theme === 'jaws') {
-            message = "MAYDAY! MAYDAY! We've lost contact with the digital mainland! Check yer communication array, mate!";
-        } else if (theme === 'jurassic') {
-            message = "COMMUNICATION BLACKOUT! All external links to the mainland have been severed! Check your network infrastructure, Ranger!";
-        }
-
-        this.displayError(message, [], {
-            category: this.errorCategories.NETWORK,
-            severity: 'high'
-        });
-    }
-
-    generateConnectionLostMessage() {
-        const theme = AppState.currentTheme || 'default';
-
-        switch (theme) {
-            case 'jaws':
-                return "ABANDON SHIP! We've lost our digital anchor! The connection to the AI mothership has been severed! Check yer lines and rigging!";
-            case 'jurassic':
-                return "RED ALERT! Communication array has gone dark! We've lost contact with the AI mainframe! Implement emergency protocols!";
-            default:
-                return "Connection to the AI service has been lost. Please check your internet connection.";
-        }
-    }
-
-    generateConnectionRestoredMessage() {
-        const theme = AppState.currentTheme || 'default';
-
-        switch (theme) {
-            case 'jaws':
-                return "LAND HO! The digital seas have calmed and our connection be restored! Back to sailin' smooth waters, matey!";
-            case 'jurassic':
-                return "COMMUNICATION RESTORED! Link to AI mainframe reestablished. All systems nominal. Welcome back online, Ranger.";
-            default:
-                return "Connection restored. AI services are now available.";
-        }
-    }
-
-    logError(errorInfo, context) {
-        const logEntry = {
-            ...errorInfo,
-            context,
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-            theme: AppState.currentTheme
-        };
-
-        this.errorHistory.unshift(logEntry);
-
-        // Limit history size
-        if (this.errorHistory.length > this.maxErrorHistory) {
-            this.errorHistory = this.errorHistory.slice(0, this.maxErrorHistory);
-        }
-
-        // Log to console for debugging
-        console.error('API Error:', logEntry);
-    }
-
-    // Public API methods
-    getErrorHistory() {
-        return [...this.errorHistory];
-    }
-
-    getErrorStats() {
-        const total = this.errorHistory.length;
-        const categories = {};
-        const recentErrors = this.errorHistory.filter(
-            error => Date.now() - new Date(error.timestamp).getTime() < 24 * 60 * 60 * 1000
-        );
-
-        this.errorHistory.forEach(error => {
-            categories[error.category] = (categories[error.category] || 0) + 1;
-        });
-
-        return {
-            totalErrors: total,
-            recentErrors: recentErrors.length,
-            categoryCounts: categories,
-            connectionRetryAttempts: this.connectionRetryAttempts
-        };
-    }
-
-    clearErrorHistory() {
-        this.errorHistory = [];
-        this.connectionRetryAttempts = 0;
-    }
+// For non-module environments, attach to a global namespace if needed:
+if (typeof window !== 'undefined') {
+    window.ParklandApiErrors = {
+        APIError,
+        AuthenticationError,
+        RateLimitError,
+        ServerError,
+        InvalidRequestError,
+        NotFoundError,
+        TimeoutError,
+        NetworkError,
+        AbortError,
+        createApiErrorFromResponse
+    };
 }
