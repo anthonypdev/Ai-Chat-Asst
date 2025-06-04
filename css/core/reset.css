@@ -28,6 +28,678 @@ html {
   text-rendering: optimizeLegibility;
 
   /* Set default font size for rem calculations */
+  font-size: 16px; /* Base font size, can be overridden by variables */
+
+  /* Smooth scrolling for anchor links */
+  scroll-behavior: smooth;
+
+  /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+
+  /* Custom scrollbar styling using variables */
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-400, #a9b0bc) var(--gray-100, #f3f4f8); /* Fallbacks for robustness */
+}
+
+/* Disable smooth scrolling for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  /* Reset browser defaults */
+  margin: 0;
+  padding: 0;
+
+  /* Set base typography using CSS variables */
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+
+  /* Improve font rendering */
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+
+  /* Prevent rubber band scrolling on iOS */
+  overscroll-behavior: none;
+
+  /* Set minimum height */
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+
+  /* Remove default margins on Safari */
+  -webkit-margin-before: 0;
+  -webkit-margin-after: 0;
+}
+
+/* ==========================================================================
+   HEADING ELEMENTS RESET
+   ========================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: inherit;
+  font-weight: inherit; /* Headings will get specific weights from typography.css */
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Remove default heading margins and paddings in all browsers */
+h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+ul, ol, dl, figure,
+hr, fieldset, legend {
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   TEXT ELEMENTS RESET
+   ========================================================================== */
+
+p {
+  /* Default paragraph margins will be handled by typography.css or component styles */
+}
+
+/* Reset emphasis elements */
+b, strong {
+  font-weight: var(--font-weight-bold); /* Use variable for bold weight */
+}
+
+i, em {
+  font-style: italic;
+}
+
+small {
+  font-size: var(--font-size-sm); /* Use variable for small size */
+}
+
+/* Reset subscript and superscript */
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/* Reset abbreviations */
+abbr[title] {
+  text-decoration: underline dotted;
+  border-bottom: none; /* Remove browser default border */
+}
+
+/* Reset mark element */
+mark {
+  background-color: var(--warning, #ffaa00); /* Use semantic color variable */
+  color: var(--text-primary); /* Ensure contrast */
+  padding: 0.125em 0.25em;
+}
+
+/* Reset quote elements */
+blockquote, q {
+  quotes: none;
+}
+
+blockquote::before,
+blockquote::after,
+q::before,
+q::after {
+  content: '';
+  content: none;
+}
+
+/* Reset code elements */
+code, kbd, samp, pre {
+  font-family: var(--font-family-mono); /* Use monospace variable */
+  font-size: 1em; /* Relative to parent, can be overridden */
+}
+
+pre {
+  overflow: auto;
+  white-space: pre;
+  word-wrap: normal; /* Allow horizontal scrolling for long lines */
+}
+
+/* ==========================================================================
+   LIST ELEMENTS RESET
+   ========================================================================== */
+
+ul, ol {
+  list-style: none; /* Remove default list bullets/numbers */
+}
+
+/* Reset definition lists */
+dl, dt, dd {
+  /* Default margins removed by earlier group reset */
+}
+
+/* ==========================================================================
+   LINK ELEMENTS RESET
+   ========================================================================== */
+
+a {
+  color: inherit; /* Links will inherit color, styled specifically elsewhere */
+  text-decoration: none;
+  background-color: transparent;
+
+  /* Remove gaps in links underline in iOS 8+ and Safari 8+ */
+  -webkit-text-decoration-skip: objects;
+}
+
+a:hover {
+  text-decoration: none; /* Specific hover styles will be applied elsewhere */
+}
+
+/* Remove default focus outline, custom focus styles will be applied */
+a:focus {
+  outline: none;
+}
+
+/* ==========================================================================
+   MEDIA ELEMENTS RESET
+   ========================================================================== */
+
+img, picture, video, canvas, svg {
+  display: block; /* Remove extra space below inline images */
+  max-width: 100%; /* Ensure images are responsive */
+  height: auto;
+}
+
+img {
+  border-style: none; /* Remove border from linked images */
+  vertical-align: middle; /* Align images better with text */
+}
+
+/* Remove border on images inside links in IE 10 */
+/* Covered by img { border-style: none; } */
+
+/* Reset SVG elements */
+svg {
+  /* overflow: hidden; No longer recommended for a general reset, can hide parts of SVGs */
+  vertical-align: middle;
+}
+
+svg:not(:root) {
+  overflow: hidden; /* For embedded SVGs */
+}
+
+/* Reset audio and video elements */
+audio, video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+/* ==========================================================================
+   FORM ELEMENTS RESET
+   ========================================================================== */
+
+/* Reset form containers */
+form {
+  /* Default margins removed by earlier group reset */
+}
+
+fieldset {
+  border: none; /* Remove default fieldset border */
+  min-width: 0; /* Fixes width issues in flex/grid */
+}
+
+legend {
+  /* border: 0; Redundant */
+  /* padding: 0; Redundant */
+  white-space: normal;
+  color: inherit;
+  display: block; /* For consistent rendering */
+  max-width: 100%;
+  width: 100%; /* Ensure legend takes full width */
+}
+
+/* Reset form controls */
+button, input, optgroup, select, textarea {
+  font-family: inherit; /* Ensure form elements inherit body font */
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+  border: none; /* Remove default borders */
+  background: none; /* Remove default backgrounds */
+  color: inherit;
+  vertical-align: middle; /* Better alignment */
+}
+
+/* Remove default button styling */
+button {
+  cursor: pointer;
+  outline: none; /* Custom focus styles will be applied */
+  text-shadow: none; /* Remove button text shadow in Firefox 4+ */
+  -moz-appearance: none; /* Remove Firefox-specific styling */
+  -webkit-appearance: none; /* Remove WebKit/Blink-specific styling */
+  appearance: none; /* Remove default system styling */
+}
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* Reset input elements */
+input {
+  outline: none; /* Custom focus styles will be applied */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Remove number input spinners on WebKit */
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Remove number input spinners on Firefox */
+}
+
+/* Reset search input */
+input[type="search"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none; /* Remove search input specific styling */
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none; /* Remove WebKit search input icons */
+}
+
+/* Reset checkbox and radio */
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: auto; /* Allow custom styling to define size */
+  height: auto;
+}
+
+/* Reset select elements */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none; /* Custom focus styles will be applied */
+}
+
+select::-ms-expand {
+  display: none; /* Remove IE arrow */
+}
+
+/* Reset textarea */
+textarea {
+  resize: vertical; /* Allow vertical resizing only */
+  overflow: auto; /* Show scrollbars when content overflows */
+  vertical-align: top; /* Align text to the top */
+  outline: none; /* Custom focus styles will be applied */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Reset placeholder styling */
+::placeholder {
+  color: var(--text-muted); /* Use variable for placeholder color */
+  opacity: 1; /* Ensure placeholder is visible */
+}
+
+/* ==========================================================================
+   TABLE ELEMENTS RESET
+   ========================================================================== */
+
+table {
+  border-collapse: collapse; /* Remove space between table borders */
+  border-spacing: 0;
+  width: 100%; /* Make tables responsive by default */
+}
+
+th, td {
+  text-align: left; /* Align text to the left by default */
+  vertical-align: top;
+}
+
+th {
+  font-weight: var(--font-weight-semibold); /* Use variable for table header weight */
+}
+
+/* ==========================================================================
+   INTERACTIVE ELEMENTS RESET
+   ========================================================================== */
+
+/* Reset details/summary */
+details {
+  display: block; /* Ensure block display */
+}
+
+summary {
+  display: list-item; /* Use list-item marker */
+  cursor: pointer;
+}
+
+/* Reset progress element */
+progress {
+  vertical-align: baseline;
+}
+
+/* Reset hidden attribute */
+[hidden] {
+  display: none !important; /* Ensure hidden elements are not displayed */
+}
+
+/* ==========================================================================
+   ACCESSIBILITY IMPROVEMENTS
+   ========================================================================== */
+
+/* Improve focus visibility - specific styles will be in variables/components */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Remove focus for mouse users but keep for keyboard users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ==========================================================================
+   WEBKIT SCROLLBAR STYLING (Using Variables)
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 10px; /* Slightly thinner */
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 5px;
+  border: 2px solid var(--gray-100); /* Create padding effect */
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--gray-100);
+}
+
+/* ==========================================================================
+   SELECTION STYLING (Using Variables)
+   ========================================================================== */
+
+::selection {
+  background: var(--primary);
+  color: var(--text-inverse);
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: var(--primary);
+  color: var(--text-inverse);
+  text-shadow: none;
+}
+
+/* ==========================================================================
+   MOBILE SPECIFIC RESETS
+   ========================================================================== */
+
+/* Prevent zoom on focus for iOS form inputs */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: 16px !important; /* Minimum font size to prevent zoom */
+  }
+}
+
+/* iOS specific resets */
+@supports (-webkit-touch-callout: none) {
+  /* Prevent zoom on double tap (already handled by touch-action in base) */
+  /* * { touch-action: manipulation; } */
+
+  /* Remove iOS button styling */
+  input[type="submit"],
+  input[type="button"],
+  button {
+    -webkit-appearance: none;
+    border-radius: 0; /* Explicitly reset border-radius for buttons on iOS */
+  }
+
+  /* Fix iOS viewport units for body height */
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES RESET
+   ========================================================================== */
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+
+  a[href^="#"]::after,
+  a[href^="javascript:"]::after {
+    content: "";
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}
+
+/* ==========================================================================
+   UTILITY RESET CLASSES
+   ========================================================================== */
+
+/* Reset button appearance completely */
+.btn-reset {
+  /* background: none; Redundant */
+  /* border: none; Redundant */
+  /* padding: 0; Redundant */
+  /* margin: 0; Redundant */
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  /* outline: none; Redundant */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Reset list appearance completely */
+.list-reset {
+  list-style: none;
+  /* margin: 0; Redundant */
+  /* padding: 0; Redundant */
+}
+
+/* Reset link appearance completely */
+.link-reset {
+  color: inherit;
+  text-decoration: none;
+  /* background: none; Redundant */
+}
+
+/* Reset input appearance completely */
+.input-reset {
+  /* background: none; Redundant */
+  /* border: none; Redundant */
+  /* outline: none; Redundant */
+  font: inherit;
+  color: inherit;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS (General hints, specific usage in component CSS)
+   ========================================================================== */
+
+/* Optimize repaints for animated elements */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-auto { /* Use when properties are unknown or vary */
+  will-change: auto;
+}
+
+/* GPU acceleration for smooth animations */
+.gpu-accelerated {
+  transform: translateZ(0); /* Promotes element to its own layer */
+  backface-visibility: hidden; /* May improve rendering of transformed elements */
+  perspective: 1000px; /* Needed for 3D transforms, sometimes helps with 2D too */
+}
+
+/* Contain layout changes for performance */
+.contain-layout {
+  contain: layout; /* Element's internal layout doesn't affect outside */
+}
+
+.contain-paint {
+  contain: paint; /* Element's children don't display outside its bounds */
+}
+
+.contain-strict { /* Use with caution */
+  contain: strict; /* layout paint size style */
+}/* ==========================================================================
+   CSS RESET - PARKLAND AI OPUS MAGNUM EDITION
+   Modern Browser Normalization & Foundation Reset
+   ========================================================================== */
+
+/* ==========================================================================
+   DOCUMENT & ROOT ELEMENT RESET
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent iOS text size adjust after orientation change */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* Improve text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* Set default font size for rem calculations */
   font-size: 16px;
 
   /* Smooth scrolling for anchor links */
