@@ -4,45 +4,11 @@
    ========================================================================== */
 
 /* ==========================================================================
-   FONT IMPORTS - OPTIMIZED LOADING
+   NO FONT IMPORTS - System Fonts Only
+   External font imports (@import) are removed as per System Font Mandate.
+   All font styling relies on system font stacks defined in css/core/variables.css
+   and applied here or in theme-specific CSS.
    ========================================================================== */
-
-/* Primary Fonts - Always Load */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
-
-/* Theme-Specific Fonts - Conditional Loading */
-@import url('https://fonts.googleapis.com/css2?family=Nosifer&family=Creepster&family=Bangers&family=Pirata+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Rye&family=Metal+Mania&family=Ewert&family=Special+Elite&display=swap');
-
-/* ==========================================================================
-   FONT FACE DECLARATIONS - PERFORMANCE OPTIMIZED
-   ========================================================================== */
-
-/* Preload critical fonts for better performance */
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: local('Inter Regular'), local('Inter-Regular');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Inter SemiBold'), local('Inter-SemiBold');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: local('Inter Bold'), local('Inter-Bold');
-}
 
 /* ==========================================================================
    BASE TYPOGRAPHY STYLES
@@ -57,8 +23,8 @@ html {
   font-kerning: normal;
   font-variant-ligatures: common-ligatures;
 
-  /* Set base font size for fluid calculations */
-  font-size: 16px;
+  /* Base font size from variables */
+  font-size: var(--font-size-base);
 }
 
 body {
@@ -73,7 +39,7 @@ body {
   -moz-hyphens: auto;
   hyphens: auto;
 
-  /* Optimize font loading */
+  /* Optimize font loading (though system fonts are used) */
   font-display: swap;
 }
 
@@ -82,7 +48,7 @@ body {
    ========================================================================== */
 
 h1, .h1 {
-  font-family: var(--font-family-heading, var(--font-family-default));
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
@@ -92,7 +58,7 @@ h1, .h1 {
 }
 
 h2, .h2 {
-  font-family: var(--font-family-heading, var(--font-family-default));
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
@@ -102,7 +68,7 @@ h2, .h2 {
 }
 
 h3, .h3 {
-  font-family: var(--font-family-heading, var(--font-family-default));
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-snug);
@@ -112,7 +78,7 @@ h3, .h3 {
 }
 
 h4, .h4 {
-  font-family: var(--font-family-heading, var(--font-family-default));
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-snug);
@@ -122,7 +88,7 @@ h4, .h4 {
 }
 
 h5, .h5 {
-  font-family: var(--font-family-heading, var(--font-family-default));
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-normal);
@@ -132,7 +98,7 @@ h5, .h5 {
 }
 
 h6, .h6 {
-  font-family: var(--font-family-heading, var(--font-family-default));
+  font-family: var(--font-family-heading);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-normal);
@@ -198,7 +164,7 @@ em, i, .italic {
 }
 
 mark, .highlight {
-  background-color: rgba(var(--warning-rgb, 255, 170, 0), 0.2);
+  background-color: rgba(var(--warning-rgb), 0.2);
   color: var(--text-primary);
   padding: 0.125em 0.25em;
   border-radius: var(--radius-sm);
@@ -229,13 +195,13 @@ abbr[title] {
 
 code, kbd, samp {
   font-family: var(--font-family-mono);
-  font-size: 0.875em;
+  font-size: 0.875em; /* Slightly smaller for inline code */
   font-weight: var(--font-weight-normal);
-  background-color: rgba(var(--text-primary-rgb, 22, 25, 30), 0.08);
+  background-color: rgba(var(--text-primary-rgb), 0.08);
   color: var(--text-primary);
   padding: 0.25em 0.5em;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(var(--text-primary-rgb, 22, 25, 30), 0.1);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.1);
 }
 
 pre {
@@ -250,8 +216,6 @@ pre {
   border: 1px solid var(--gray-700);
   overflow-x: auto;
   margin: var(--space-lg) 0;
-
-  /* Improve code readability */
   white-space: pre;
   word-wrap: normal;
   tab-size: 2;
@@ -262,7 +226,7 @@ pre code {
   background: none;
   border: none;
   padding: 0;
-  font-size: inherit;
+  font-size: inherit; /* Code inside pre should inherit pre's font size */
   color: inherit;
 }
 
@@ -301,11 +265,13 @@ a:focus-visible, .link:focus-visible {
   border-radius: var(--radius-sm);
 }
 
-/* External links */
-a[href^="http"]:not([href*="parkland"]):after {
-  content: ' ↗';
+/* External links icon - can be styled further for themes */
+a[href^="http"]:not([href*="parkland"]):after { /* Assuming parkland is a local domain part */
+  content: ' ↗'; /* Unicode North East Arrow */
   font-size: 0.8em;
   opacity: 0.7;
+  display: inline-block; /* Prevents line break issues */
+  padding-left: 0.15em;
 }
 
 /* ==========================================================================
@@ -314,7 +280,7 @@ a[href^="http"]:not([href*="parkland"]):after {
 
 ul, ol {
   margin: var(--space-md) 0;
-  padding-left: var(--space-lg);
+  padding-left: var(--space-lg); /* Standard indentation */
 }
 
 ul {
@@ -337,7 +303,7 @@ li:last-child {
 /* Nested lists */
 ul ul, ol ol, ul ol, ol ul {
   margin-top: var(--space-xs);
-  margin-bottom: 0;
+  margin-bottom: 0; /* Avoid double margin with parent li */
 }
 
 /* Definition lists */
@@ -369,7 +335,7 @@ blockquote {
   border-left: 4px solid var(--primary);
   padding: var(--space-lg);
   margin: var(--space-xl) 0;
-  background-color: rgba(var(--primary-rgb, 122, 119, 255), 0.05);
+  background-color: rgba(var(--primary-rgb), 0.05);
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 
@@ -466,8 +432,8 @@ q::after {
 
 /* Text decoration */
 .no-underline { text-decoration: none; }
-.underline { text-decoration: underline; }
-.line-through { text-decoration: line-through; }
+/* .underline class already defined in base styles for `u` tag */
+/* .line-through class already defined in base styles for `s` and `del` tags */
 
 /* White space */
 .whitespace-normal { white-space: normal; }
@@ -489,190 +455,116 @@ q::after {
 }
 
 /* ==========================================================================
-   JAWS THEME TYPOGRAPHY
+   JAWS THEME TYPOGRAPHY (System Font Adaptations)
+   Original custom fonts: Nosifer, Creepster, Bangers, Pirata One, Special Elite
    ========================================================================== */
 
 [data-theme="jaws"] {
-  --font-family-heading: 'Nosifer', 'Creepster', 'Bangers', 'Pirata One', fantasy;
+  /* Use a bold, possibly condensed system sans-serif for headings, styled further in jaws/theme.css */
+  --font-family-heading-jaws: var(--font-family-system-sans-serif);
 }
 
 [data-theme="jaws"] h1,
 [data-theme="jaws"] .h1 {
-  font-family: 'Nosifer', fantasy;
-  text-shadow:
-    2px 2px 0 var(--primary-darker),
-    4px 4px 0 rgba(0, 0, 0, 0.5),
-    0 0 20px var(--accent),
-    0 0 35px var(--accent-light);
-  letter-spacing: 0.1em;
-  color: var(--primary-lighter);
+  font-family: var(--font-family-heading-jaws);
+  /* Further styling (text-shadow, letter-spacing, color) will be in jaws/theme.css to evoke "Nosifer" */
 }
 
 [data-theme="jaws"] h2,
 [data-theme="jaws"] .h2 {
-  font-family: 'Creepster', fantasy;
-  text-shadow:
-    1px 1px 0 var(--primary-darker),
-    2px 2px 0 rgba(0, 0, 0, 0.7),
-    0 0 15px var(--primary-light);
-  letter-spacing: 0.05em;
-  color: var(--text-primary);
+  font-family: var(--font-family-heading-jaws);
+  /* Further styling for "Creepster" feel */
 }
 
 [data-theme="jaws"] h3,
 [data-theme="jaws"] .h3 {
-  font-family: 'Bangers', fantasy;
-  text-shadow:
-    1px 1px 0 var(--primary-darker),
-    0 0 10px var(--primary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--primary-light);
+  font-family: var(--font-family-heading-jaws);
+  /* Further styling for "Bangers" feel */
 }
 
 [data-theme="jaws"] .brand-name,
 [data-theme="jaws"] .login-title {
-  font-family: 'Nosifer', fantasy;
-  text-shadow:
-    2px 2px 0 var(--primary-darker),
-    0 0 20px var(--accent),
-    0 0 40px var(--accent-light);
-  letter-spacing: 0.15em;
+  font-family: var(--font-family-heading-jaws);
+  /* Styling for "Nosifer" feel */
 }
 
 [data-theme="jaws"] .message.assistant .message-bubble {
-  font-family: 'Special Elite', 'Pirata One', monospace;
-  letter-spacing: 0.02em;
-  text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" or "Pirata One" feel */
 }
 
 [data-theme="jaws"] code,
 [data-theme="jaws"] pre {
-  font-family: 'Special Elite', var(--font-family-mono);
-  background-color: #001526;
-  color: var(--primary-lighter);
-  border-color: var(--primary);
-  text-shadow: 0 0 5px var(--primary-light);
+  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
 }
 
-/* Character dialogue styling */
 [data-theme="jaws"] .character-quint {
-  font-family: 'Pirata One', fantasy;
-  font-style: italic;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-family: var(--font-family-system-serif); /* System serif for "Pirata One" feel */
 }
 
 [data-theme="jaws"] .character-brody {
-  font-family: 'Special Elite', monospace;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
 }
 
 [data-theme="jaws"] .character-hooper {
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-style: normal;
+  font-family: var(--font-family-default); /* Standard system sans-serif */
 }
 
 /* ==========================================================================
-   JURASSIC PARK THEME TYPOGRAPHY
+   JURASSIC PARK THEME TYPOGRAPHY (System Font Adaptations)
+   Original custom fonts: Rye, Metal Mania, Ewert, Special Elite
    ========================================================================== */
 
 [data-theme="jurassic"] {
-  --font-family-heading: 'Rye', 'Metal Mania', 'Ewert', 'Special Elite', serif;
+  /* Use a system serif or distinct sans-serif for headings, styled further in jurassic/theme.css */
+  --font-family-heading-jurassic: var(--font-family-system-serif);
+  --font-family-display-jurassic: var(--font-family-system-serif); /* For brand/login titles */
 }
 
 [data-theme="jurassic"] h1,
 [data-theme="jurassic"] .h1 {
-  font-family: 'Rye', serif;
-  text-shadow:
-    2px 2px 0 var(--primary-darker),
-    4px 4px 8px rgba(0, 0, 0, 0.8),
-    0 0 15px var(--primary-light);
-  letter-spacing: 0.05em;
-  color: var(--primary-light);
-  -webkit-text-stroke: 1px var(--primary-darker);
+  font-family: var(--font-family-heading-jurassic);
+  /* Further styling for "Rye" feel */
 }
 
 [data-theme="jurassic"] h2,
 [data-theme="jurassic"] .h2 {
-  font-family: 'Metal Mania', serif;
-  text-shadow:
-    1px 1px 0 var(--primary-darker),
-    2px 2px 4px rgba(0, 0, 0, 0.9);
-  letter-spacing: 0.03em;
-  color: var(--primary-lighter);
+  font-family: var(--font-family-heading-jurassic);
+  /* Further styling for "Metal Mania" feel */
 }
 
 [data-theme="jurassic"] h3,
 [data-theme="jurassic"] .h3 {
-  font-family: 'Ewert', serif;
-  text-shadow:
-    1px 1px 0 var(--primary-darker),
-    0 0 8px var(--accent);
-  letter-spacing: 0.04em;
-  color: var(--text-primary);
+  font-family: var(--font-family-heading-jurassic);
+  /* Further styling for "Ewert" feel */
 }
 
 [data-theme="jurassic"] .brand-name,
 [data-theme="jurassic"] .login-title {
-  font-family: 'Rye', serif;
-  text-shadow:
-    2px 2px 0 var(--primary-darker),
-    4px 4px 8px rgba(0, 0, 0, 0.8),
-    0 0 10px var(--primary-light);
-  letter-spacing: 0.08em;
-  -webkit-text-stroke: 1px var(--primary-darker);
+  font-family: var(--font-family-display-jurassic);
+  /* Styling for "Rye" feel */
 }
 
 [data-theme="jurassic"] .message.assistant .message-bubble {
-  font-family: 'Special Elite', serif;
-  letter-spacing: 0.01em;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" feel */
 }
 
 [data-theme="jurassic"] code,
 [data-theme="jurassic"] pre {
-  font-family: 'Special Elite', var(--font-family-mono);
-  background-color: #100D05;
-  color: var(--primary-lighter);
-  border-color: var(--primary-darker);
+  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
 }
 
-/* Character dialogue styling */
 [data-theme="jurassic"] .character-muldoon {
-  font-family: 'Special Elite', serif;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
 }
 
 [data-theme="jurassic"] .character-mr-dna {
-  font-family: 'Metal Mania', fantasy;
-  font-weight: 500;
-  font-style: italic;
-  letter-spacing: 0.01em;
-  text-shadow: 0 0 5px var(--accent);
+  font-family: var(--font-family-system-sans-serif); /* System sans for "Metal Mania" feel, styled further */
 }
 
-/* Electric fence warning text */
 [data-theme="jurassic"] .fence-warning {
-  font-family: 'Ewert', serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: #FFDD00;
-  text-shadow:
-    0 0 5px #FFDD00,
-    0 0 10px #FFDD00,
-    2px 2px 4px rgba(0, 0, 0, 0.8);
-  animation: electricFlicker 0.1s infinite alternate;
+  font-family: var(--font-family-system-sans-serif); /* System sans for "Ewert" feel, styled further */
 }
 
-@keyframes electricFlicker {
-  0% { opacity: 0.9; }
-  100% { opacity: 1; }
-}
 
 /* ==========================================================================
    RESPONSIVE TYPOGRAPHY
@@ -681,7 +573,7 @@ q::after {
 /* Tablet adjustments */
 @media (max-width: 768px) {
   html {
-    font-size: 15px;
+    font-size: 15px; /* Adjust base for slightly smaller text on tablets */
   }
 
   h1, .h1 { font-size: var(--font-size-3xl); }
@@ -692,22 +584,22 @@ q::after {
 /* Mobile adjustments */
 @media (max-width: 480px) {
   html {
-    font-size: 14px;
+    font-size: 14px; /* Adjust base for smaller mobile screens */
   }
 
   h1, .h1 { font-size: var(--font-size-2xl); }
   h2, .h2 { font-size: var(--font-size-xl); }
   h3, .h3 { font-size: var(--font-size-lg); }
 
-  /* Reduce letter spacing on mobile for themed fonts */
+  /* Further adjustments to letter-spacing might be needed in theme-specific CSS for system fonts */
   [data-theme="jaws"] h1,
   [data-theme="jaws"] .h1 {
-    letter-spacing: 0.05em;
+    /* Example: letter-spacing might need tweaking if a system font is very wide/narrow */
   }
 
   [data-theme="jurassic"] h1,
   [data-theme="jurassic"] .h1 {
-    letter-spacing: 0.03em;
+    /* Example */
   }
 }
 
@@ -715,7 +607,7 @@ q::after {
    ACCESSIBILITY ENHANCEMENTS
    ========================================================================== */
 
-/* High contrast mode */
+/* High contrast mode - text shadows removed by default for system fonts unless specifically beneficial */
 @media (prefers-contrast: high) {
   [data-theme="jaws"] h1,
   [data-theme="jaws"] h2,
@@ -728,10 +620,10 @@ q::after {
   }
 }
 
-/* Reduced motion */
+/* Reduced motion - animations related to text might be handled in animation files */
 @media (prefers-reduced-motion: reduce) {
   [data-theme="jurassic"] .fence-warning {
-    animation: none;
+    animation: none; /* Assuming this animation is purely decorative */
   }
 }
 
