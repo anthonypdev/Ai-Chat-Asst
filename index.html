@@ -6,17 +6,20 @@
     <title>Parkland AI - Opus Magnum Edition</title>
     <meta name="description" content="Parkland AI - Opus Magnum Edition: A multi-themed, voice-interactive AI chat application.">
     <meta name="author" content="Adept Architect AI">
-    <meta name="theme-color" content="#7A77FF"> <link rel="icon" href="favicon.ico" sizes="any">
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel.="apple-touch-icon" href="apple-touch-icon.png"/>
+    <meta name="theme-color" content="#7A77FF" id="metaThemeColor"> <link rel="icon" href="assets/icons/favicon.ico" sizes="any" id="faviconIco">
+    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" id="faviconSvg">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" id="appleTouchIcon"/>
 
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" defer>
+
 
     </head>
 <body>
     <div id="loadingOverlay">
         <div class="loading-logo-container">
-             <div class="loading-logo">[PA]</div> </div>
+             <div class="loading-logo">[PA]</div>
+        </div>
         <div class="loading-text">Initializing Parkland AI...</div>
         <div class="progress-bar-container">
             <div class="progress-bar" id="loadingProgressBar"></div>
@@ -24,7 +27,11 @@
         <div class="loading-tip" id="loadingTip">Did you know? AI is transforming industries!</div>
     </div>
 
-    <div id="appContainer" class="app-container sidebar-open"> <div id="loginContainer" class="login-container hidden"> <div class="login-card animate-in"> <div class="brand-icon login-brand-icon">[PA]</div>
+    <div id="appContainer" class="app-container sidebar-open">
+
+        <div id="loginContainer" class="login-container hidden">
+            <div class="login-card animate-in">
+                <div class="brand-icon login-brand-icon">[PA]</div>
                 <h1 class="login-title">Parkland AI</h1>
                 <p class="login-subtitle">Opus Magnum Edition</p>
                 <form id="loginForm" class="login-form">
@@ -45,7 +52,7 @@
                 <div class="sidebar-header">
                     <button class="btn btn-icon btn-ghost" id="sidebarToggle" aria-label="Toggle Sidebar">
                         <span class="icon" id="sidebarToggleIcon">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+                           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
                         </span>
                     </button>
                     <div class="brand">
@@ -53,7 +60,8 @@
                         <span class="brand-name">Parkland AI</span>
                     </div>
                     <button class="btn btn-primary new-chat-btn" id="newChatBtn">
-                        <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg>
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg>
                         </span>
                         <span class="btn-text">New Chat</span>
                     </button>
@@ -62,76 +70,85 @@
                     <nav class="chat-history-nav" aria-labelledby="chatHistoryHeading">
                         <h2 id="chatHistoryHeading" class="sr-only">Chat History</h2>
                         <ul class="chat-history-list">
-                            </ul>
+                        </ul>
                     </nav>
                 </div>
                 <div class="sidebar-footer">
                     <button class="btn btn-secondary btn-icon" id="settingsBtn" aria-label="Open Settings">
-                        <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg>
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg>
                         </span>
                     </button>
-                    </div>
+                </div>
             </aside>
 
             <main class="chat-area" role="main">
                 <header class="chat-header">
-                    <div class="chat-title" id="currentChatTitle">Chat</div> <div class="header-actions">
-                        </div>
+                    <div class="chat-title" id="currentChatTitle">Chat</div>
+                    <div class="header-actions">
+                    </div>
                 </header>
                 <div class="messages-container">
                     <div class="messages-inner">
-                        </div>
-                    <div class="empty-state-container hidden"> <div class="empty-state-icon">[AI]</div>
+                    </div>
+                    <div class="empty-state-container hidden">
+                         <div class="empty-state-icon">[AI]</div>
                          <h2 class="empty-state-title">How can I help you today?</h2>
                          <p class="empty-state-subtitle">Ask me anything, or try one of these suggestions:</p>
                          <div class="suggestion-cards-container">
-                            </div>
+                         </div>
                     </div>
                 </div>
                 <footer class="input-area">
                     <form id="chatInputForm" class="chat-input-form">
                         <textarea id="chatInput" class="form-input chat-input" placeholder="Send a message to Parkland AI..." rows="1" aria-label="Chat message input"></textarea>
                         <button type="button" class="btn btn-icon btn-ghost" id="micBtn" aria-label="Use microphone">
-                            <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>
+                            <span class="icon">
+                               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>
                             </span>
                         </button>
                         <button type="submit" class="btn btn-primary btn-icon" id="sendBtn" aria-label="Send message">
-                            <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                            <span class="icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                             </span>
                         </button>
                     </form>
                 </footer>
             </main>
-        </div> <div id="quintCharacterUI" class="character-ui hidden"></div>
+        </div>
+
+        <div id="quintCharacterUI" class="character-ui hidden"></div>
         <div id="brodyCharacterUI" class="character-ui hidden"></div>
         <div id="hooperCharacterUI" class="character-ui hidden"></div>
-
         <div class="muldoon-walkie-container character-ui hidden" id="muldoonCharacterUI">
             <div class="walkie-body">
                 <div class="walkie-antenna"></div>
                 <div class="walkie-speaker">
-                    <div class="static-bars"> <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div>
+                    <div class="static-bars">
+                        <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div> <div class="static-bar"></div>
                     </div>
                 </div>
                 <div class="walkie-led idle"></div>
                 <div class="walkie-controls">
-                    <div class="walkie-button"></div>
-                    <div class="walkie-button"></div>
+                    <div class="walkie-button"></div> <div class="walkie-button"></div>
                 </div>
                 <div class="walkie-dial"></div>
                 <div class="walkie-label">JP COMM</div>
             </div>
         </div>
         <div class="mr-dna-container character-ui hidden" id="mrDnaCharacterUI">
-            <div class="mr-dna-canvas"></div> <div class="dna-speech-bubble" aria-live="polite"></div> </div>
+            <div class="mr-dna-canvas"></div>
+            <div class="dna-speech-bubble" aria-live="polite"></div>
+        </div>
+    </div>
 
-
-    </div> <div id="appSettingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div id="appSettingsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
         <div class="modal">
             <header class="modal-header">
                 <h2 id="settingsModalTitle" class="modal-title">Application Settings</h2>
                 <button class="modal-close" id="closeSettingsModalBtn" aria-label="Close settings">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
                     </span>
                 </button>
             </header>
@@ -158,7 +175,7 @@
                         <div class="form-group">
                             <label for="themeSelectorSetting" class="form-label">Theme</label>
                             <select id="themeSelectorSetting" name="themeSelectorSetting" class="form-select">
-                                </select>
+                            </select>
                         </div>
                          <div class="form-group">
                             <label class="form-checkbox">
@@ -211,7 +228,7 @@
                         <div class="form-group">
                             <label for="characterVoiceSelector" class="form-label">Preferred Character Voice (for TTS)</label>
                             <select id="characterVoiceSelector" name="characterVoiceSelector" class="form-select">
-                                </select>
+                            </select>
                         </div>
                          <div class="form-group">
                             <label class="form-checkbox">
@@ -224,7 +241,7 @@
                 </form>
             </section>
             <footer class="modal-footer">
-                <button type="button" class="btn btn-secondary modal-cancel-btn" data-modal-close="appSettingsModal">Cancel</button>
+                <button type="button" class="btn btn-secondary modal-cancel-btn" data-modal-close="#appSettingsModal">Cancel</button>
                 <button type="submit" form="settingsForm" class="btn btn-primary">Save Settings</button>
             </footer>
         </div>
@@ -232,50 +249,40 @@
 
     <div id="themeTransitionOverlay" class="theme-transition-overlay hidden">
         <div id="jawsWaveTransitionContainer" class="transition-animation-container hidden">
-            </div>
+        </div>
         <div id="jurassicGateTransitionContainer" class="transition-animation-container hidden">
              <div class="jurassic-gate-container">
                 <div class="jurassic-gate left">
-                    <div class="gate-layer gate-concrete"></div>
-                    <div class="gate-layer gate-metal-frame"></div>
-                    <div class="gate-layer gate-weathering"></div>
+                    <div class="gate-layer gate-concrete"></div><div class="gate-layer gate-metal-frame"></div><div class="gate-layer gate-weathering"></div>
                     <div class="gate-logo">JURASSIC PARK</div>
                 </div>
                 <div class="jurassic-gate right">
-                    <div class="gate-layer gate-concrete"></div>
-                    <div class="gate-layer gate-metal-frame"></div>
-                    <div class="gate-layer gate-weathering"></div>
-                     </div>
-            </div>
-            <div class="gate-lights-container">
+                    <div class="gate-layer gate-concrete"></div><div class="gate-layer gate-metal-frame"></div><div class="gate-layer gate-weathering"></div>
                 </div>
-            <div class="electric-warning"></div>
-            <div class="spotlight-container">
-                <div class="spotlight"></div>
             </div>
-            <div class="fog-layer"></div>
-            <div class="rain-overlay"></div>
-            <div class="jurassic-dust-container"></div>
+            <div class="gate-lights-container"></div><div class="electric-warning"></div>
+            <div class="spotlight-container"><div class="spotlight"></div></div>
+            <div class="fog-layer"></div><div class="rain-overlay"></div><div class="jurassic-dust-container"></div>
             <div class="jurassic-environment-layer"></div>
         </div>
-        </div>
-
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/14.0.0/markdown-it.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+
     <script src="js/core/utils.js" defer></script>
     <script src="js/core/state.js" defer></script>
     <script src="js/core/events.js" defer></script>
 
     <script src="js/features/api/errors.js" defer></script>
-    <script src="js/features/api/claude.js" defer></script> <script src="js/features/chat/markdown.js" defer></script>
+    <script src="js/features/api/claude.js" defer></script>
+    <script src="js/features/chat/markdown.js" defer></script>
     <script src="js/features/chat/messages.js" defer></script>
     <script src="js/features/chat/history.js" defer></script>
-
     <script src="js/features/themes/persistence.js" defer></script>
-    <script src="js/features/themes/transitions.js" defer></script> <script src="js/features/voice/synthesis.js" defer></script>
+    <script src="js/features/voice/synthesis.js" defer></script>
     <script src="js/features/voice/recognition.js" defer></script>
 
     <script src="js/animations/characters/mr-dna-sprite.js" defer></script>
@@ -289,7 +296,7 @@
     <script src="js/characters/jurassic/muldoon.js" defer></script>
     <script src="js/characters/jurassic/mr-dna.js" defer></script>
 
-    <script src="js/features/voice/characters.js" defer></script> <script src="js/features/themes/manager.js" defer></script> <script src="js/core/app.js" defer></script>
+    <script src="js/features/voice/characters.js" defer></script> <script src="js/features/themes/transitions.js" defer></script> <script src="js/features/themes/manager.js" defer></script>   <script src="js/core/app.js" defer></script>
 
-    </body>
+</body>
 </html>
