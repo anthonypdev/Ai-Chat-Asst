@@ -1,480 +1,225 @@
 /**
- * Mr. DNA Character - The Animated Educational Assistant
- * Clippy-style animation system with movie-accurate personality
+ * Parkland AI - Opus Magnum Edition
+ * MrDnaCharacter Class (Jurassic Park Theme)
+ *
+ * Represents the Mr. DNA animated character from Jurassic Park.
+ * Extends BaseCharacter and integrates with MrDnaSpriteAnimator for visuals.
  */
 
-import { BaseCharacter } from '../base-character.js';
-import { EventBus } from '../../core/events.js';
-
-export class MrDNACharacter extends BaseCharacter {
-    constructor() {
-        super({
+class MrDnaCharacter extends BaseCharacter {
+    /**
+     * @param {StateManager} stateManager
+     * @param {EventEmitter} eventEmitter
+     * @param {ParklandUtils} utils
+     */
+    constructor(stateManager, eventEmitter, utils) {
+        const mrDnaConfig = {
             name: 'Mr. DNA',
             theme: 'jurassic',
-            personality: 'educational',
-            status: 'active',
+            uiElementSelector: '.mr-dna-container', // Main container for Mr. DNA visuals
+            systemPrompt: "Howdy! I'm Mr. DNA! Your guide to the wonders of genetic science at Jurassic Park! I make complex topics like DNA, cloning, and dinosaur creation super easy and fun to understand. Bingo! Dino DNA! Always be cheerful, use simple analogies, and keep it snappy and informative!",
             voiceConfig: {
-                pitch: 1.3,
-                rate: 1.1,
-                volume: 0.85,
-                accent: 'cartoon-enthusiastic'
-            }
-        });
-
-        this.animationState = 'idle';
-        this.currentFrame = 0;
-        this.isAnimating = false;
-        this.tourGroup = null;
-        this.educationalMode = true;
-
-        // Animation frame data
-        this.animations = {
-            idle: {
-                frames: 12,
-                duration: 2000,
-                loop: true,
-                sequence: ['bob', 'blink', 'tailWag', 'bob', 'blink', 'bob', 'tailWag', 'blink', 'bob', 'bob', 'blink', 'tailWag']
+                voiceNameKeywords: ['male', 'american english', 'friendly', 'cartoon'], // Hints
+                lang: 'en-US',
+                pitch: 1.25, // Higher, friendly, slightly cartoonish
+                rate: 1.15,  // Upbeat and quick
+                volume: 0.9
             },
-            talking: {
-                frames: 8,
-                duration: 1000,
-                loop: true,
-                sequence: ['mouthOpen', 'gesture1', 'mouthClose', 'gesture2', 'mouthOpen', 'hop', 'mouthClose', 'gesture1']
-            },
-            excited: {
-                frames: 6,
-                duration: 800,
-                loop: false,
-                sequence: ['hop', 'spin', 'hop', 'gesture2', 'spin', 'bounce']
-            },
-            explaining: {
-                frames: 10,
-                duration: 1500,
-                loop: true,
-                sequence: ['gesture1', 'mouthOpen', 'point', 'mouthClose', 'gesture2', 'hop', 'point', 'mouthOpen', 'gesture1', 'mouthClose']
-            },
-            goodbye: {
-                frames: 4,
-                duration: 600,
-                loop: false,
-                sequence: ['wave', 'hop', 'wave', 'slideOut']
-            }
+            // spriteConfig is not directly used by BaseCharacter if we manage sprite via MrDnaSpriteAnimator
         };
 
-        this.phrases = {
-            greetings: [
-                "Hello! I'm Mr. DNA! Welcome to Jurassic Park!",
-                "Hi there! I'm a DNA molecule - but you can call me Mr. DNA!",
-                "Greetings, future geneticists! Ready to learn about LIFE?",
-                "Well hello! I'm here to tell you all about the miracle of cloning!"
-            ],
-            educational: [
-                "Now pay attention! This is important stuff!",
-                "The key to all life is DNA - that's me!",
-                "We clone dinosaurs by extracting DNA from mosquitoes trapped in amber!",
-                "First, we need a complete DNA strand - 100 billion base pairs!",
-                "When we find gaps in the genetic code, we fill them with frog DNA!"
-            ],
-            excited: [
-                "Isn't that AMAZING?!",
-                "The miracle of genetics at work!",
-                "Science is SO exciting!",
-                "Wait until you see what we can do!",
-                "Life finds a way - through ME!"
-            ],
-            handoff: [
-                "Oops! Tour group coming through! Gotta hop!",
-                "New visitors! I have to go explain genetics again!",
-                "Duty calls! Time for the grand tour!",
-                "Sorry, but I've got some serious science to explain!"
-            ],
-            emergency: [
-                "Oh my! Muldoon needs emergency protocols!",
-                "Initiating lockdown procedures as requested!",
-                "Emergency mode activated! Everyone stay calm!",
-                "Following safety protocols - Muldoon's orders!"
-            ]
-        };
+        super('mr-dna', mrDnaConfig, stateManager, eventEmitter, utils);
 
-        this.educationalTopics = {
-            dna: "DNA is like a twisted ladder - we call it a double helix! Each rung contains the genetic code that makes you... you!",
-            cloning: "We extract DNA from dinosaur blood found in mosquitoes preserved in amber. Then we fill the gaps with frog DNA!",
-            amber: "Amber is fossilized tree resin that's millions of years old. Sometimes it traps insects - with dinosaur blood in their stomachs!",
-            genetics: "Genetics is the study of heredity - how traits pass from parents to offspring. It's the blueprint of life!",
-            jurassic: "The Jurassic Period was 200 to 145 million years ago - when giant dinosaurs ruled the Earth!"
-        };
+        this.spriteAnimator = null; // Will be instance of MrDnaSpriteAnimator
+        this.speechEndListener = null; // To store bound listener for removal
 
-        this.initializeAnimation();
-        this.initializeEventListeners();
-    }
-
-    initializeAnimation() {
-        this.createAnimationElement();
-        this.startIdleAnimation();
-    }
-
-    createAnimationElement() {
-        const container = document.createElement('div');
-        container.className = 'mr-dna-container';
-        container.innerHTML = `
-            <div class="mr-dna-character" id="mrDNA">
-                <div class="dna-helix-body">
-                    <div class="dna-strand strand-1"></div>
-                    <div class="dna-strand strand-2"></div>
-                    <div class="dna-bases">
-                        <div class="base base-a"></div>
-                        <div class="base base-t"></div>
-                        <div class="base base-g"></div>
-                        <div class="base base-c"></div>
-                    </div>
-                </div>
-                <div class="dna-face">
-                    <div class="dna-eyes">
-                        <div class="eye left-eye">
-                            <div class="pupil"></div>
-                        </div>
-                        <div class="eye right-eye">
-                            <div class="pupil"></div>
-                        </div>
-                    </div>
-                    <div class="dna-mouth">
-                        <div class="mouth-shape"></div>
-                    </div>
-                </div>
-                <div class="dna-arms">
-                    <div class="arm left-arm"></div>
-                    <div class="arm right-arm"></div>
-                </div>
-                <div class="dna-particles"></div>
-                <div class="speech-bubble" id="dnaSpeechBubble" style="display: none;">
-                    <div class="bubble-content"></div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(container);
-        this.element = container;
-    }
-
-    initializeEventListeners() {
-        EventBus.on('muldoon-handoff', this.handleMuldoonHandoff.bind(this));
-        EventBus.on('emergency-protocols', this.handleEmergencyProtocols.bind(this));
-        EventBus.on('groups-approaching', this.handleGroupsApproaching.bind(this));
-        EventBus.on('mr-dna-summon', this.handleSummon.bind(this));
-    }
-
-    async generateResponse(userInput, context = {}) {
-        if (this.tourGroup && Math.random() < 0.3) {
-            return await this.handleTourInterruption();
+        if (this.stateManager.get('debugMode')) {
+            console.log(`MrDnaCharacter instantiated with config:`, mrDnaConfig);
         }
-
-        const response = this.getEducationalResponse(userInput, context);
-        await this.animateResponse(response);
-
-        return this.formatResponse(response);
     }
 
-    async handleMuldoonHandoff(data) {
-        // Muldoon has handed off to Mr. DNA
-        await this.transitionToActive();
-
-        const response = this.getEducationalResponse(data.userInput, data.context);
-        await this.animateResponse(response);
-
-        EventBus.emit('mr-dna-active', { response });
-
-        return this.formatResponse(response);
-    }
-
-    getEducationalResponse(userInput, context) {
-        const input = userInput.toLowerCase();
-
-        // Check for educational topics
-        for (const [topic, explanation] of Object.entries(this.educationalTopics)) {
-            if (input.includes(topic)) {
-                return this.getTopicExplanation(topic, explanation);
-            }
-        }
-
-        // General help responses
-        if (input.includes('help') || input.includes('how') || input.includes('what')) {
-            return this.getHelpfulResponse(input);
-        }
-
-        // Technical questions
-        if (input.includes('computer') || input.includes('system') || input.includes('technical')) {
-            return this.getTechnicalResponse();
-        }
-
-        // Excited responses for science
-        if (input.includes('amazing') || input.includes('cool') || input.includes('wow')) {
-            return this.getExcitedResponse();
-        }
-
-        return this.getDefaultResponse();
-    }
-
-    getTopicExplanation(topic, explanation) {
-        const intro = this.getRandomPhrase('educational');
-        return `${intro} ${explanation} ${this.getRandomPhrase('excited')}`;
-    }
-
-    getHelpfulResponse(input) {
-        const helpful = [
-            "I'd be happy to help! I know all about genetics, cloning, and life itself!",
-            "That's a great question! Let me break it down for you scientifically!",
-            "Ooh, I love explaining things! Science is so fascinating!",
-            "Allow me to educate you about the wonders of genetics!"
-        ];
-
-        return helpful[Math.floor(Math.random() * helpful.length)];
-    }
-
-    getTechnicalResponse() {
-        return "Well, I'm more of a biology expert than a computer specialist, but life and technology aren't so different! Both use codes - mine is genetic, yours is digital!";
-    }
-
-    getExcitedResponse() {
-        return this.getRandomPhrase('excited') + " " + this.getRandomPhrase('educational');
-    }
-
-    getDefaultResponse() {
-        return this.getRandomPhrase('greetings');
-    }
-
-    async handleTourInterruption() {
-        await this.playAnimation('goodbye');
-
-        const farewells = [
-            "Oops! New tour group arriving! Gotta dash - science waits for no one!",
-            "Sorry, duty calls! Time to explain the miracle of genetics to some new visitors!",
-            "Tour group approaching! I'll be right back after I blow some minds with SCIENCE!",
-            "Gotta hop! Literally! New people need to learn about DNA!"
-        ];
-
-        const farewell = farewells[Math.floor(Math.random() * farewells.length)];
-
-        // Temporarily disappear
-        setTimeout(() => {
-            this.element.style.display = 'none';
-            setTimeout(() => {
-                this.element.style.display = 'block';
-                this.playAnimation('talking');
-                this.speak("I'm back! Where were we? Oh yes, the wonders of genetics!");
-            }, 3000 + Math.random() * 2000); // 3-5 seconds
-        }, 1000);
-
-        return {
-            content: farewell,
-            character: 'mr-dna',
-            isInterruption: true
-        };
-    }
-
-    async handleEmergencyProtocols(data) {
-        await this.playAnimation('excited');
-
-        const emergency = this.getRandomPhrase('emergency');
-
-        await this.animateResponse(emergency);
-
-        // Show emergency mode visually
-        this.element.classList.add('emergency-mode');
-
-        setTimeout(() => {
-            this.element.classList.remove('emergency-mode');
-        }, 5000);
-    }
-
-    async handleGroupsApproaching() {
-        this.tourGroup = {
-            id: Date.now(),
-            size: Math.floor(Math.random() * 8) + 2,
-            arrivalTime: Date.now()
-        };
-
-        // Increase chance of interruptions
-        setTimeout(() => {
-            this.tourGroup = null;
-        }, 30000); // 30 seconds
-    }
-
-    async transitionToActive() {
-        await this.playAnimation('talking');
-        this.showSpeechBubble("Let me help with that!");
-    }
-
-    async animateResponse(response) {
-        await this.playAnimation('explaining');
-        this.showSpeechBubble(response);
-
-        // Keep bubble visible during speech
-        setTimeout(() => {
-            this.hideSpeechBubble();
-            this.playAnimation('idle');
-        }, response.length * 50 + 2000); // Estimate reading time
-    }
-
-    async playAnimation(animationType) {
-        if (this.isAnimating && animationType !== 'idle') {
-            return; // Don't interrupt non-idle animations
-        }
-
-        this.isAnimating = true;
-        this.animationState = animationType;
-        this.currentFrame = 0;
-
-        const animation = this.animations[animationType];
-        const frameDelay = animation.duration / animation.frames;
-
-        for (let i = 0; i < animation.frames; i++) {
-            await this.renderFrame(animation.sequence[i]);
-            await this.delay(frameDelay);
-            this.currentFrame = i;
-        }
-
-        if (animation.loop && animationType === this.animationState) {
-            // Continue looping if still in same animation state
-            this.playAnimation(animationType);
-        } else {
-            this.isAnimating = false;
-            if (animationType !== 'idle') {
-                this.playAnimation('idle');
+    /**
+     * Mr. DNA-specific initialization.
+     * Instantiates and initializes the sprite animator.
+     */
+    init() {
+        super.init(); // Finds this.uiElement
+        if (this.uiElement) {
+            this.utils.addClass(this.uiElement, 'character-mr-dna'); // For specific CSS targeting
+            try {
+                // Assuming MrDnaSpriteAnimator is globally available or loaded
+                if (typeof MrDnaSpriteAnimator === 'function') {
+                    // The MrDnaSpriteAnimator might need a specific canvas or div inside this.uiElement
+                    const spriteCanvas = this.utils.$('.mr-dna-canvas', this.uiElement); // Assuming a canvas child
+                    if (spriteCanvas) {
+                        this.spriteAnimator = new MrDnaSpriteAnimator(spriteCanvas, this.utils);
+                        this.spriteAnimator.init(); // Load sprite sheet, etc.
+                        if (this.stateManager.get('debugMode')) {
+                            console.log("Mr. DNA Sprite Animator initialized.");
+                        }
+                    } else {
+                        console.warn("MrDnaCharacter: Canvas element for sprite animator not found within", this.uiElementSelector);
+                    }
+                } else {
+                    console.warn("MrDnaCharacter: MrDnaSpriteAnimator class not found.");
+                }
+            } catch (error) {
+                console.error("MrDnaCharacter: Error initializing sprite animator:", error);
             }
         }
     }
 
-    async renderFrame(frameType) {
-        const character = document.getElementById('mrDNA');
-        if (!character) return;
+    /**
+     * Activates Mr. DNA. Shows UI and starts idle animation.
+     */
+    activate() {
+        super.activate(); // BaseCharacter show()
+        if (this.spriteAnimator) {
+            this.spriteAnimator.playAnimation('idle');
+        }
+        this.eventEmitter.emit('playSound', { soundName: 'mr_dna_hello', character: this.key });
+    }
 
-        // Remove previous frame classes
-        character.className = 'mr-dna-character';
-
-        // Add current frame class
-        character.classList.add(`frame-${frameType}`);
-
-        // Add special effects for certain frames
-        switch (frameType) {
-            case 'hop':
-                this.createDNAParticles();
-                break;
-            case 'spin':
-                this.spinHelixStrands();
-                break;
-            case 'bounce':
-                this.bounceEffect();
-                break;
+    /**
+     * Deactivates Mr. DNA. Hides UI and stops animation.
+     */
+    deactivate() {
+        super.deactivate(); // BaseCharacter hide()
+        if (this.spriteAnimator) {
+            this.spriteAnimator.stopAnimation();
         }
     }
 
-    createDNAParticles() {
-        const particles = document.querySelector('.dna-particles');
-        if (!particles) return;
-
-        for (let i = 0; i < 5; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'dna-particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 0.5 + 's';
-            particles.appendChild(particle);
-
-            setTimeout(() => particle.remove(), 1000);
-        }
-    }
-
-    spinHelixStrands() {
-        const strands = document.querySelectorAll('.dna-strand');
-        strands.forEach(strand => {
-            strand.style.animation = 'helixSpin 0.5s ease-in-out';
-            setTimeout(() => strand.style.animation = '', 500);
-        });
-    }
-
-    bounceEffect() {
-        const character = document.getElementById('mrDNA');
-        if (character) {
-            character.style.transform = 'translateY(-10px) scale(1.1)';
-            setTimeout(() => {
-                character.style.transform = '';
-            }, 200);
-        }
-    }
-
-    showSpeechBubble(text) {
-        const bubble = document.getElementById('dnaSpeechBubble');
-        const content = bubble?.querySelector('.bubble-content');
-
-        if (bubble && content) {
-            content.textContent = text;
-            bubble.style.display = 'block';
-            bubble.classList.add('bubble-appear');
-        }
-    }
-
-    hideSpeechBubble() {
-        const bubble = document.getElementById('dnaSpeechBubble');
-        if (bubble) {
-            bubble.classList.remove('bubble-appear');
-            setTimeout(() => {
-                bubble.style.display = 'none';
-            }, 300);
-        }
-    }
-
+    /**
+     * Mr. DNA's idle animation.
+     * This is controlled by the sprite animator.
+     */
     startIdleAnimation() {
-        if (!this.isAnimating) {
-            this.playAnimation('idle');
+        // super.startIdleAnimation(); // Base class might add a generic CSS class
+        if (this.spriteAnimator && this.isVisible) { // Only play if visible
+            this.spriteAnimator.playAnimation('idle');
         }
     }
 
-    formatResponse(content) {
-        return {
-            content: this.addDNAFlavor(content),
-            character: 'mr-dna',
-            personality: 'educational',
-            voiceConfig: this.voiceConfig,
-            animated: true
+    stopIdleAnimation() {
+        // super.stopIdleAnimation();
+        if (this.spriteAnimator) {
+            // Sprite animator might stop automatically when a different animation is played,
+            // or have its own logic for returning to idle.
+            // If explicit stop is needed for idle, call it.
+            // For now, assume playing another animation (like 'talking') overrides 'idle'.
+        }
+    }
+
+    /**
+     * Makes Mr. DNA speak and triggers talking animation.
+     * @param {string} text - The text for Mr. DNA to speak.
+     * @param {Object} [options={}] - Optional parameters for speech synthesis.
+     */
+    speak(text, options = {}) {
+        if (!this.isActive && !options.forceSpeakIfNotActive) {
+            console.warn("Mr. DNA is not active, cannot speak unless forced.");
+            return;
+        }
+
+        if (this.spriteAnimator) {
+            this.spriteAnimator.playAnimation('talking');
+        }
+        this.updateStatus('talking');
+
+        // Handle reverting to idle animation after speech ends
+        // Remove previous listener if any to avoid multiple bindings
+        if (this.speechEndListener) {
+            this.eventEmitter.off('speech:end', this.speechEndListener);
+        }
+        this.speechEndListener = ({ characterKey }) => {
+            if (characterKey === this.key) { // Ensure it's this character's speech that ended
+                if (this.spriteAnimator && this.isActive) { // Check if still active
+                    this.spriteAnimator.playAnimation('idle');
+                }
+                this.updateStatus('idle');
+                this.eventEmitter.off('speech:end', this.speechEndListener); // Clean up
+                this.speechEndListener = null;
+            }
         };
+        this.eventEmitter.on('speech:end', this.speechEndListener);
+
+
+        super.speak(text, options); // Call BaseCharacter's speak method
     }
 
-    addDNAFlavor(text) {
-        let flavored = text;
+    /**
+     * Mr. DNA explains a DNA concept with a specific animation.
+     * @param {string} explanationText - The text of the explanation.
+     */
+    explainDnaConcept(explanationText) {
+        if (!this.isVisible || !this.isActive) return;
 
-        // Add enthusiastic punctuation
-        flavored = flavored.replace(/\./g, '!');
-        flavored = flavored.replace(/!!+/g, '!'); // Prevent double exclamation
-
-        // Add DNA terminology
-        const dnaTerms = ['genetic', 'molecular', 'cellular', 'biological'];
-        if (Math.random() < 0.2) {
-            const term = dnaTerms[Math.floor(Math.random() * dnaTerms.length)];
-            flavored = flavored.replace(/science/gi, `${term} science`);
+        if (this.stateManager.get('debugMode')) {
+            console.log(`${this.name} explaining DNA concept.`);
         }
+        
+        if (this.spriteAnimator) {
+            this.spriteAnimator.playAnimation('explaining'); // Or a more specific animation
+        }
+        this.updateStatus('explaining');
 
-        return flavored;
+        this.speak(explanationText, { interrupt: true });
+
+        // Revert to idle after speech (already handled by the speak method's onend listener)
     }
 
-    getRandomPhrase(category) {
-        const phrases = this.phrases[category];
-        return phrases[Math.floor(Math.random() * phrases.length)];
+    /**
+     * Mr. DNA shows a double helix (triggers an animation).
+     */
+    showDoubleHelix() {
+        if (!this.isVisible || !this.isActive) return;
+
+        if (this.stateManager.get('debugMode')) {
+            console.log(`${this.name} showing double helix animation.`);
+        }
+        this.updateStatus('action-helix');
+
+        if (this.spriteAnimator && typeof this.spriteAnimator.playAnimation === 'function') {
+            // Assuming 'doubleHelixReveal' is a defined animation key in MrDnaSpriteAnimator
+            this.spriteAnimator.playAnimation('doubleHelixReveal');
+        } else if (this.uiElement) {
+            // Fallback to CSS class if sprite animator or specific animation is not available
+            this.utils.addClass(this.uiElement, 'mr-dna-helix-animation');
+            setTimeout(() => {
+                if (this.uiElement) this.utils.removeClass(this.uiElement, 'mr-dna-helix-animation');
+                if(this.isActive) this.updateStatus('idle'); // Revert if still active
+            }, 3000); // Duration of CSS animation
+        }
+        this.eventEmitter.emit('playSound', { soundName: 'dna_reveal_sparkle', character: this.key });
     }
 
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+
+    /**
+     * Updates Mr. DNA's visual status.
+     * @param {string} status - 'idle', 'talking', 'explaining', 'action-helix'.
+     */
+    updateStatus(status) {
+        super.updateStatus(status); // Adds generic class like .mr-dna-status-talking
+
+        // Mr. DNA might not need further specific UI updates here if sprite animator handles states.
+        // If sprite animator needs explicit state set:
+        // if (this.spriteAnimator && typeof this.spriteAnimator.setState === 'function') {
+        //    this.spriteAnimator.setState(status);
+        // }
     }
 
-    // Public interface
-    getCurrentAnimation() {
-        return this.animationState;
-    }
-
-    isOnTour() {
-        return this.tourGroup !== null;
-    }
-
-    forceAnimation(type) {
-        this.isAnimating = false;
-        this.playAnimation(type);
+    destroy() {
+        if (this.speechEndListener) {
+            this.eventEmitter.off('speech:end', this.speechEndListener);
+            this.speechEndListener = null;
+        }
+        if (this.spriteAnimator && typeof this.spriteAnimator.destroy === 'function') {
+            this.spriteAnimator.destroy();
+        }
+        super.destroy();
     }
 }
+
+// If not using ES modules:
+// window.MrDnaCharacter = MrDnaCharacter;
