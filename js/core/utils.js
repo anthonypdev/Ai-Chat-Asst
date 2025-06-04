@@ -8,7 +8,7 @@
 
 class ParklandUtils {
     constructor() {
-        this.version = '2.0.0'; // Opus Magnum version
+        this.version = '2.0.1'; // Incremented version for this fix
         this.cache = new Map();
         this.animationFrameCallbacks = new Set();
         this.isAnimationLoopRunning = false;
@@ -18,13 +18,13 @@ class ParklandUtils {
             lastFrameTime: performance.now(),
             averageFPS: 60,
             fpsHistory: [],
-            maxHistoryLength: 60, // Store last 60 FPS readings
+            maxHistoryLength: 60,
         };
-        // No console log here, App.js will log after all core utils are confirmed loaded.
+        // Ensure this log happens to confirm constructor execution
+        if (typeof console !== 'undefined') {
+            console.log('🛠️ ParklandUtils initialized');
+        }
     }
-
-    // init() method was removed as per previous regenerations focusing on direct instantiation.
-    // If a specific init sequence is needed for utils beyond constructor, it can be added back.
 
     // ===========================================
     // DOM UTILITIES
@@ -33,10 +33,11 @@ class ParklandUtils {
         const cacheKey = `${context === document ? 'doc_ctx' : (context.id || context.tagName)}_${selector}`;
         if (useCache && this.cache.has(cacheKey)) {
             const cachedElement = this.cache.get(cacheKey);
-            if (cachedElement && (cachedElement.isConnected === undefined || cachedElement.isConnected)) { // isConnected for modern browsers
+            // Check if element is still part of the document
+            if (cachedElement && (cachedElement.isConnected === undefined || cachedElement.isConnected)) {
                 return cachedElement;
             }
-            this.cache.delete(cacheKey);
+            this.cache.delete(cacheKey); // Remove stale cache entry
         }
         const element = context.querySelector(selector);
         if (useCache && element) {
@@ -53,106 +54,143 @@ class ParklandUtils {
         const element = document.createElement(tag);
         Object.entries(attributes).forEach(([key, value]) => {
             if (value === null || value === undefined) return;
-            if (key === 'className') element.className = Array.isArray(value) ? value.join(' ') : value;
-            else if (key === 'dataset') Object.entries(value).forEach(([dataKey, dataValue]) => element.dataset[dataKey] = dataValue);
-            else if (key === 'style' && typeof value === 'object') Object.assign(element.style, value);
-            else if (key.startsWith('on') && typeof value === 'function') element.addEventListener(key.substring(2).toLowerCase(), value);
-            else if (typeof value === 'boolean') { if (value) element.setAttribute(key, ''); else element.removeAttribute(key); }
-            else element.setAttribute(key, value);
+
+            if (key === 'className') {
+                element.className = Array.isArray(value) ? value.join(' ') : value;
+            } else if (key === 'dataset') {
+                Object.entries(value).forEach(([dataKey, dataValue]) => {
+                    element.dataset[dataKey] = dataValue;
+                });
+            } else if (key === 'style' && typeof value === 'object') {
+                Object.assign(element.style, value);
+            } else if (key.startsWith('on') && typeof value === 'function') {
+                element.addEventListener(key.substring(2).toLowerCase(), value);
+            } else if (typeof value === 'boolean') {
+                if (value) {
+                    element.setAttribute(key, '');
+                } else {
+                    element.removeAttribute(key);
+                }
+            } else {
+                element.setAttribute(key, String(value));
+            }
         });
         children.forEach(child => {
-            if (child instanceof Node) element.appendChild(child);
-            else element.appendChild(document.createTextNode(String(child)));
+            if (child instanceof Node) {
+                element.appendChild(child);
+            } else {
+                element.appendChild(document.createTextNode(String(child)));
+            }
         });
         return element;
     }
 
     addClass(element, ...classNames) {
-        if (element && classNames.length > 0) element.classList.add(...classNames.flat().join(' ').split(' ').filter(Boolean));
+        if (element && element.classList && classNames.length > 0) {
+            const flatClassNames = classNames.flat().join(' ').split(' ').filter(Boolean);
+            if (flatClassNames.length > 0) {
+                element.classList.add(...flatClassNames);
+            }
+        }
     }
 
     removeClass(element, ...classNames) {
-        if (element && classNames.length > 0) element.classList.remove(...classNames.flat().join(' ').split(' ').filter(Boolean));
+        if (element && element.classList && classNames.length > 0) {
+            const flatClassNames = classNames.flat().join(' ').split(' ').filter(Boolean);
+            if (flatClassNames.length > 0) {
+                element.classList.remove(...flatClassNames);
+            }
+        }
     }
 
     toggleClass(element, className, force) {
-        if (element && className) return element.classList.toggle(className, force);
+        if (element && element.classList && typeof className === 'string' && className.trim() !== '') {
+            return element.classList.toggle(className, force);
+        }
         return false;
     }
-
-    hasClass(element, className) {
-        return element ? element.classList.contains(className) : false;
-    }
     
+    hasClass(element, className) {
+        return element && element.classList ? element.classList.contains(className) : false;
+    }
+
     getStyle(element, property) {
-        return element ? window.getComputedStyle(element).getPropertyValue(property) : null;
+        return element && typeof window.getComputedStyle === 'function' ? window.getComputedStyle(element).getPropertyValue(property) : null;
     }
 
     setStyles(element, styles) {
-        if (element && typeof styles === 'object') Object.assign(element.style, styles);
+        if (element && typeof styles === 'object' && styles !== null) {
+            Object.assign(element.style, styles);
+        }
     }
 
     getElementMetrics(element) {
-        if (!element) return null;
+        if (!element || typeof element.getBoundingClientRect !== 'function') return null;
         const rect = element.getBoundingClientRect();
         return {
             width: rect.width, height: rect.height,
             top: rect.top, left: rect.left, bottom: rect.bottom, right: rect.right,
-            x: rect.x, y: rect.y, // Alias for left/top
-            viewportTop: rect.top, // Distance from viewport top
-            documentTop: rect.top + window.pageYOffset // Distance from document top
+            x: rect.x, y: rect.y,
+            viewportTop: rect.top,
+            documentTop: rect.top + (window.pageYOffset || document.documentElement.scrollTop)
         };
     }
 
     scrollToElement(element, options = {}) {
-        if (!element) return;
+        if (!element || typeof element.scrollIntoView !== 'function') return;
         const { behavior = 'smooth', block = 'start', inline = 'nearest', offset = 0 } = options;
         if (offset !== 0 && behavior === 'smooth') {
-            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+            const elementPosition = element.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop);
             const offsetPosition = elementPosition - offset;
             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
         } else {
             element.scrollIntoView({ behavior, block, inline });
-            // Note: native scrollIntoView offset isn't widely supported, manual adjustment above is better.
         }
     }
-    
-    // Get Icon SVG (example, if you have a sprite or predefined SVGs)
+
     getIconSVG(iconName, attributes = {}) {
-        // This is a placeholder. In a real app, you'd have an SVG sprite system
-        // or a map of SVG strings.
         const svgNS = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(svgNS, "svg");
         svg.setAttribute("viewBox", attributes.viewBox || "0 0 24 24");
         svg.setAttribute("fill", attributes.fill || "currentColor");
         svg.setAttribute("width", attributes.width || "1em");
         svg.setAttribute("height", attributes.height || "1em");
-        // Add path based on iconName
-        // Example path for a generic 'copy' icon
-        if (iconName === 'copy') {
+        svg.setAttribute("aria-hidden", "true"); // Accessibility: icon is decorative
+
+        let pathData = "";
+        switch(iconName) {
+            case 'copy': pathData = "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"; break;
+            case 'check': pathData = "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"; break;
+            case 'error': pathData = "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"; break;
+            case 'trash': pathData = "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"; break;
+            case 'refresh': pathData = "M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"; break;
+            case 'edit': pathData = "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"; break;
+            // Add more icon paths as needed
+            default:
+                // Return a placeholder or empty SVG for unknown icons
+                const text = document.createElementNS(svgNS, "text");
+                text.setAttribute("x", "50%");
+                text.setAttribute("y", "50%");
+                text.setAttribute("dominant-baseline", "middle");
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = "?";
+                svg.appendChild(text);
+                break;
+        }
+        if (pathData) {
             const path = document.createElementNS(svgNS, "path");
-            path.setAttribute("d", "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z");
-            svg.appendChild(path);
-        } else if (iconName === 'check') {
-             const path = document.createElementNS(svgNS, "path");
-            path.setAttribute("d", "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z");
-            svg.appendChild(path);
-        } else if (iconName === 'error') {
-            const path = document.createElementNS(svgNS, "path");
-            path.setAttribute("d", "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z");
+            path.setAttribute("d", pathData);
             svg.appendChild(path);
         }
-        // ... add more icons
-        return svg.outerHTML; // Return as string to be set via innerHTML
+        return svg.outerHTML;
     }
-
 
     // ===========================================
     // ANIMATION UTILITIES
     // ===========================================
     requestFrame(callback) {
         const frameId = requestAnimationFrame(callback);
-        this.animationFrameCallbacks.add(frameId); // Track for potential cancellation
+        this.animationFrameCallbacks.add(frameId);
         return frameId;
     }
 
@@ -163,23 +201,21 @@ class ParklandUtils {
 
     animate(element, properties, options = {}) {
         return new Promise((resolve) => {
-            if (!element) { resolve(); return; }
-            const { duration = 300, easing = 'var(--ease-out)', delay = 0 } = options; // Use CSS var for easing
+            if (!element || typeof element.style === 'undefined') { resolve(); return; }
+            const { duration = 300, easing = 'var(--ease-out)', delay = 0 } = options;
             element.style.transition = `all ${duration}ms ${easing} ${delay}ms`;
             Object.assign(element.style, properties);
 
             const onTransitionEnd = (event) => {
-                // Ensure the event fired on the target element and not a child
                 if (event.target === element) {
                     element.removeEventListener('transitionend', onTransitionEnd);
-                    element.style.transition = ''; // Clean up inline transition
+                    element.style.transition = '';
                     resolve();
                 }
             };
             element.addEventListener('transitionend', onTransitionEnd);
-            // Fallback timeout in case transitionend doesn't fire (e.g., no actual property change)
             setTimeout(() => {
-                element.removeEventListener('transitionend', onTransitionEnd); // Ensure cleanup
+                element.removeEventListener('transitionend', onTransitionEnd);
                 element.style.transition = '';
                 resolve();
             }, duration + delay + 50);
@@ -187,73 +223,71 @@ class ParklandUtils {
     }
 
     fadeIn(element, duration = 300, displayType = 'block') {
-        if (!element) return Promise.resolve();
+        if (!element || typeof element.style === 'undefined') return Promise.resolve();
         element.style.opacity = '0';
-        element.style.display = displayType; // Set display before starting animation
+        element.style.display = displayType;
         return this.animate(element, { opacity: '1' }, { duration });
     }
 
     fadeOut(element, duration = 300) {
-        if (!element) return Promise.resolve();
+        if (!element || typeof element.style === 'undefined') return Promise.resolve();
         return this.animate(element, { opacity: '0' }, { duration })
             .then(() => { if (element.style.opacity === '0') element.style.display = 'none'; });
     }
 
     slideDown(element, duration = 300) {
-        if (!element) return Promise.resolve();
+        if (!element || typeof element.style === 'undefined') return Promise.resolve();
         return new Promise((resolve) => {
             element.style.display = 'block';
             const height = element.scrollHeight + 'px';
             element.style.height = '0';
             element.style.overflow = 'hidden';
             element.style.transition = `height ${duration}ms var(--ease-in-out), opacity ${duration*0.8}ms var(--ease-in-out) ${duration*0.2}ms`;
-            element.style.opacity = '0'; // Start transparent for fade-in effect during slide
+            element.style.opacity = '0';
 
-            this.requestFrame(() => { // Ensure styles are applied before animation starts
+            this.requestFrame(() => {
                 element.style.height = height;
                 element.style.opacity = '1';
             });
-
             const onTransitionEnd = (event) => {
-                if (event.target === element && event.propertyName === 'height') {
-                    element.removeEventListener('transitionend', onTransitionEnd);
-                    element.style.height = '';
-                    element.style.overflow = '';
-                    element.style.transition = '';
-                    element.style.opacity = '';
-                    resolve();
+                if (event.target === element && (event.propertyName === 'height' || event.propertyName === 'opacity')) {
+                    // Wait for both height and opacity or the longer one if they differ
+                    // A more robust way might be Promise.all if animating multiple properties separately
+                    if (parseFloat(element.style.height) >= parseFloat(height) -1 && parseFloat(element.style.opacity) === 1) {
+                         element.removeEventListener('transitionend', onTransitionEnd);
+                         element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = '';
+                         resolve();
+                    }
                 }
             };
             element.addEventListener('transitionend', onTransitionEnd);
-            setTimeout(() => { // Fallback
+             setTimeout(() => { // Fallback
                 element.removeEventListener('transitionend', onTransitionEnd);
-                 element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = '';
+                element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = '';
                 resolve();
-            }, duration + 50);
+            }, duration + 50 + (duration*0.2)); // account for delay in opacity
         });
     }
 
     slideUp(element, duration = 300) {
-        if (!element) return Promise.resolve();
+        if (!element || typeof element.style === 'undefined') return Promise.resolve();
         return new Promise((resolve) => {
             element.style.height = element.scrollHeight + 'px';
             element.style.overflow = 'hidden';
             element.style.transition = `height ${duration}ms var(--ease-in-out), opacity ${duration}ms var(--ease-in-out)`;
-            element.style.opacity = '1'; // Ensure it's visible before starting to slide up and fade
+            element.style.opacity = '1';
 
             this.requestFrame(() => {
                 element.style.height = '0';
                 element.style.opacity = '0';
             });
             const onTransitionEnd = (event) => {
-                 if (event.target === element && event.propertyName === 'height') {
-                    element.removeEventListener('transitionend', onTransitionEnd);
-                    element.style.display = 'none';
-                    element.style.height = '';
-                    element.style.overflow = '';
-                    element.style.transition = '';
-                    element.style.opacity = '';
-                    resolve();
+                 if (event.target === element && (event.propertyName === 'height' || event.propertyName === 'opacity')) {
+                    if (parseFloat(element.style.height) <= 1 && parseFloat(element.style.opacity) === 0) {
+                        element.removeEventListener('transitionend', onTransitionEnd);
+                        element.style.display = 'none'; element.style.height = ''; element.style.overflow = ''; element.style.transition = ''; element.style.opacity = '';
+                        resolve();
+                    }
                 }
             };
             element.addEventListener('transitionend', onTransitionEnd);
@@ -265,74 +299,54 @@ class ParklandUtils {
         });
     }
     
-    shake(element, intensity = 5, duration = 300) {
-        if (!element) return Promise.resolve();
-        const originalTransform = element.style.transform;
-        return this.animate(element, {
-            // Complex transform values directly manipulate style, might conflict with classes
-            // A class-based shake is often better if available.
-            // This is a simple JS-driven one.
-        }, { duration }); // Placeholder, a real shake needs keyframes or multiple transforms
+    shake(element, intensity = 5, duration = 400) {
+        if (!element || typeof element.animate !== 'function') return Promise.resolve(); // Check for animate support
+        return new Promise(resolve => {
+            element.animate([
+                { transform: `translateX(0) translateZ(0)` },
+                { transform: `translateX(${intensity}px) translateZ(0)` },
+                { transform: `translateX(-${intensity * 0.8}px) translateZ(0)` },
+                { transform: `translateX(${intensity * 0.6}px) translateZ(0)` },
+                { transform: `translateX(-${intensity * 0.4}px) translateZ(0)` },
+                { transform: `translateX(${intensity * 0.2}px) translateZ(0)` },
+                { transform: `translateX(0) translateZ(0)` }
+            ], {
+                duration: duration,
+                easing: 'var(--ease-out-bounce, ease-out)' // Custom bounce or standard ease-out
+            }).onfinish = resolve;
+        });
     }
 
-
-    // startAnimationLoop, stopAnimationLoop, updatePerformanceMetrics, getCurrentFPS retained from original.
-    // For brevity, full implementation of these performance monitoring tools omitted, but structure is kept.
-    setupPerformanceMonitoring() {
-        // To avoid polluting global scope with a loop if not explicitly used by app.
-        // this.startAnimationLoop();
-    }
+    setupPerformanceMonitoring() { /* ... */ }
     startAnimationLoop(callback = null) { /* ... */ }
     stopAnimationLoop() { /* ... */ }
     updatePerformanceMetrics(timestamp) { /* ... */ }
     getCurrentFPS() { return this.performanceMetrics.averageFPS; }
 
-    // ===========================================
-    // STRING UTILITIES (Retained)
-    // ===========================================
-    escapeHtml(text) { /* ... as per original, ensure robust ... */ return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]); }
-    truncate(str, maxLength, suffix = '...') { return str.length > maxLength ? str.substring(0, maxLength - suffix.length) + suffix : str; }
-    // ... other string utils ...
-
-    // ===========================================
-    // VALIDATION UTILITIES (Retained)
-    // ===========================================
+    escapeHtml(text) { return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]); }
+    truncate(str, maxLength, suffix = '...') { if (typeof str !== 'string') return ''; return str.length > maxLength ? str.substring(0, maxLength - suffix.length) + suffix : str; }
     isValidEmail(email) { const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; return re.test(String(email).toLowerCase()); }
-    // ... other validation utils ...
-
-    // ===========================================
-    // DATE/TIME UTILITIES (Retained)
-    // ===========================================
-    formatRelativeTime(date) { /* ... as per original, ensure robust ... */ return new Date(date).toLocaleTimeString(); }
-    // ... other date/time utils ...
-
-    // ===========================================
-    // COLOR, DEVICE, STORAGE, ERROR, HELPERS (Retained as in original logic, with minor checks)
-    // ===========================================
+    formatRelativeTime(date) { /* ... robust implementation ... */ return new Date(date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); }
     hexToRgb(hex) { /* ... */ return null; }
     getDeviceType() { /* ... */ return 'desktop'; }
     setStorageItem(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { console.error("Error saving to localStorage:", e); return false; }}
     getStorageItem(key) { try { const item = localStorage.getItem(key); return item ? JSON.parse(item) : null; } catch (e) { console.error("Error reading from localStorage:", e); return null; }}
     removeStorageItem(key) { try { localStorage.removeItem(key); } catch (e) { console.error("Error removing from localStorage:", e); }}
     clearStoragePrefix(prefix) { /* ... */ }
-    setupGlobalErrorHandling() { /* ... as set up in app.js previously ... */ }
-    generateId(prefix = 'id_') { return prefix + Math.random().toString(36).substr(2, 9) + Date.now().toString(36); }
-    deepClone(obj) { if (obj === null || typeof obj !== 'object') return obj; try { return JSON.parse(JSON.stringify(obj)); } catch(e) { console.error("Deep clone failed:", e); return obj; /* fallback */ } }
+    generateId(prefix = 'id_') { return prefix + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36); }
+    deepClone(obj) { if (obj === null || typeof obj !== 'object') return obj; try { return JSON.parse(JSON.stringify(obj)); } catch(e) { console.error("Deep clone failed:", e); const c = Array.isArray(obj) ? [] : {}; for(const k in obj) { if(Object.prototype.hasOwnProperty.call(obj, k)) c[k] = this.deepClone(obj[k]); } return c; } }
     isEmpty(value) { return value === undefined || value === null || (typeof value === 'object' && Object.keys(value).length === 0) || (typeof value === 'string' && value.trim().length === 0); }
     wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
 
     destroy() {
         this.stopAnimationLoop();
         this.cache.clear();
+        this.animationFrameCallbacks.forEach(id => cancelAnimationFrame(id));
         this.animationFrameCallbacks.clear();
-        // Remove any global listeners this utility might have set up directly
-        // console.log('🛠️ ParklandUtils destroyed'); // Log in App.js if needed
     }
 }
 
 // Create and expose global instances correctly
-// This ensures app.js can find window.UtilsInstance
-const utilsInstance = new ParklandUtils();
-window.UtilsInstance = utilsInstance; // Checked by App.js
-window.utils = utilsInstance;         // Common alias
+const utilsInstance = new ParklandUtils(); // Instantiate the class
+window.UtilsInstance = utilsInstance;     // Correct global name checked by App.js
+window.utils = utilsInstance;             // Common alias
