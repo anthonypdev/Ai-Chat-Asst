@@ -9,7 +9,10 @@
 class EventEmitter {
     constructor() {
         this.events = {}; // Stores event listeners: { eventName: [listener1, listener2, ...] }
-        // No console log here, App.js will log after all core utils are confirmed loaded.
+        // Ensure this log happens to confirm constructor execution
+        if (typeof console !== 'undefined') {
+            console.log('📢 EventEmitter initialized.');
+        }
     }
 
     /**
@@ -56,7 +59,7 @@ class EventEmitter {
         }
 
         this.events[eventName] = this.events[eventName].filter(
-            listener => listener !== listenerToRemove
+            listenerCb => listenerCb !== listenerToRemove
         );
 
         if (this.events[eventName].length === 0) {
@@ -77,13 +80,13 @@ class EventEmitter {
 
         const listeners = this.events[eventName];
         if (listeners && listeners.length > 0) {
-            [...listeners].forEach(listener => {
+            [...listeners].forEach(listener => { // Iterate over a copy
                 try {
                     listener(...args);
                 } catch (error) {
                     console.error(`Error in listener for event "${eventName}":`, error);
-                    // Avoid emitting 'error' event from here if StateManager isn't guaranteed yet
-                    // This could be a very early error.
+                    // Consider re-emitting as a specific 'emitter:error' event if robust error handling for listeners is needed
+                    // this.emit('emitter:error', { sourceEvent: eventName, error: error, listener: listener.toString() });
                 }
             });
         }
@@ -94,17 +97,18 @@ class EventEmitter {
             console.error(`EventEmitter.once: Listener for event "${eventName}" must be a function.`, { listener });
             return;
         }
-        const self = this;
+        const self = this; // Correctly capture 'this' context of the EventEmitter instance
         function onceWrapper(...args) {
-            self.off(eventName, onceWrapper);
+            self.off(eventName, onceWrapper); // Use captured 'self'
             listener(...args);
         }
-        // Bind the wrapper's 'this' to the listener's original context if it's a method
-        // For simplicity, assuming listeners are standalone functions or bound methods.
         this.on(eventName, onceWrapper);
     }
 
     listenerCount(eventName) {
+        if (typeof eventName !== 'string' || eventName.trim() === '') {
+            return 0;
+        }
         return this.events[eventName] ? this.events[eventName].length : 0;
     }
 
@@ -113,10 +117,10 @@ class EventEmitter {
             if (this.events[eventName]) {
                 delete this.events[eventName];
             }
-        } else if (!eventName) {
+        } else if (eventName === undefined || eventName === null || eventName === '') { // Explicitly handle cases for removing all
             this.events = {};
         } else {
-            console.error('EventEmitter.removeAllListeners: Invalid eventName provided.');
+            console.error('EventEmitter.removeAllListeners: Invalid eventName provided if attempting to remove specific listeners.');
         }
     }
 }
@@ -124,12 +128,13 @@ class EventEmitter {
 // Create and expose a global instance for the application to use
 const appEventsInstance = new EventEmitter();
 
-// Correctly expose as window.AppEvents for app.js
+// Correctly expose as window.AppEvents for app.js, ensuring this runs
 if (typeof window !== 'undefined') {
     window.AppEvents = appEventsInstance;
+} else {
+    // Fallback for non-browser environments if this script were ever used there (unlikely for this project)
+    console.warn("EventEmitter: 'window' object not found. Global AppEvents instance may not be set.");
 }
 
-// If this were part of an ES module system, you would typically:
-// export default appEventsInstance;
-// or
-// export { EventEmitter, appEventsInstance as AppEvents };
+// If this script (events.js) executes successfully, window.AppEvents should now be defined.
+// The console log in the constructor will confirm if the class instantiation happens.
