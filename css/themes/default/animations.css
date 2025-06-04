@@ -7,26 +7,27 @@
 /* --- LOADING SCREEN ANIMATIONS --- */
 @keyframes pulseLogoLoadingEnhancedOpus {
     0% {
-        transform: scale(0.9) rotate(-4deg) translateY(5px);
+        transform: scale(0.9) rotate(-4deg) translateY(5px) translateZ(0); /* Added translateZ for GPU layer */
         opacity: 0.85;
         filter: blur(1px);
     }
     33% {
-        transform: scale(1.25) rotate(2deg) translateY(-10px);
+        transform: scale(1.25) rotate(2deg) translateY(-10px) translateZ(0);
         opacity: 1;
         filter: blur(0px);
+        /* text-shadow can be costly to animate frequently, applied on a specific keyframe is okay */
         text-shadow: 0 0 20px rgba(200, 190, 255, 0.5),
                      0 0 45px rgba(200, 190, 255, 0.75),
                      0 0 70px rgba(200, 190, 255, 0.65),
                      0 0 120px rgba(200, 190, 255, 0.45);
     }
     66% {
-        transform: scale(1.1) rotate(-2deg) translateY(-5px);
+        transform: scale(1.1) rotate(-2deg) translateY(-5px) translateZ(0);
         opacity: 0.95;
         filter: blur(0.5px);
     }
     100% {
-        transform: scale(0.9) rotate(-4deg) translateY(5px);
+        transform: scale(0.9) rotate(-4deg) translateY(5px) translateZ(0);
         opacity: 0.85;
         filter: blur(1px);
     }
@@ -35,15 +36,15 @@
 @keyframes fadeInTextLoadingEnhancedOpus {
     from {
         opacity: 0;
-        transform: translateY(25px) scale(0.95);
+        transform: translateY(25px) scale(0.95) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
     }
 }
 
-@keyframes progressBarShineOpus {
+@keyframes progressBarShineOpus { /* filter animation, can be less performant but okay for loading */
     0% {
         filter: brightness(1);
     }
@@ -58,11 +59,11 @@
 @keyframes fadeInTipLoadingOpus {
     from {
         opacity: 0;
-        transform: translateY(15px);
+        transform: translateY(15px) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) translateZ(0);
     }
 }
 
@@ -70,33 +71,33 @@
 @keyframes fadeInChatContainerOpusEnhanced {
     from {
         opacity: 0;
-        transform: scale(0.97) translateY(10px);
+        transform: scale(0.97) translateY(10px) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: scale(1) translateY(0);
+        transform: scale(1) translateY(0) translateZ(0);
     }
 }
 
 @keyframes fadeInElementAnimOpusEnhanced {
     from {
         opacity: 0;
-        transform: translateY(8px) scale(0.98);
+        transform: translateY(8px) scale(0.98) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
     }
 }
 
 @keyframes emptyStateFadeInOpus {
     from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.95) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
     }
 }
 
@@ -104,53 +105,53 @@
 @keyframes messageAppearOpus {
     0% {
         opacity: 0;
-        transform: translateY(15px) scale(0.98);
+        transform: translateY(15px) scale(0.98) translateZ(0);
     }
     100% {
         opacity: 1;
-        transform: translateY(0px) scale(1);
+        transform: translateY(0px) scale(1) translateZ(0);
     }
 }
 
 @keyframes typingAvatarBounceEnhanced {
     0%, 100% {
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
         opacity: 0.8;
     }
     50% {
-        transform: translateY(-5px) scale(1.1);
+        transform: translateY(-5px) scale(1.1) translateZ(0);
         opacity: 1;
     }
 }
 
 @keyframes typingDotBounceOpus {
     0%, 60%, 100% {
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
         opacity: 0.5;
     }
     30% {
-        transform: translateY(-5px) scale(1.15);
+        transform: translateY(-5px) scale(1.15) translateZ(0);
         opacity: 1;
     }
 }
 
 /* --- BUTTON ANIMATIONS --- */
-@keyframes buttonPulse {
+@keyframes buttonPulse { /* box-shadow animation is not ideal for perf, but common for pulse */
     0% {
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
         box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7);
     }
     70% {
-        transform: scale(1.02);
+        transform: scale(1.02) translateZ(0);
         box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
     }
     100% {
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
         box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
     }
 }
 
-@keyframes buttonShimmer {
+@keyframes buttonShimmer { /* background-position is generally acceptable for gradients */
     0% {
         background-position: -200% center;
     }
@@ -161,11 +162,11 @@
 
 @keyframes buttonRipple {
     0% {
-        transform: scale(0);
+        transform: scale(0) translateZ(0);
         opacity: 1;
     }
     100% {
-        transform: scale(4);
+        transform: scale(4) translateZ(0);
         opacity: 0;
     }
 }
@@ -173,16 +174,16 @@
 /* --- MODAL ANIMATIONS --- */
 @keyframes modalSlideIn {
     from {
-        transform: scale(0.88) translateY(40px) rotateX(-15deg) rotateY(5deg);
+        transform: scale(0.88) translateY(40px) rotateX(-15deg) rotateY(5deg) translateZ(0);
         opacity: 0;
     }
     to {
-        transform: scale(1) translateY(0) rotateX(0deg) rotateY(0deg);
+        transform: scale(1) translateY(0) rotateX(0deg) rotateY(0deg) translateZ(0);
         opacity: 1;
     }
 }
 
-@keyframes modalBackdropFadeIn {
+@keyframes modalBackdropFadeIn { /* backdrop-filter is expensive, use judiciously */
     from {
         opacity: 0;
         backdrop-filter: blur(0px);
@@ -196,27 +197,30 @@
 /* --- SIDEBAR ANIMATIONS --- */
 @keyframes sidebarSlideIn {
     from {
-        transform: translateX(-105%);
+        transform: translateX(-105%) translateZ(0);
         opacity: 0.8;
     }
     to {
-        transform: translateX(0);
+        transform: translateX(0) translateZ(0);
         opacity: 1;
     }
 }
 
 @keyframes sidebarItemSlideIn {
     from {
-        transform: translateX(-20px);
+        transform: translateX(-20px) translateZ(0);
         opacity: 0;
     }
     to {
-        transform: translateX(0);
+        transform: translateX(0) translateZ(0);
         opacity: 1;
     }
 }
 
 /* --- VOICE INDICATOR ANIMATIONS --- */
+/* Animating height can cause layout reflow. For a few small elements, it might be acceptable.
+   A more performant approach might use transform: scaleY on child elements if height is variable.
+   Given these are fixed small bars, this is likely okay. */
 @keyframes voiceWaveOpusEnhanced {
     0%, 100% {
         height: 8px;
@@ -232,11 +236,11 @@
 
 @keyframes micPulseRecordingOpus {
     0%, 100% {
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
         opacity: 1;
     }
     50% {
-        transform: scale(1.2);
+        transform: scale(1.2) translateZ(0);
         opacity: 0.7;
     }
 }
@@ -244,16 +248,16 @@
 @keyframes voiceIndicatorAppear {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(10px) scale(0.9);
+        transform: translateX(-50%) translateY(10px) scale(0.9) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: translateX(-50%) translateY(-5px) scale(1);
+        transform: translateX(-50%) translateY(-5px) scale(1) translateZ(0);
     }
 }
 
 /* --- FORM ANIMATIONS --- */
-@keyframes inputFocusGlow {
+@keyframes inputFocusGlow { /* box-shadow animation */
     from {
         box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
     }
@@ -264,11 +268,11 @@
 
 @keyframes labelFloat {
     from {
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
         color: var(--text-muted);
     }
     to {
-        transform: translateY(-20px) scale(0.85);
+        transform: translateY(-20px) scale(0.85) translateZ(0);
         color: var(--primary);
     }
 }
@@ -277,22 +281,22 @@
 @keyframes dropdownSlideIn {
     from {
         opacity: 0;
-        transform: translateY(15px) scale(0.95);
+        transform: translateY(15px) scale(0.95) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
     }
 }
 
-@keyframes settingsItemHover {
+@keyframes settingsItemHover { /* background-color animation, generally okay for hover */
     from {
         background-color: transparent;
-        transform: translateX(0);
+        transform: translateX(0) translateZ(0);
     }
     to {
         background-color: var(--bg-secondary);
-        transform: translateX(5px);
+        transform: translateX(5px) translateZ(0);
     }
 }
 
@@ -318,35 +322,35 @@
 /* --- BRAND ICON ANIMATIONS --- */
 @keyframes brandIconHover {
     0% {
-        transform: scale(1) rotate(0deg);
+        transform: scale(1) rotate(0deg) translateZ(0);
     }
     50% {
-        transform: scale(1.2) rotate(-15deg) translateY(-3px);
+        transform: scale(1.2) rotate(-15deg) translateY(-3px) translateZ(0);
     }
     100% {
-        transform: scale(1.15) rotate(-12deg) translateY(-2px);
+        transform: scale(1.15) rotate(-12deg) translateY(-2px) translateZ(0);
     }
 }
 
 @keyframes brandIconIdle {
     0%, 100% {
-        transform: scale(1) rotate(0deg);
+        transform: scale(1) rotate(0deg) translateZ(0);
         filter: brightness(1);
     }
     50% {
-        transform: scale(1.05) rotate(2deg);
+        transform: scale(1.05) rotate(2deg) translateZ(0);
         filter: brightness(1.1);
     }
 }
 
 /* --- SUGGESTION CARD ANIMATIONS --- */
-@keyframes suggestionCardHover {
+@keyframes suggestionCardHover { /* box-shadow animation */
     from {
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
         box-shadow: var(--shadow-md);
     }
     to {
-        transform: translateY(-6px) scale(1.03);
+        transform: translateY(-6px) scale(1.03) translateZ(0);
         box-shadow: var(--shadow-xl), 0 0 15px var(--primary-glow-soft);
     }
 }
@@ -354,11 +358,11 @@
 @keyframes suggestionCardAppear {
     from {
         opacity: 0;
-        transform: translateY(20px) scale(0.95);
+        transform: translateY(20px) scale(0.95) translateZ(0);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
     }
 }
 
@@ -366,56 +370,56 @@
 @keyframes popInLoginCardOpusEnhanced {
     0% {
         opacity: 0;
-        transform: scale(0.6) translateY(50px) rotateX(-10deg);
+        transform: scale(0.6) translateY(50px) rotateX(-10deg) translateZ(0);
     }
     70% {
         opacity: 1;
-        transform: scale(1.05) translateY(-10px) rotateX(5deg);
+        transform: scale(1.05) translateY(-10px) rotateX(5deg) translateZ(0);
     }
     100% {
         opacity: 1;
-        transform: scale(1) translateY(0) rotateX(0deg);
+        transform: scale(1) translateY(0) rotateX(0deg) translateZ(0);
     }
 }
 
 @keyframes loginLogoHover {
     0% {
-        transform: scale(1) rotate(0deg) translateY(0);
+        transform: scale(1) rotate(0deg) translateY(0) translateZ(0);
     }
     50% {
-        transform: scale(1.28) rotate(-12deg) translateY(-5px);
+        transform: scale(1.28) rotate(-12deg) translateY(-5px) translateZ(0);
     }
     100% {
-        transform: scale(1.25) rotate(-10deg) translateY(-3px);
+        transform: scale(1.25) rotate(-10deg) translateY(-3px) translateZ(0);
     }
 }
 
 /* --- NOTIFICATION ANIMATIONS --- */
 @keyframes notificationSlideIn {
     from {
-        transform: translateX(100%);
+        transform: translateX(100%) translateZ(0);
         opacity: 0;
     }
     to {
-        transform: translateX(0);
+        transform: translateX(0) translateZ(0);
         opacity: 1;
     }
 }
 
 @keyframes notificationBounce {
     0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
+        transform: translateY(0) translateZ(0);
     }
     40% {
-        transform: translateY(-5px);
+        transform: translateY(-5px) translateZ(0);
     }
     60% {
-        transform: translateY(-3px);
+        transform: translateY(-3px) translateZ(0);
     }
 }
 
 /* --- FOCUS ANIMATIONS --- */
-@keyframes focusRing {
+@keyframes focusRing { /* outline animations can cause repaints */
     from {
         outline-offset: 2px;
         outline-width: 2px;
@@ -426,7 +430,7 @@
     }
 }
 
-@keyframes focusGlow {
+@keyframes focusGlow { /* box-shadow animation */
     0% {
         box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.5);
     }
@@ -438,15 +442,15 @@
 /* --- COPY FEEDBACK ANIMATION --- */
 @keyframes copySuccess {
     0% {
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
         color: var(--text-muted);
     }
     50% {
-        transform: scale(1.2);
+        transform: scale(1.2) translateZ(0);
         color: var(--success);
     }
     100% {
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
         color: var(--success);
     }
 }
@@ -455,16 +459,16 @@
 @keyframes scrollIndicator {
     0% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) translateZ(0);
     }
     100% {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(10px) translateZ(0);
     }
 }
 
 /* --- THEME TRANSITION PREPARATIONS --- */
-@keyframes themeTransitionPrepare {
+@keyframes themeTransitionPrepare { /* filter animation */
     from {
         filter: brightness(1) contrast(1);
     }
@@ -473,15 +477,15 @@
     }
 }
 
-@keyframes themeTransitionReveal {
+@keyframes themeTransitionReveal { /* filter animation */
     from {
         opacity: 0;
-        transform: scale(1.05);
+        transform: scale(1.05) translateZ(0);
         filter: blur(2px);
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateZ(0);
         filter: blur(0);
     }
 }
@@ -493,10 +497,11 @@
 .btn,
 .suggestion-card,
 .chat-history-item {
-    will-change: transform, opacity;
+    will-change: transform, opacity; /* Common animated properties */
 }
 
-.message.animating,
+/* Ensure elements being animated are on their own compositor layer */
+.message.animating, /* Assuming an .animating class is added during JS-driven animations */
 .sidebar.animating,
 .modal.animating {
     transform: translateZ(0);
@@ -520,6 +525,7 @@
         animation: none !important;
     }
 
+    /* Ensure messages are visible if their appearance animation is disabled */
     .message {
         animation: none !important;
         opacity: 1 !important;
@@ -527,59 +533,60 @@
     }
 }
 
-/* --- HOVER STATES FOR DESKTOP --- */
+/* --- HOVER STATES FOR DESKTOP (where pointer accuracy is high) --- */
 @media (hover: hover) and (pointer: fine) {
-    .btn:hover {
-        animation: buttonPulse 0.6s ease-out;
+    .btn:hover:not(:disabled) { /* Apply only if not disabled */
+        /* The buttonPulse animation is defined above */
+        /* Consider if this should be a class like .btn-pulse-hover instead of applying to all buttons */
     }
 
     .suggestion-card:hover {
-        animation: suggestionCardHover 0.3s ease-out forwards;
+        animation: suggestionCardHover 0.3s var(--ease-out) forwards;
     }
 
-    .brand-icon:hover {
+    .brand-icon:hover { /* Assuming .brand-icon is the wrapper for the SVG/logo */
         animation: brandIconHover 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
     }
 }
 
-/* --- TOUCH DEVICE OPTIMIZATIONS --- */
+/* --- TOUCH DEVICE OPTIMIZATIONS (no hover, rely on active states) --- */
 @media (hover: none) and (pointer: coarse) {
-    .btn:active {
-        animation: buttonRipple 0.3s ease-out;
+    .btn:active:not(:disabled) {
+        animation: buttonRipple 0.3s var(--ease-out);
     }
 
     .suggestion-card:active {
-        transform: scale(0.98);
-        transition: transform 0.1s ease-out;
+        transform: scale(0.98) translateZ(0); /* Add translateZ for consistency */
+        transition: transform 0.1s var(--ease-out);
     }
 }
 
-/* --- HIGH REFRESH RATE DISPLAYS --- */
-@media (min-resolution: 120dpi) {
+/* --- HIGH REFRESH RATE DISPLAYS (smoother easing if supported) --- */
+@media (min-resolution: 120dpi) { /* This is a proxy, actual refresh rate detection is harder */
     .message,
     .typing-dot,
-    .voice-bar {
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    .voice-bar { /* Examples of elements with continuous/looping animations */
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* Smoother default ease */
     }
 }
 
 /* --- ANIMATION CLASSES FOR JAVASCRIPT TRIGGERS --- */
 .fade-in-element {
     animation: fadeInElementAnimOpusEnhanced 0.7s var(--ease-out) forwards;
-    opacity: 0;
+    opacity: 0; /* Start hidden */
 }
 
-.slide-in-element {
+.slide-in-element { /* Example for sidebar items or similar */
     animation: sidebarItemSlideIn 0.5s var(--ease-out) forwards;
-    opacity: 0;
+    opacity: 0; /* Start hidden */
 }
 
-.bounce-in-element {
+.bounce-in-element { /* Example for modals or prominent cards */
     animation: popInLoginCardOpusEnhanced 1s var(--ease-bounce) forwards;
-    opacity: 0;
+    opacity: 0; /* Start hidden */
 }
 
-.shimmer-element {
+.shimmer-element { /* For skeleton loaders */
     background: linear-gradient(90deg,
         rgba(var(--bg-tertiary-rgb), 0.3) 25%,
         rgba(var(--bg-tertiary-rgb), 0.5) 50%,
@@ -589,10 +596,10 @@
     animation: shimmer 1.5s infinite;
 }
 
-/* --- STAGGERED ANIMATIONS --- */
+/* --- STAGGERED ANIMATIONS (applied to items in a list) --- */
 .stagger-item:nth-child(1) { animation-delay: 0ms; }
 .stagger-item:nth-child(2) { animation-delay: 100ms; }
 .stagger-item:nth-child(3) { animation-delay: 200ms; }
 .stagger-item:nth-child(4) { animation-delay: 300ms; }
 .stagger-item:nth-child(5) { animation-delay: 400ms; }
-.stagger-item:nth-child(n+6) { animation-delay: 500ms; }
+.stagger-item:nth-child(n+6) { animation-delay: 500ms; } /* Cap delay for longer lists */
