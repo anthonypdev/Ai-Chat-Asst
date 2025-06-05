@@ -5,132 +5,122 @@
 
 /* ==========================================================================
    CORE FOUNDATION IMPORTS - Load First
+   These are essential for the entire application's base styling.
    ========================================================================== */
 
 /* Design System Foundation */
-@import url('core/variables.css');
-@import url('core/reset.css');
-@import url('core/typography.css');
-@import url('core/utilities.css'); /* Contains utility classes like .hidden, .sr-only etc. */
+@import url('core/variables.css');    /* Defines all CSS custom properties (colors, spacing, typography, etc.) */
+@import url('core/reset.css');        /* Modern browser normalization and baseline reset */
+@import url('core/typography.css');   /* Base typographic styles, heading system, text utilities */
+@import url('core/utilities.css');    /* Reusable helper classes (visibility, flex, spacing, etc.) */
 
 /* ==========================================================================
    COMPONENT IMPORTS - UI Building Blocks
+   These style common UI elements used throughout the application.
    ========================================================================== */
 
-@import url('components/buttons.css');
-@import url('components/forms.css');
-@import url('components/modals.css');
-@import url('components/messages.css');
-@import url('components/sidebar.css');
+@import url('components/buttons.css');   /* Styles for all button variants and states */
+@import url('components/forms.css');     /* Styles for input fields, textareas, selects, checkboxes, etc. */
+@import url('components/modals.css');    /* Styles for modal dialogs and overlays */
+@import url('components/messages.css');  /* Styles for chat messages, user/assistant bubbles, typing indicator */
+@import url('components/sidebar.css');   /* Styles for the main application sidebar and navigation */
 
 /* ==========================================================================
    THEME SYSTEM IMPORTS - Base and Default (Always loaded)
+   Theme-specific styles are loaded dynamically by ThemeManager.js
    ========================================================================== */
 
-/* Base theme structure (shared foundational styles for all themes) */
+/* Base theme structure (shared foundational styles for all themes, e.g., character UI containers) */
 @import url('themes/base-theme.css');
 
 /* Default theme (loaded as fallback and base visual style) */
-@import url('themes/default/theme.css');
-@import url('themes/default/animations.css');
+@import url('themes/default/theme.css');      /* Specific styles for the default theme */
+@import url('themes/default/animations.css'); /* Animations specific to the default theme */
 
 /* ==========================================================================
    ROOT APPLICATION STYLES
+   Global styles applied to html, body, and the main app container.
    ========================================================================== */
 
-/* Document & Body Setup */
 html {
-  /* Enhanced font rendering (already in reset.css, but good to reinforce) */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-
-  /* Viewport optimization */
-  overflow-x: hidden;
-  scroll-behavior: smooth; /* Can be overridden by prefers-reduced-motion */
-
-  /* Custom properties for theme transitions (can be updated by JS) */
-  --theme-transition-active: 0; /* 0 or 1 */
-  --theme-transition-progress: 0; /* 0 to 1 */
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  font-size: var(--font-size-base); /* Root font size for rem calculations */
+  line-height: var(--line-height-normal);
+  overflow-x: hidden; /* Prevent horizontal scrollbars */
+  scroll-behavior: smooth; /* Default smooth scrolling */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: var(--gray-400) var(--gray-100); /* For Firefox */
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
-    scroll-behavior: auto;
+    scroll-behavior: auto !important; /* Override for reduced motion */
   }
 }
 
 body {
-  /* Base application styling from variables.css */
   margin: 0;
   padding: 0;
   font-family: var(--font-family-default);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
   color: var(--text-primary);
   background-color: var(--bg-primary);
-
-  /* Viewport handling */
   min-height: 100vh;
   min-height: 100dvh; /* More accurate viewport height on mobile */
-  overflow-x: hidden; /* Prevent horizontal scrollbars */
-
-  /* Performance optimizations */
-  will-change: background-color, color;
-  transition: background-color 0.8s var(--ease-in-out), color 0.6s var(--ease-in-out);
-
-  /* iOS specific fixes */
-  -webkit-overflow-scrolling: touch; /* Momentum scrolling */
-  overscroll-behavior-y: contain; /* Prevent pull-to-refresh on body */
+  overflow-x: hidden;
+  display: flex; /* Prepare for potential full-page flex layouts if needed */
+  flex-direction: column;
+  position: relative; /* For absolutely positioned children like overlays */
+  transition: background-color 0.5s var(--ease-in-out), color 0.5s var(--ease-in-out);
 }
 
-/* iOS specific body adjustments for 100vh */
-@supports (-webkit-touch-callout: none) {
-  body {
-    min-height: -webkit-fill-available;
-  }
+/* Ensures the app container takes up available space, useful if body is flex */
+#appContainer {
+  flex-grow: 1;
+  display: flex; /* This will be key for sidebar + main content layout */
+  position: relative; /* For z-indexing of internal components */
+  overflow: hidden; /* Prevent app container itself from causing scrollbars due to transitions */
 }
 
 /* Application loading state */
 body.app-loading {
-  overflow: hidden; /* Prevent scrolling during load */
+  overflow: hidden; /* Prevent scrolling during initial load */
   cursor: wait;
 }
-
 body.app-loading * {
-  cursor: wait !important; /* Ensure all elements show wait cursor */
+  cursor: wait !important;
 }
 
 /* Theme transition state */
 body.theme-transitioning {
-  --theme-transition-active: 1;
-  pointer-events: none; /* Prevent interaction during transition */
-  user-select: none;
+  pointer-events: none !important; /* Prevent interaction during full-screen theme transitions */
+  user-select: none !important;
+}
+body.theme-transitioning * {
+  pointer-events: none !important;
 }
 
-body.theme-transitioning * {
-  pointer-events: none !important; /* Ensure all children are non-interactive */
-}
 
 /* ==========================================================================
-   LOADING SCREEN STYLES
+   LOADING SCREEN STYLES (Global, also defined in default/theme.css but good to have a base here)
    ========================================================================== */
 
 #loadingOverlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, #020104 0%, #0a0c0f 100%); /* Dark, techy gradient */
-  z-index: var(--z-maximum); /* Ensure it's on top of everything */
+  background: var(--bg-primary, #FFFFFF); /* Fallback to a solid color initially */
+  z-index: var(--z-loading-overlay); /* Ensure it's on top */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #f0f0f8;
-  font-family: var(--font-family-default);
   opacity: 1;
   visibility: visible;
-  transition: opacity 1.3s cubic-bezier(0.77, 0, 0.175, 1),
-              visibility 0s linear 1.3s; /* Hide after fade */
+  transition: opacity 0.5s var(--ease-out) 0.3s, visibility 0s linear 0.8s; /* Delay hiding visibility */
   will-change: opacity, visibility;
 }
 
@@ -138,263 +128,90 @@ body.theme-transitioning * {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.5s cubic-bezier(0.77, 0, 0.175, 1),
-              visibility 0s linear 0.5s;
+  transition: opacity 0.5s var(--ease-in), visibility 0s linear 0.5s;
+}
+
+.loading-logo-container {
+  margin-bottom: var(--space-lg);
 }
 
 .loading-logo {
-  font-size: var(--loading-logo-size, 6.5rem);
-  font-weight: 900;
-  color: #a8a4ff; /* Default theme primary color */
-  margin-bottom: 2.8rem;
-  text-shadow:
-    0 0 15px rgba(168, 164, 255, 0.3),
-    0 0 35px rgba(168, 164, 255, 0.55),
-    0 0 60px rgba(168, 164, 255, 0.45),
-    0 0 100px rgba(168, 164, 255, 0.25);
-  /* Animation 'pulseLogoOpus' is defined in default/animations.css and potentially overridden by themes */
-  animation: pulseLogoLoadingEnhancedOpus 3.5s infinite ease-in-out; /* Default animation name from default theme */
-  will-change: transform, opacity, filter;
-  transform: translateZ(0); /* GPU acceleration hint */
+  font-size: var(--loading-logo-size, 5rem); /* From variables.css */
+  font-weight: var(--font-weight-black);
+  color: var(--primary);
+  /* Animation for logo is in default/animations.css and theme-specific animation files */
 }
 
 .loading-text {
-  font-size: 1.45rem;
-  margin-bottom: 3.8rem;
-  color: #e0e0e6;
-  letter-spacing: 1.8px;
-  /* Animation 'fadeInTextOpus' is defined in default/animations.css */
-  animation: fadeInTextLoadingEnhancedOpus 1.8s ease-out 0.2s forwards;
-  opacity: 0;
-  will-change: transform, opacity;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+  opacity: 0; /* Animation will fade it in */
+  animation: fadeInTextLoadingEnhancedOpus 1.2s var(--ease-out) 0.3s forwards; /* Animation from default/animations.css */
 }
 
 .progress-bar-container {
-  width: 90%;
-  max-width: 550px;
-  height: var(--loading-progress-height, 18px);
-  background-color: #1a181f;
-  border-radius: calc(var(--loading-progress-height, 18px) / 2);
+  width: clamp(200px, 60%, 400px);
+  height: var(--loading-progress-height, 10px);
+  background-color: var(--gray-200);
+  border-radius: var(--radius-full);
   overflow: hidden;
-  box-shadow:
-    inset 0 3px 8px rgba(0, 0, 0, 0.75),
-    0 1px 0 rgba(255, 255, 255, 0.03);
-  margin-bottom: 2.8rem;
-  position: relative;
+  margin-bottom: var(--space-md);
 }
 
 .progress-bar {
-  width: 0%;
+  width: 0%; /* JS will update this */
   height: 100%;
-  background: linear-gradient(90deg, #a8a4ff, #d0afff); /* Default theme gradient */
-  border-radius: calc(var(--loading-progress-height, 18px) / 2);
-  transition: width 0.45s cubic-bezier(0.65, 0, 0.35, 1);
-  box-shadow:
-    0 0 15px rgba(168, 164, 255, 0.6),
-    0 0 25px rgba(208, 175, 255, 0.4);
-  /* Animation 'progressShineOpus' is defined in default/animations.css */
-  animation: progressBarShineOpus 2s infinite linear;
-  will-change: width, filter;
-  transform: translateZ(0); /* GPU acceleration hint */
+  background-color: var(--primary);
+  border-radius: var(--radius-full);
+  transition: width 0.3s var(--ease-out);
+  /* Shine/pulse animation from default/animations.css */
+  animation: progressBarShineOpus 1.5s infinite linear;
 }
 
 .loading-tip {
-  font-size: 1.05rem;
-  color: #b8b8c0;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--space-lg);
   font-style: italic;
-  max-width: 90%;
+  max-width: 80%;
   text-align: center;
-  line-height: 1.7;
-  /* Animation 'fadeInTipOpus' is defined in default/animations.css */
-  animation: fadeInTipLoadingOpus 1.5s ease-out var(--loading-tip-delay, 0.8s) forwards;
-  opacity: 0;
-  will-change: transform, opacity;
+  opacity: 0; /* Animation will fade it in */
+  animation: fadeInTipLoadingOpus 1.2s var(--ease-out) 0.6s forwards; /* Animation from default/animations.css */
 }
 
 /* ==========================================================================
-   THEME TRANSITION OVERLAYS
+   THEME TRANSITION OVERLAYS (Base structural style)
    ========================================================================== */
 
-.theme-transition-overlay { /* Base style, specific transitions in their respective CSS files */
+.theme-transition-overlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-animation-overlay, 1100); /* From base-theme.css */
-  pointer-events: none;
+  z-index: var(--z-animation-overlay);
+  pointer-events: none; /* Allows clicks through unless explicitly made active */
   opacity: 0;
   visibility: hidden;
+  /* Default transition for the overlay itself - can be overridden by specific transitions */
   transition: opacity 0.3s var(--ease-out), visibility 0s linear 0.3s;
-  will-change: opacity, visibility;
-  transform: translateZ(0); /* GPU acceleration hint */
 }
 
 .theme-transition-overlay.active {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto; /* Allow interaction if overlay itself has interactive parts */
+  pointer-events: auto; /* Block interaction during transition */
   transition-delay: 0s;
 }
 
-/* Jaws Wave Transition specific styles are in css/themes/jaws/transitions.css */
-/* Jurassic Gate Transition specific styles are in css/themes/jurassic/transitions.css */
-
-/* Example of how specific transition might be structured (actual implementation in theme files) */
-.jaws-wave-transition {
-  /* Styles defined in css/themes/jaws/transitions.css */
+.transition-animation-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-.jurassic-gate-transition {
-  /* Styles defined in css/themes/jurassic/transitions.css */
-}
-
-/* ==========================================================================
-   DYNAMIC THEME LOADING PLACEHOLDERS (Actual imports are dynamic via JS)
-   ========================================================================== */
-
-/*
-  Theme-specific CSS files (e.g., css/themes/jaws/theme.css, css/themes/jurassic/animations.css)
-  are loaded dynamically by the ThemeManager JavaScript module (js/features/themes/manager.js)
-  when a theme is switched. This main.css file only imports foundational and default theme CSS.
-*/
-
-/* ==========================================================================
-   ACCESSIBILITY ENHANCEMENTS
-   ========================================================================== */
-
-/* Focus management during loading */
-body.app-loading *:focus {
-  outline: none !important; /* Prevent focus outlines during initial load */
-}
-
-/* High contrast mode support (general, specific overrides in component/theme files) */
-@media (prefers-contrast: high) {
-  .loading-logo {
-    text-shadow: none;
-    border: 2px solid currentColor; /* Ensure visibility */
-    padding: var(--space-md);
-    border-radius: var(--radius-lg);
-  }
-
-  .progress-bar {
-    box-shadow: none;
-    border: 2px solid var(--primary); /* Ensure progress is visible */
-  }
-}
-
-/* Reduced motion support (general, specific overrides in animation/theme files) */
-@media (prefers-reduced-motion: reduce) {
-  .loading-logo,
-  .progress-bar,
-  .loading-text,
-  .loading-tip,
-  .shark-silhouette, /* Example from Jaws transition */
-  .gate-lights { /* Example from Jurassic transition */
-    animation: none !important;
-  }
-
-  .theme-transition-overlay * { /* Broadly disable transitions within overlays */
-    transition: none !important;
-    animation: none !important;
-  }
-}
-
-/* ==========================================================================
-   RESPONSIVE DESIGN OVERRIDES (Global Level)
-   ========================================================================== */
-
-/* Mobile optimizations for loading screen */
-@media (max-width: 768px) {
-  .loading-logo {
-    font-size: calc(var(--loading-logo-size) * 0.7); /* Scale down logo */
-    margin-bottom: 2rem;
-  }
-
-  .loading-text {
-    font-size: 1.2rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .progress-bar-container {
-    width: 95%;
-    height: calc(var(--loading-progress-height) * 0.9);
-    margin-bottom: 2rem;
-  }
-
-  .loading-tip {
-    font-size: 0.95rem;
-    padding: 0 var(--space-md);
-  }
-}
-
-/* Very small screens */
-@media (max-width: 480px) {
-  .loading-logo {
-    font-size: calc(var(--loading-logo-size) * 0.55);
-    margin-bottom: 1.5rem;
-  }
-
-  .loading-text {
-    font-size: 1rem;
-    margin-bottom: 2rem;
-    letter-spacing: 1px;
-  }
-
-  .progress-bar-container {
-    height: calc(var(--loading-progress-height) * 0.8);
-    margin-bottom: 1.5rem;
-  }
-
-  .loading-tip {
-    font-size: 0.85rem;
-  }
-}
-
-/* ==========================================================================
-   PRINT STYLES
-   ========================================================================== */
-
-@media print {
-  #loadingOverlay,
-  .theme-transition-overlay,
-  .sound-toggle, /* Example of UI element not for print */
-  .character-status-display, /* Example */
-  .walkie-talkie, /* Example */
-  .mr-dna-container { /* Example */
-    display: none !important;
-  }
-
-  body {
-    background: var(--white) !important;
-    color: var(--black) !important;
-  }
-
-  * {
-    animation: none !important;
-    transition: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-}
-
-/* ==========================================================================
-   PERFORMANCE OPTIMIZATIONS (General hints for global elements)
-   ========================================================================== */
-
-/* GPU acceleration for globally animated or complex elements */
-.loading-logo,
-.progress-bar,
-.theme-transition-overlay, /* And its direct children like .shark-silhouette, .gate-left */
-.gate-fog {
-  transform: translateZ(0);
-  backface-visibility: hidden; /* Can improve rendering performance */
-  perspective: 1000px; /* Required for 3D transforms, sometimes helps 2D */
-}
-
-/* Contain layout, style, and paint changes for complex sections to optimize rendering */
-#loadingOverlay,
-.theme-transition-overlay {
-  contain: layout style paint;
-}
-
-.progress-bar { /* Example: Progress bar might only need layout containment if its children don't overflow visually */
-  contain: layout;
+/* Fallback if specific transition CSS fails to load or apply */
+.jaws-wave-transition.hidden,
+.jurassic-gate-transition.hidden {
+  display: none !important;
 }
