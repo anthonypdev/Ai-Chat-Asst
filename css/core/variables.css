@@ -26,6 +26,11 @@
   --gray-900: #111827; /* Near black */
   --gray-950: #030712; /* Deepest, almost black */
 
+  /* RGB versions for opacity usage */
+  --gray-900-rgb: 17, 24, 39;
+  --gray-800-rgb: 31, 41, 55;
+
+
   /* ==========================================================================
      TYPOGRAPHY SYSTEM - SYSTEM FONTS ONLY (as per mandate)
      ========================================================================== */
@@ -33,7 +38,7 @@
   /* System Font Stacks - Prioritizing modern system UI fonts */
   --font-family-system-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --font-family-system-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, Cambria, "Times New Roman", Times, serif; /* More classic serif stack */
-  --font-family-system-monospace: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* Developer-friendly monospaced fonts */
+  --font-family-system-monospace: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* Developer-friendly monospaced fonts */
 
   /* Base Font Families (using system stacks) */
   --font-family-default: var(--font-family-system-sans-serif);
@@ -106,25 +111,25 @@
   --space-16: calc(16 * var(--space-unit));   /* 64px */
   --space-20: calc(20 * var(--space-unit));   /* 80px */
   --space-24: calc(24 * var(--space-unit));   /* 96px */
-  /* Add more as needed: 28, 32, 36, 40, 44, 48, 52, 56, 60, 64 */
 
-  /* Semantic Spacing Aliases */
-  --space-xxs: var(--space-0-5); /* 2px */
-  --space-xs: var(--space-1);   /* 4px */
-  --space-sm: var(--space-2);   /* 8px */
+  /* Semantic Spacing Aliases (based on the 8-point grid system common in UI design) */
+  --space-xxs: var(--space-1);  /* 4px */
+  --space-xs: var(--space-2);   /* 8px */
+  --space-sm: var(--space-3);   /* 12px */
   --space-md: var(--space-4);   /* 16px */
   --space-lg: var(--space-6);   /* 24px */
   --space-xl: var(--space-8);   /* 32px */
-  --space-2xl: var(--space-12); /* 48px */
-  --space-3xl: var(--space-16); /* 64px */
-  --space-4xl: var(--space-24); /* 96px */
+  --space-2xl: var(--space-10); /* 40px */
+  --space-3xl: var(--space-12); /* 48px */
+  --space-4xl: var(--space-16); /* 64px */
+
 
   /* ==========================================================================
      DEFAULT THEME - Modern, Professional, Tech-Forward AI Interface
      ========================================================================== */
 
   /* Primary Color System - Sophisticated & Approachable Tech Blue/Purple */
-  --primary: #6A5ACD; /* SlateBlue - a good starting point, can adjust */
+  --primary: #6A5ACD; /* SlateBlue */
   --primary-rgb: 106, 90, 205;
   --primary-dark: #483D8B; /* DarkSlateBlue */
   --primary-darker: #3B3070; /* Even darker for depth */
@@ -150,51 +155,45 @@
   --info-rgb: 30, 144, 255;
 
   /* Background System - Clean & Layered */
-  --bg-primary: var(--white);            /* Primary content background */
+  --bg-primary: var(--white);
   --bg-primary-rgb: 255, 255, 255;
-  --bg-secondary: var(--gray-50);        /* Slightly off-white for sections */
+  --bg-secondary: var(--gray-50);
   --bg-secondary-rgb: 249, 250, 251;
-  --bg-tertiary: var(--gray-100);       /* Subtle layering */
+  --bg-tertiary: var(--gray-100);
   --bg-tertiary-rgb: 243, 244, 246;
-  --bg-elevated: var(--white);           /* For cards, modals that sit on top */
+  --bg-elevated: var(--white);
   --bg-elevated-rgb: 255, 255, 255;
-  --bg-overlay: rgba(var(--gray-900-rgb, 17, 24, 39), 0.75); /* Dark overlay for modals */
-  --bg-backdrop: rgba(var(--gray-800-rgb, 31, 41, 55), 0.5); /* Subtle backdrop for dropdowns, etc. */
+  --bg-overlay: rgba(var(--gray-900-rgb), 0.85); /* Darker overlay */
+  --bg-backdrop: rgba(var(--gray-800-rgb), 0.6); /* More blur, less opacity */
 
   /* Text Color System - High Readability */
-  --text-primary: var(--gray-900);       /* Main text color */
+  --text-primary: var(--gray-900);
   --text-primary-rgb: 17, 24, 39;
-  --text-secondary: var(--gray-700);     /* Secondary, less emphasized text */
-  --text-secondary-rgb: 55, 65, 81;
-  --text-tertiary: var(--gray-500);      /* Tertiary, hints, captions */
-  --text-tertiary-rgb: 107, 114, 128;
-  --text-muted: var(--gray-400);         /* Muted, placeholder text */
-  --text-muted-rgb: 156, 163, 175;
-  --text-inverse: var(--white);          /* Text on dark/colored backgrounds */
-  --text-inverse-rgb: 255, 255, 255;
-  --text-link: var(--primary);           /* Default link color */
-  --text-link-hover: var(--primary-dark); /* Link hover color */
+  --text-secondary: var(--gray-700);
+  --text-tertiary: var(--gray-500);
+  --text-muted: var(--gray-400);
+  --text-inverse: var(--white);
+  --text-link: var(--primary);
+  --text-link-hover: var(--primary-dark);
 
   /* Border System - Subtle & Defining */
-  --border: var(--gray-300);             /* Default border color */
+  --border: var(--gray-300);
   --border-rgb: 209, 213, 219;
-  --border-light: var(--gray-200);       /* Lighter border */
-  --border-light-rgb: 229, 231, 235;
-  --border-dark: var(--gray-400);        /* Darker, more prominent border */
-  --border-dark-rgb: 156, 163, 175;
-  --border-input: var(--gray-300);       /* Specific for form inputs */
+  --border-light: var(--gray-200);
+  --border-dark: var(--gray-400);
+  --border-input: var(--gray-300);
   --border-input-focus: var(--primary);
 
   /* ==========================================================================
      SHADOW SYSTEM - Depth & Elevation (Modern, subtle shadows)
      ========================================================================== */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -4px rgba(0, 0, 0, 0.09);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
   --shadow-none: none;
 
   /* Themed Glow Effects (for primary interactive elements) */
@@ -220,14 +219,14 @@
 
   /* Easing Functions - Based on common web standards */
   --ease-linear: cubic-bezier(0, 0, 1, 1);
-  --ease-in: cubic-bezier(0.42, 0, 1, 1);         /* Decelerate */
-  --ease-out: cubic-bezier(0, 0, 0.58, 1);        /* Accelerate */
-  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);  /* Standard ease */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring-like bounce */
+  --ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* More pronounced bounce */
-  --ease-back-in: cubic-bezier(0.6, -0.28, 0.735, 0.045);
-  --ease-back-out: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-back-in-out: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-back-in: cubic-bezier(0.36, 0, 0.66, -0.56);
+  --ease-back-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-back-in-out: cubic-bezier(0.68, -0.6, 0.32, 1.6);
 
 
   /* Duration Scale - Standardized timing */
@@ -239,37 +238,37 @@
   --duration-longest: 500ms;
 
   /* Semantic Durations - For common UI transitions */
-  --transition-fast: var(--duration-base);    /* e.g., hover effects */
-  --transition-medium: var(--duration-longer); /* e.g., modal fades, drawer slides */
-  --transition-slow: var(--duration-longest);  /* e.g., major layout shifts */
+  --transition-fast: var(--duration-base);
+  --transition-medium: var(--duration-longer);
+  --transition-slow: var(--duration-longest);
 
   /* ==========================================================================
      Z-INDEX SYSTEM - Layering Stack
      ========================================================================== */
   --z-hide: -1;
   --z-base: 0;
-  --z-docked: 10;          /* For fixed headers/footers that don't overlay */
-  --z-dropdown: 1000;      /* Dropdown menus */
-  --z-sticky: 1020;        /* Sticky elements within scroll contexts */
-  --z-banner: 1030;        /* Site-wide banners or alerts */
-  --z-overlay-backdrop: 1040; /* Modal backdrops */
-  --z-modal: 1050;           /* Modals */
-  --z-popover: 1060;         /* Popovers, non-modal dialogs */
-  --z-tooltip: 1070;         /* Tooltips */
-  --z-toast: 1080;           /* Toast notifications */
-  --z-loading-overlay: 2000; /* Loading screen overlay */
-  --z-animation-overlay: 2100; /* Theme transition overlays */
-  --z-maximum: 2147483647;   /* Highest possible z-index */
+  --z-docked: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-banner: 1030;
+  --z-overlay-backdrop: 1040; /* Changed name for clarity */
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  --z-loading-overlay: 2000;
+  --z-animation-overlay: 2100; /* For full-screen theme transitions */
+  --z-maximum: 2147483647;
 
   /* ==========================================================================
      BREAKPOINTS - Responsive Design System
      ========================================================================== */
-  --breakpoint-xs: 480px;  /* Extra small devices (phones, portrait) */
-  --breakpoint-sm: 640px;  /* Small devices (phones, landscape) */
-  --breakpoint-md: 768px;  /* Medium devices (tablets) */
-  --breakpoint-lg: 1024px; /* Large devices (desktops, small laptops) */
-  --breakpoint-xl: 1280px; /* Extra large devices (large desktops) */
-  --breakpoint-2xl: 1536px;/* 2X large devices (wider desktops) */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 
   /* ==========================================================================
      GRADIENTS - Color Transitions
@@ -277,28 +276,25 @@
   --gradient-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
   --gradient-primary-hover: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   --gradient-accent: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); /* Subtle glass effect */
-  --gradient-dark-subtle: linear-gradient(180deg, rgba(var(--gray-900-rgb), 0.1) 0%, transparent 50%); /* For top edges of dark containers */
+  --gradient-glass: linear-gradient(135deg, rgba(var(--white-rgb, 255,255,255), 0.15) 0%, rgba(var(--white-rgb, 255,255,255), 0.05) 100%);
+  --gradient-dark-subtle: linear-gradient(180deg, rgba(var(--gray-900-rgb), 0.08) 0%, transparent 70%);
 
   /* ==========================================================================
      COMPONENT-SPECIFIC VARIABLES (Can be overridden by themes)
      ========================================================================== */
-  --loading-progress-height: 12px; /* Thinner progress bar */
+  --loading-progress-height: 12px;
   --sidebar-width: 280px;
   --sidebar-width-mobile: 260px;
   --chat-input-min-height: 48px;
-  --chat-input-max-height: 160px;
+  --chat-input-max-height: 180px; /* Increased slightly */
   --message-avatar-size: 36px;
-  --button-height-md: 44px; /* Base button height */
+  --button-height-md: 44px;
 }
 
 /* ==========================================================================
    JAWS THEME - Deep Ocean Terror (Overrides for :root variables)
-   System font stacks from :root are inherited. Theme-specific display fonts
-   are applied directly in jaws/theme.css and jaws/typography.css using these.
    ========================================================================== */
 [data-theme="jaws"] {
-  /* Primary Color System - Ocean Blues & Blood Red */
   --primary: #0D47A1; /* Deep Blue */
   --primary-rgb: 13, 71, 161;
   --primary-dark: #002171;
@@ -313,55 +309,39 @@
   --accent-light: #FF6659;
   --accent-dark: #9A0007;
 
-  /* Backgrounds - Abyss & Murky Waters */
-  --bg-primary: #010D1A; /* Very Dark Blue, almost black */
+  --bg-primary: #010D1A;
   --bg-primary-rgb: 1, 13, 26;
   --bg-secondary: #021A30;
-  --bg-secondary-rgb: 2, 26, 48;
   --bg-tertiary: #032644;
-  --bg-tertiary-rgb: 3, 38, 68;
-  --bg-elevated: #053057; /* Slightly lighter for "floating" elements */
+  --bg-elevated: #053057;
   --bg-elevated-rgb: 5, 48, 87;
-  --bg-overlay: rgba(var(--black-rgb, 0,0,0), 0.85);
-  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.7);
+  --bg-overlay: rgba(var(--black-rgb, 0,0,0), 0.9);
+  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
 
-  /* Text - Bioluminescent & Weathered */
   --text-primary: #E0F7FA; /* Light Cyan */
-  --text-primary-rgb: 224, 247, 250;
   --text-secondary: #B2EBF2;
   --text-tertiary: #80DEEA;
   --text-muted: #4DD0E1;
   --text-inverse: var(--white);
 
-  /* Borders - Rusted Metal & Deep Sea */
   --border: var(--primary-dark);
-  --border-rgb: 0, 33, 113;
   --border-light: var(--primary);
-  --border-dark: #000A14;
+  --border-dark: #000A14; /* Very dark for contrast */
 
-  /* Typography: System fonts used. Specific "themed" fonts applied via CSS classes from jaws/typography.css */
-  --font-family-heading: var(--font-family-system-sans-serif); /* Base, Jaws theme will override with display fonts for headings */
+  --font-family-heading: 'Nosifer', 'Creepster', var(--font-family-system-sans-serif); /* Themed heading */
+  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Nautical/typewriter body */
 
-  /* Shadows - Underwater Murk & Menace */
-  --shadow-xs: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-sm: 0 2px 5px rgba(0,0,0,0.4);
-  --shadow-md: 0 5px 10px rgba(0,0,0,0.5);
-  --shadow-lg: 0 8px 18px rgba(0,0,0,0.6), 0 0 10px rgba(var(--accent-rgb),0.3);
-  --shadow-xl: 0 12px 25px rgba(0,0,0,0.7), 0 0 15px rgba(var(--accent-rgb),0.4);
-  --shadow-2xl: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px rgba(var(--accent-rgb),0.5);
-  --shadow-inner: inset 0 1px 3px rgba(0,0,0,0.5);
-  --primary-glow-soft: rgba(var(--accent-rgb), 0.25);
-  --primary-glow-medium: rgba(var(--accent-rgb), 0.45);
-  --primary-glow-strong: rgba(var(--accent-rgb), 0.65);
+  --shadow-lg: 0 8px 18px rgba(0,0,0,0.7), 0 0 15px rgba(var(--accent-rgb),0.4);
+  --shadow-xl: 0 12px 25px rgba(0,0,0,0.8), 0 0 20px rgba(var(--accent-rgb),0.5);
+  --primary-glow-soft: rgba(var(--primary-lighter-rgb), 0.2);
+  --primary-glow-medium: rgba(var(--primary-lighter-rgb), 0.4);
+  --primary-glow-strong: rgba(var(--primary-lighter-rgb), 0.6);
 }
 
 /* ==========================================================================
    JURASSIC PARK THEME - Ancient Amber & Untamed Jungle
-   System font stacks from :root are inherited. Theme-specific display fonts
-   are applied directly in jurassic/theme.css and jurassic/typography.css.
    ========================================================================== */
 [data-theme="jurassic"] {
-  /* Primary Color System - Amber & Earth Tones */
   --primary: #F5A623; /* Amber/Orange */
   --primary-rgb: 245, 166, 35;
   --primary-dark: #D4890A;
@@ -371,79 +351,69 @@
   --primary-lighter: #FFE0A3;
   --primary-lighter-rgb: 255, 224, 163;
 
-  /* Accent - Jungle Green */
   --accent: #4A783A; /* Deep Jungle Green */
   --accent-rgb: 74, 120, 58;
   --accent-light: #7DB866;
   --accent-dark: #2D571E;
 
-  /* Backgrounds - Earth & Foliage */
-  --bg-primary: #1A140D; /* Darkest Brown, like rich soil */
+  --bg-primary: #1A140D; /* Darkest Brown */
   --bg-primary-rgb: 26, 20, 13;
   --bg-secondary: #2C241B;
-  --bg-secondary-rgb: 44, 36, 27;
   --bg-tertiary: #3E352A;
-  --bg-tertiary-rgb: 62, 53, 42;
-  --bg-elevated: #251F16; /* Slightly lighter for cards */
+  --bg-elevated: #251F16;
   --bg-elevated-rgb: 37, 31, 22;
-  --bg-overlay: rgba(var(--black-rgb,0,0,0), 0.88);
-  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.75);
+  --bg-overlay: rgba(var(--black-rgb,0,0,0), 0.9);
+  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
 
-  /* Text - Fossil & Bone White */
-  --text-primary: #EDE7D9; /* Off-white, like aged paper/bone */
-  --text-primary-rgb: 237, 231, 217;
+  --text-primary: #EDE7D9; /* Fossil/Bone White */
   --text-secondary: #D4CBAF;
   --text-tertiary: #B0A085;
   --text-muted: #8C7F69;
-  --text-inverse: var(--black);
+  --text-inverse: var(--gray-950); /* Dark text on amber */
 
-  /* Borders - Weathered Wood & Stone */
   --border: var(--primary-darker);
-  --border-rgb: 138, 108, 47;
   --border-light: var(--primary-dark);
   --border-dark: #5C4033; /* Dark Brown */
 
-  /* Typography: System fonts used. Specific "themed" fonts applied via CSS classes from jurassic/typography.css */
-  --font-family-heading: var(--font-family-system-serif); /* Base, Jurassic theme will override with display fonts */
+  --font-family-heading: 'Rye', 'Metal Mania', var(--font-family-system-serif); /* Themed heading */
+  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Typewriter/field notes body */
 
-  /* Shadows - Earthy & Deep */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md: 0 4px 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
-  --shadow-lg: 0 8px 16px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4);
-  --shadow-xl: 0 15px 30px rgba(0,0,0,0.6), 0 6px 12px rgba(0,0,0,0.5);
-  --shadow-2xl: 0 25px 50px rgba(0,0,0,0.7);
-  --shadow-inner: inset 0 2px 5px rgba(0,0,0,0.4);
-  --primary-glow-soft: rgba(var(--primary-rgb), 0.2);
-  --primary-glow-medium: rgba(var(--primary-rgb), 0.35);
-  --primary-glow-strong: rgba(var(--primary-rgb), 0.5);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.6), 0 0 12px rgba(var(--primary-darker-rgb),0.5);
+  --shadow-xl: 0 15px 30px rgba(0,0,0,0.7), 0 0 18px rgba(var(--primary-darker-rgb),0.6);
+  --primary-glow-soft: rgba(var(--primary-rgb), 0.25);
+  --primary-glow-medium: rgba(var(--primary-rgb), 0.4);
+  --primary-glow-strong: rgba(var(--primary-rgb), 0.6);
 }
 
+
 /* ==========================================================================
-   ACCESSIBILITY & REDUCED MOTION - Applies to all themes
+   ACCESSIBILITY & REDUCED MOTION (Global, overrides :root if necessary)
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  :root {
+  :root { /* Apply to all themes when reduced motion is preferred */
     --transition-fast: 0ms !important;
     --transition-medium: 0ms !important;
     --transition-slow: 0ms !important;
-    --theme-transition-duration: 0ms !important; /* Ensure theme transitions are also instant */
+    --theme-transition-duration: 0ms !important;
     --character-transition-speed: 0ms !important;
+    /* Keep other animation durations for critical feedback if absolutely necessary,
+       or set them to very short (e.g., 50ms) instead of 0ms.
+       For Opus Magnum, assume JS will also respect this for JS-driven animations. */
   }
 }
 
-/* High Contrast Mode Defaults (Can be further refined by themes) */
-@media (prefers-contrast: more) { /* Using 'more' instead of 'high' for broader compatibility */
+/* High Contrast Mode Defaults (System high contrast can be very different) */
+@media (prefers-contrast: more) {
   :root {
-    /* Invert or use system high-contrast colors */
-    --primary: #0000FF; /* Example: System Blue */
-    --accent: #FF0000;  /* Example: System Red */
-    --bg-primary: var(--white);
-    --text-primary: var(--black);
-    --border: var(--black);
-
-    --shadow-xs: none; --shadow-sm: none; --shadow-md: none; --shadow-lg: none;
-    --shadow-xl: none; --shadow-2xl: none; --shadow-inner: none;
+    --primary: ButtonText; /* Use system colors */
+    --accent: LinkText;
+    --bg-primary: Canvas;
+    --text-primary: CanvasText;
+    --border: GrayText;
+    --shadow-xs: none !important; --shadow-sm: none !important; --shadow-md: none !important;
+    --shadow-lg: none !important; --shadow-xl: none !important; --shadow-2xl: none !important;
+    --shadow-inner: none !important;
   }
+  /* Theme-specific high contrast overrides might be needed in theme.css if system colors aren't thematic enough */
 }
