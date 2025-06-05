@@ -9,643 +9,60 @@
      ========================================================================== */
 
   /* Color Primitives */
-  --white: #ffffff;
-  --black: #000000;
-  --transparent: transparent;
-
-  /* Gray Scale - Neutral Palette */
-  --gray-50: #fbfbfc;
-  --gray-100: #f3f4f8;
-  --gray-200: #ebedf2;
-  --gray-300: #d9dce4;
-  --gray-400: #a9b0bc;
-  --gray-500: #747c89;
-  --gray-600: #505863;
-  --gray-700: #3d4550;
-  --gray-800: #252a31;
-  --gray-900: #16191e;
-  --gray-950: #0a0c0f;
-
-  /* ==========================================================================
-     TYPOGRAPHY SYSTEM - SYSTEM FONTS ONLY
-     ========================================================================== */
-
-  /* System Font Stacks */
-  --font-family-system-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-family-system-serif: Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-family-system-monospace: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-
-  /* Base Font Families (using system stacks) */
-  --font-family-default: var(--font-family-system-sans-serif);
-  --font-family-mono: var(--font-family-system-monospace);
-  --font-family-heading: var(--font-family-system-sans-serif); /* Default heading, can be overridden by themes */
-
-  /* Font Scale - Fluid Typography */
-  --font-size-xs: clamp(0.78rem, 0.9vw, 0.86rem);
-  --font-size-sm: clamp(0.88rem, 1.1vw, 0.98rem);
-  --font-size-base: clamp(1rem, 1.3vw, 1.1rem);
-  --font-size-lg: clamp(1.15rem, 1.5vw, 1.25rem);
-  --font-size-xl: clamp(1.35rem, 1.8vw, 1.5rem);
-  --font-size-2xl: clamp(1.6rem, 2.2vw, 1.85rem);
-  --font-size-3xl: clamp(1.9rem, 2.8vw, 2.25rem);
-  --font-size-4xl: clamp(2.3rem, 3.5vw, 2.75rem);
-  --font-size-5xl: clamp(2.8rem, 4.5vw, 3.75rem);
-  --font-size-6xl: clamp(3.5rem, 6vw, 5rem);
-
-  /* Line Heights */
-  --line-height-tight: 1.25;
-  --line-height-snug: 1.375;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.625;
-  --line-height-loose: 2;
-
-  /* Font Weights (standard values for system fonts) */
-  --font-weight-thin: 100;
-  --font-weight-light: 300;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-  --font-weight-black: 900;
-
-  /* Letter Spacing */
-  --letter-spacing-tighter: -0.05em;
-  --letter-spacing-tight: -0.025em;
-  --letter-spacing-normal: 0em;
-  --letter-spacing-wide: 0.025em;
-  --letter-spacing-wider: 0.05em;
-  --letter-spacing-widest: 0.1em;
-
-  /* ==========================================================================
-     DEFAULT THEME - Modern Professional AI Interface
-     ========================================================================== */
-
-  /* Primary Color System */
-  --primary: #7a77ff;
-  --primary-rgb: 122, 119, 255;
-  --primary-dark: #5a57e0;
-  --primary-darker: #403eba;
-  --primary-darker-rgb: 64, 62, 186;
-  --primary-light: #9c9aff;
-  --primary-lighter: #bfbdff;
-  --primary-lighter-rgb: 191, 189, 255;
-
-  /* Secondary & Accent Colors */
-  --accent: #ff4da8;
-  --accent-rgb: 255, 77, 168;
-  --accent-light: #ff85c2;
-  --accent-lighter: #ffb3d6;
-
-  /* Semantic Colors */
-  --success: #00d15b;
-  --success-rgb: 0, 209, 91;
-  --warning: #ffaa00;
-  --warning-rgb: 255, 170, 0;
-  --error: #e60000;
-  --error-rgb: 230, 0, 0;
-  --info: #00b8ff;
-  --info-rgb: 0, 184, 255;
-
-  /* Background System */
-  --bg-primary: #ffffff;
-  --bg-primary-rgb: 255, 255, 255;
-  --bg-secondary: #f9fafd;
-  --bg-secondary-rgb: 249, 250, 253;
-  --bg-tertiary: #f4f6fa;
-  --bg-tertiary-rgb: 244, 246, 250;
-  --bg-elevated: #ffffff;
-  --bg-elevated-rgb: 255, 255, 255;
-  --bg-overlay: rgba(9, 11, 13, 0.92);
-  --bg-backdrop: rgba(9, 11, 13, 0.98);
-
-  /* Text Color System */
-  --text-primary: #16191e;
-  --text-primary-rgb: 22, 25, 30;
-  --text-secondary: #3d4550;
-  --text-secondary-rgb: 61, 69, 80;
-  --text-tertiary: #747c89;
-  --text-tertiary-rgb: 116, 124, 137;
-  --text-muted: #a9b0bc;
-  --text-muted-rgb: 169, 176, 188;
-  --text-inverse: #ffffff;
-  --text-inverse-rgb: 255, 255, 255;
-
-  /* Border System */
-  --border: #ebedf2;
-  --border-rgb: 235, 237, 242;
-  --border-light: #f3f4f8;
-  --border-light-rgb: 243, 244, 248;
-  --border-dark: #d9dce4;
-  --border-dark-rgb: 217, 220, 228;
-
-  /* ==========================================================================
-     SPACING SYSTEM - Harmonious Scale
-     ========================================================================== */
-
-  --space-unit: 4px;
-  --space-px: 1px;
-  --space-0: 0;
-  --space-0-5: calc(0.125 * var(--space-unit)); /* 0.5px */
-  --space-1: calc(0.25 * var(--space-unit));    /* 1px */
-  --space-1-5: calc(0.375 * var(--space-unit)); /* 1.5px */
-  --space-2: calc(0.5 * var(--space-unit));     /* 2px */
-  --space-2-5: calc(0.625 * var(--space-unit)); /* 2.5px */
-  --space-3: calc(0.75 * var(--space-unit));    /* 3px */
-  --space-3-5: calc(0.875 * var(--space-unit)); /* 3.5px */
-  --space-4: var(--space-unit);                 /* 4px */
-  --space-5: calc(1.25 * var(--space-unit));    /* 5px */
-  --space-6: calc(1.5 * var(--space-unit));     /* 6px */
-  --space-7: calc(1.75 * var(--space-unit));    /* 7px */
-  --space-8: calc(2 * var(--space-unit));       /* 8px */
-  --space-9: calc(2.25 * var(--space-unit));    /* 9px */
-  --space-10: calc(2.5 * var(--space-unit));    /* 10px */
-  --space-11: calc(2.75 * var(--space-unit));   /* 11px */
-  --space-12: calc(3 * var(--space-unit));      /* 12px */
-  --space-14: calc(3.5 * var(--space-unit));    /* 14px */
-  --space-16: calc(4 * var(--space-unit));      /* 16px */
-  --space-20: calc(5 * var(--space-unit));      /* 20px */
-  --space-24: calc(6 * var(--space-unit));      /* 24px */
-  --space-28: calc(7 * var(--space-unit));      /* 28px */
-  --space-32: calc(8 * var(--space-unit));      /* 32px */
-  --space-36: calc(9 * var(--space-unit));      /* 36px */
-  --space-40: calc(10 * var(--space-unit));     /* 40px */
-  --space-44: calc(11 * var(--space-unit));     /* 44px */
-  --space-48: calc(12 * var(--space-unit));     /* 48px */
-  --space-52: calc(13 * var(--space-unit));     /* 52px */
-  --space-56: calc(14 * var(--space-unit));     /* 56px */
-  --space-60: calc(15 * var(--space-unit));     /* 60px */
-  --space-64: calc(16 * var(--space-unit));     /* 64px */
-  --space-72: calc(18 * var(--space-unit));     /* 72px */
-  --space-80: calc(20 * var(--space-unit));     /* 80px */
-  --space-96: calc(24 * var(--space-unit));     /* 96px */
-
-  /* Semantic Spacing */
-  --space-xs: var(--space-8);
-  --space-sm: var(--space-12);
-  --space-md: var(--space-16);
-  --space-lg: var(--space-24);
-  --space-xl: var(--space-32);
-  --space-2xl: var(--space-48);
-  --space-3xl: var(--space-64);
-  --space-4xl: var(--space-96);
-
-  /* ==========================================================================
-     SHADOW SYSTEM - Depth & Elevation
-     ========================================================================== */
-
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  --shadow-none: none;
-
-  /* Themed Shadows */
-  --shadow-glow: 0 0 20px rgba(var(--primary-rgb), 0.15);
-  --shadow-glow-strong: 0 0 30px rgba(var(--primary-rgb), 0.3);
-  --shadow-colored: 0 4px 14px 0 rgba(var(--primary-rgb), 0.1);
-
-  /* ==========================================================================
-     BORDER RADIUS SYSTEM
-     ========================================================================== */
-
-  --radius-none: 0;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
-  --radius-3xl: 24px;
-  --radius-full: 9999px;
-
-  /* ==========================================================================
-     ANIMATION & TRANSITION SYSTEM
-     ========================================================================== */
-
-  /* Easing Functions */
-  --ease-linear: cubic-bezier(0, 0, 1, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-back: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-  /* Duration Scale */
-  --duration-75: 75ms;
-  --duration-100: 100ms;
-  --duration-150: 150ms;
-  --duration-200: 200ms;
-  --duration-300: 300ms;
-  --duration-500: 500ms;
-  --duration-700: 700ms;
-  --duration-1000: 1000ms;
-
-  /* Semantic Durations */
-  --transition-fast: var(--duration-150);
-  --transition-base: var(--duration-300);
-  --transition-slow: var(--duration-500);
-  --transition-slower: var(--duration-700);
-
-  /* ==========================================================================
-     Z-INDEX SYSTEM - Layering Stack
-     ========================================================================== */
-
-  --z-hide: -1;
-  --z-base: 0;
-  --z-docked: 10;
-  --z-dropdown: 1000;
-  --z-sticky: 1020;
-  --z-banner: 1030;
-  --z-overlay: 1040;
-  --z-modal: 1050;
-  --z-popover: 1060;
-  --z-tooltip: 1070;
-  --z-toast: 1080;
-  --z-maximum: 2147483647; /* Max browser z-index */
-
-  /* ==========================================================================
-     BREAKPOINTS - Responsive Design System
-     ========================================================================== */
-
-  --breakpoint-xs: 475px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
-
-  /* ==========================================================================
-     GRADIENTS - Color Transitions
-     ========================================================================== */
-
-  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-  --gradient-primary-hover: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-}
-
-/* ==========================================================================
-   JAWS THEME - Deep Ocean Terror
-   Font families for this theme will be styled in jaws/theme.css using system fonts
-   and other CSS properties to achieve the desired "Bangers", "Nosifier" etc. feel.
-   ========================================================================== */
-
-[data-theme="jaws"] {
-  /* Primary Color System - Ocean Blues */
-  --primary: #0099dd;
-  --primary-rgb: 0, 153, 221;
-  --primary-dark: #0070a3;
-  --primary-darker: #004066;
-  --primary-darker-rgb: 0, 64, 102;
-  --primary-light: #58c5f5;
-  --primary-lighter: #90dfff;
-  --primary-lighter-rgb: 144, 223, 255;
-
-  /* Accent Colors - Blood Red Danger */
-  --accent: #ff3333; /* Updated to be more red, was #CC0000 */
-  --accent-rgb: 255, 51, 51;
-  --accent-light: #ff6666;
-  --accent-lighter: #ff9999; /* Was --accent-dark: #990000; */
-
-  /* Background System - Abyss Depths */
-  --bg-primary: #000a14;
-  --bg-primary-rgb: 0, 10, 20;
-  --bg-secondary: #00060d;
-  --bg-secondary-rgb: 0, 6, 13;
-  --bg-tertiary: #000307;
-  --bg-tertiary-rgb: 0, 3, 7;
-  --bg-elevated: #010f1c;
-  --bg-elevated-rgb: 1, 15, 28;
-  --bg-overlay: rgba(0, 3, 7, 0.95);
-  --bg-backdrop: rgba(0, 3, 7, 0.98);
-
-  /* Text System - Bioluminescent */
-  --text-primary: #e8f8ff;
-  --text-primary-rgb: 232, 248, 255;
-  --text-secondary: #bdebff;
-  --text-secondary-rgb: 189, 235, 255;
-  --text-tertiary: #8ad5ff;
-  --text-tertiary-rgb: 138, 213, 255;
-  --text-muted: #58c5f5; /* Was --text-muted: #6BB3D9; */
-  --text-muted-rgb: 88, 197, 245;
-  --text-inverse: #000307;
-  --text-inverse-rgb: 0, 3, 7;
-
-  /* Border System - Tidal Lines */
-  --border: #58c5f5;
-  --border-rgb: 88, 197, 245;
-  --border-light: #90dfff;
-  --border-light-rgb: 144, 223, 255;
-  --border-dark: #0070a3;
-  --border-dark-rgb: 0, 112, 163;
-
-  /* Typography: Use base system font variables. Specific styling in jaws/theme.css */
-  /* --font-family-theme: 'Nosifier', 'Creepster', 'Bangers', 'Pirata One', fantasy; (REMOVED) */
-  /* --font-family-heading: var(--font-family-theme); (REMOVED - will use base --font-family-heading or override in theme.css) */
-
-  /* Shadows - Underwater Glow */
-  --shadow-glow: 0 0 30px rgba(var(--accent-rgb), 0.4), 0 0 15px rgba(var(--primary-light-rgb), 0.3);
-  --shadow-glow-strong: 0 0 50px rgba(var(--accent-rgb), 0.6), 0 0 25px rgba(var(--primary-light-rgb), 0.5);
-
-  /* Gradients - Ocean Depths */
-  --gradient-primary: linear-gradient(180deg, var(--primary) 0%, var(--primary-darker) 100%);
-  --gradient-primary-hover: linear-gradient(180deg, var(--primary-dark) 0%, #002c4a 100%);
-  --gradient-danger: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-
-  /* Environmental Effects */
-  --water-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='water'%3E%3CfeTurbulence baseFrequency='0.02 0.03' numOctaves='3'/%3E%3CfeDisplacementMap scale='2'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='100' height='100' fill='%23004066' filter='url(%23water)'/%3E%3C/svg%3E");
-  --bubble-animation-duration: 8s;
-}
-
-/* ==========================================================================
-   JURASSIC PARK THEME - Prehistoric Amber
-   Font families for this theme will be styled in jurassic/theme.css using system fonts
-   and other CSS properties to achieve the desired "Rye", "Metal Mania" etc. feel.
-   ========================================================================== */
-
-[data-theme="jurassic"] {
-  /* Primary Color System - Amber & Gold */
-  --primary: #d4ac5a;
-  --primary-rgb: 212, 172, 90;
-  --primary-dark: #b08d45;
-  --primary-darker: #8a6c2f;
-  --primary-darker-rgb: 138, 108, 47;
-  --primary-light: #f0cea0;
-  --primary-lighter: #f8e5c0;
-  --primary-lighter-rgb: 248, 229, 192;
-
-  /* Accent Colors - Lush Vegetation */
-  --accent: #507d32;
-  --accent-rgb: 80, 125, 50;
-  --accent-light: #78a858;
-  --accent-lighter: #9bc274; /* Was --accent-dark: #3A5C24; */
-
-  /* Background System - Ancient Earth */
-  --bg-primary: #1e1a12;
-  --bg-primary-rgb: 30, 26, 18;
-  --bg-secondary: #15120a;
-  --bg-secondary-rgb: 21, 18, 10;
-  --bg-tertiary: #0f0d07;
-  --bg-tertiary-rgb: 15, 13, 7;
-  --bg-elevated: #2a251b;
-  --bg-elevated-rgb: 42, 37, 27;
-  --bg-overlay: rgba(15, 13, 7, 0.94);
-  --bg-backdrop: rgba(15, 13, 7, 0.97);
-
-  /* Text System - Fossil Ivory */
-  --text-primary: #f8e5c0;
-  --text-primary-rgb: 248, 229, 192;
-  --text-secondary: #f0cea0;
-  --text-secondary-rgb: 240, 206, 160;
-  --text-tertiary: #d4ac5a;
-  --text-tertiary-rgb: 212, 172, 90;
-  --text-muted: #b08d45;
-  --text-muted-rgb: 176, 141, 69;
-  --text-inverse: #0f0d07;
-  --text-inverse-rgb: 15, 13, 7;
-
-  /* Border System - Ancient Metal */
-  --border: #8a6c2f;
-  --border-rgb: 138, 108, 47;
-  --border-light: #b08d45;
-  --border-light-rgb: 176, 141, 69;
-  --border-dark: #685022;
-  --border-dark-rgb: 104, 80, 34;
-
-  /* Typography: Use base system font variables. Specific styling in jurassic/theme.css */
-  /* --font-family-theme: 'Rye', 'Metal Mania', 'Ewert', 'Special Elite', serif; (REMOVED) */
-  /* --font-family-heading: var(--font-family-theme); (REMOVED - will use base --font-family-heading or override in theme.css) */
-
-  /* Shadows - Amber Glow */
-  --shadow-glow: 0 0 25px rgba(var(--accent-rgb), 0.35), 0 0 15px rgba(var(--primary-rgb), 0.25);
-  --shadow-glow-strong: 0 0 40px rgba(var(--accent-rgb), 0.5), 0 0 25px rgba(var(--primary-rgb), 0.4);
-
-  /* Gradients - Weathered Materials */
-  --gradient-primary: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #755827 100%);
-  --gradient-primary-hover: linear-gradient(135deg, #8a6c2f 0%, var(--primary-dark) 50%, #a07c3e 100%);
-  --gradient-amber: radial-gradient(circle, var(--primary-light) 0%, var(--primary) 50%, var(--primary-dark) 100%);
-
-  /* Environmental Effects */
-  --foliage-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='foliage'%3E%3CfeTurbulence baseFrequency='0.05 0.08' numOctaves='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.5 0 0 0 0 0.1 0 0 0 0.3 0'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='100' height='100' fill='%23507D32' filter='url(%23foliage)' opacity='0.6'/%3E%3C/svg%3E");
-  --amber-glow-animation-duration: 3s;
-  --electric-fence-warning: #ffdd00;
-}
-
-/* ==========================================================================
-   COMPONENT-SPECIFIC VARIABLES
-   ========================================================================== */
-
-:root {
-  /* Loading Screen */
-  --loading-duration-total: 6s; /* Kept as is, but actual loading time might vary */
-  --loading-tip-duration: 4s;
-  --loading-logo-size: 6.5rem;
-
-  /* Character System */
-  --character-transition-duration: 1.2s;
-  --walkie-talkie-size: 60px;
-  --mr-dna-size: 80px;
-
-  /* Transition Animations */
-  --theme-transition-duration: 2.8s;
-  --gate-animation-duration: 2.5s;
-  --wave-animation-duration: 2.2s;
-
-  /* Chat Interface */
-  --message-appear-duration: 0.5s;
-  --typing-indicator-duration: 1.5s;
-  --sidebar-width: 320px;
-  --sidebar-width-mobile: 300px;
-
-  /* Input System */
-  --input-height-min: 44px;
-  --input-height-max: 200px;
-  --voice-indicator-size: 30px;
-
-  /* Button System */
-  --button-height-sm: 32px;
-  --button-height-md: 40px;
-  --button-height-lg: 48px;
-  --button-ripple-duration: 0.6s;
-}
-
-/* ==========================================================================
-   ACCESSIBILITY & REDUCED MOTION
-   ========================================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --transition-fast: 0ms;
-    --transition-base: 0ms;
-    --transition-slow: 0ms;
-    --transition-slower: 0ms;
-    --theme-transition-duration: 0ms;
-    --character-transition-duration: 0ms;
-    --loading-duration-total: 1s; /* Reduce loading screen animation time */
-  }
-}
-
-/* ==========================================================================
-   HIGH CONTRAST MODE
-   ========================================================================== */
-
-@media (prefers-contrast: high) {
-  :root {
-    /* Default High Contrast Values */
-    --primary: #0066cc;
-    --accent: #cc0000;
-    --bg-primary: #ffffff;
-    --text-primary: #000000;
-    --border: #000000;
-    --shadow-xs: none;
-    --shadow-sm: none;
-    --shadow-md: 0 0 0 2px var(--border);
-    --shadow-lg: 0 0 0 3px var(--border);
-    --shadow-xl: 0 0 0 4px var(--border);
-  }
-}
-
-/* ==========================================================================
-   PRINT STYLES
-   ========================================================================== */
-
-@media print {
-  :root {
-    --bg-primary: white;
-    --text-primary: black;
-    --shadow-xs: none;
-    --shadow-sm: none;
-    --shadow-md: none;
-    --shadow-lg: none;
-    --shadow-xl: none;
-    --shadow-2xl: none;
-  }
-}/* ==========================================================================
-   CSS VARIABLES - PARKLAND AI OPUS MAGNUM EDITION
-   Design Token System for Premium Multi-Theme Experience
-   ========================================================================== */
-
-:root {
-  /* ==========================================================================
-     CORE DESIGN TOKENS - Universal Foundation
-     ========================================================================== */
-
-  /* Color Primitives */
   --white: #FFFFFF;
   --black: #000000;
   --transparent: transparent;
 
-  /* Gray Scale - Neutral Palette */
-  --gray-50: #FBFBFC;
-  --gray-100: #F3F4F8;
-  --gray-200: #EBEDF2;
-  --gray-300: #D9DCE4;
-  --gray-400: #A9B0BC;
-  --gray-500: #747C89;
-  --gray-600: #505863;
-  --gray-700: #3D4550;
-  --gray-800: #252A31;
-  --gray-900: #16191E;
-  --gray-950: #0A0C0F;
+  /* Gray Scale - Neutral Palette (Refined for modern, clean look) */
+  --gray-50: #F9FAFB;  /* Softer off-white */
+  --gray-100: #F3F4F6; /* Lightest gray */
+  --gray-200: #E5E7EB; /* Light gray */
+  --gray-300: #D1D5DB; /* Medium-light gray */
+  --gray-400: #9CA3AF; /* Medium gray (good for muted text) */
+  --gray-500: #6B7280; /* Dark-medium gray (good for secondary text) */
+  --gray-600: #4B5563; /* Dark gray */
+  --gray-700: #374151; /* Darker gray */
+  --gray-800: #1F2937; /* Very dark gray */
+  --gray-900: #111827; /* Near black */
+  --gray-950: #030712; /* Deepest, almost black */
 
   /* ==========================================================================
-     DEFAULT THEME - Modern Professional AI Interface
+     TYPOGRAPHY SYSTEM - SYSTEM FONTS ONLY (as per mandate)
      ========================================================================== */
 
-  /* Primary Color System */
-  --primary: #7A77FF;
-  --primary-rgb: 122, 119, 255;
-  --primary-dark: #5A57E0;
-  --primary-darker: #403EBA;
-  --primary-darker-rgb: 64, 62, 186;
-  --primary-light: #9C9AFF;
-  --primary-lighter: #BFBDFF;
-  --primary-lighter-rgb: 191, 189, 255;
+  /* System Font Stacks - Prioritizing modern system UI fonts */
+  --font-family-system-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-family-system-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, Cambria, "Times New Roman", Times, serif; /* More classic serif stack */
+  --font-family-system-monospace: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* Developer-friendly monospaced fonts */
 
-  /* Secondary & Accent Colors */
-  --accent: #FF4DA8;
-  --accent-rgb: 255, 77, 168;
-  --accent-light: #FF85C2;
-  --accent-lighter: #FFB3D6;
+  /* Base Font Families (using system stacks) */
+  --font-family-default: var(--font-family-system-sans-serif);
+  --font-family-mono: var(--font-family-system-monospace);
+  --font-family-heading: var(--font-family-system-sans-serif); /* Default heading, can be overridden by themes or specific elements */
 
-  /* Semantic Colors */
-  --success: #00D15B;
-  --success-rgb: 0, 209, 91;
-  --warning: #FFAA00;
-  --warning-rgb: 255, 170, 0;
-  --error: #E60000;
-  --error-rgb: 230, 0, 0;
-  --info: #00B8FF;
-  --info-rgb: 0, 184, 255;
+  /* Font Scale - Harmonious & Fluid Typography (using clamp for responsiveness) */
+  --font-size-xs: clamp(0.75rem, 0.8vw + 0.1rem, 0.875rem);   /* Approx 12px-14px */
+  --font-size-sm: clamp(0.875rem, 1vw + 0.1rem, 1rem);      /* Approx 14px-16px */
+  --font-size-base: clamp(1rem, 1.2vw + 0.1rem, 1.125rem);  /* Approx 16px-18px (base) */
+  --font-size-lg: clamp(1.125rem, 1.4vw + 0.1rem, 1.25rem); /* Approx 18px-20px */
+  --font-size-xl: clamp(1.25rem, 1.6vw + 0.1rem, 1.5rem);   /* Approx 20px-24px */
+  --font-size-2xl: clamp(1.5rem, 2vw + 0.1rem, 1.875rem);  /* Approx 24px-30px */
+  --font-size-3xl: clamp(1.875rem, 2.5vw + 0.1rem, 2.25rem);/* Approx 30px-36px */
+  --font-size-4xl: clamp(2.25rem, 3vw + 0.1rem, 3rem);     /* Approx 36px-48px */
+  --font-size-5xl: clamp(3rem, 4vw + 0.1rem, 3.75rem);     /* Approx 48px-60px */
+  --font-size-6xl: clamp(3.75rem, 5vw + 0.1rem, 4.5rem);   /* Approx 60px-72px */
 
-  /* Background System */
-  --bg-primary: #FFFFFF;
-  --bg-primary-rgb: 255, 255, 255;
-  --bg-secondary: #F9FAFD;
-  --bg-secondary-rgb: 249, 250, 253;
-  --bg-tertiary: #F4F6FA;
-  --bg-tertiary-rgb: 244, 246, 250;
-  --bg-elevated: #FFFFFF;
-  --bg-elevated-rgb: 255, 255, 255;
-  --bg-overlay: rgba(9, 11, 13, 0.92);
-  --bg-backdrop: rgba(9, 11, 13, 0.98);
-
-  /* Text Color System */
-  --text-primary: #16191E;
-  --text-primary-rgb: 22, 25, 30;
-  --text-secondary: #3D4550;
-  --text-secondary-rgb: 61, 69, 80;
-  --text-tertiary: #747C89;
-  --text-tertiary-rgb: 116, 124, 137;
-  --text-muted: #A9B0BC;
-  --text-muted-rgb: 169, 176, 188;
-  --text-inverse: #FFFFFF;
-  --text-inverse-rgb: 255, 255, 255;
-
-  /* Border System */
-  --border: #EBEDF2;
-  --border-rgb: 235, 237, 242;
-  --border-light: #F3F4F8;
-  --border-light-rgb: 243, 244, 248;
-  --border-dark: #D9DCE4;
-  --border-dark-rgb: 217, 220, 228;
-
-  /* ==========================================================================
-     TYPOGRAPHY SYSTEM
-     ========================================================================== */
-
-  /* Font Families */
-  --font-family-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-                         Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
-                         'Segoe UI Emoji';
-  --font-family-mono: 'JetBrains Mono', 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
-  --font-family-heading: var(--font-family-default);
-
-  /* Font Scale - Fluid Typography */
-  --font-size-xs: clamp(0.78rem, 0.9vw, 0.86rem);
-  --font-size-sm: clamp(0.88rem, 1.1vw, 0.98rem);
-  --font-size-base: clamp(1rem, 1.3vw, 1.1rem);
-  --font-size-lg: clamp(1.15rem, 1.5vw, 1.25rem);
-  --font-size-xl: clamp(1.35rem, 1.8vw, 1.5rem);
-  --font-size-2xl: clamp(1.6rem, 2.2vw, 1.85rem);
-  --font-size-3xl: clamp(1.9rem, 2.8vw, 2.25rem);
-  --font-size-4xl: clamp(2.3rem, 3.5vw, 2.75rem);
-  --font-size-5xl: clamp(2.8rem, 4.5vw, 3.75rem);
-  --font-size-6xl: clamp(3.5rem, 6vw, 5rem);
-
-  /* Line Heights */
+  /* Line Heights - For readability and rhythm */
+  --line-height-none: 1;
   --line-height-tight: 1.25;
   --line-height-snug: 1.375;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.625;
+  --line-height-normal: 1.5;      /* Good for body text */
+  --line-height-relaxed: 1.625;   /* Slightly more spacious */
   --line-height-loose: 2;
 
-  /* Font Weights */
+  /* Font Weights (standard numeric values) */
   --font-weight-thin: 100;
+  --font-weight-extralight: 200;
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
@@ -654,7 +71,7 @@
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
 
-  /* Letter Spacing */
+  /* Letter Spacing - For headings and special text treatments */
   --letter-spacing-tighter: -0.05em;
   --letter-spacing-tight: -0.025em;
   --letter-spacing-normal: 0em;
@@ -663,385 +80,370 @@
   --letter-spacing-widest: 0.1em;
 
   /* ==========================================================================
-     SPACING SYSTEM - Harmonious Scale
+     SPACING SYSTEM - Consistent Rhythmic Scale (Based on 4px grid, 1rem = 16px base)
      ========================================================================== */
+  --space-unit: 4px; /* Base unit for scaling */
 
-  --space-unit: 4px;
-  --space-px: 1px;
-  --space-0: 0;
-  --space-0-5: calc(0.125 * var(--space-unit)); /* 0.5px */
-  --space-1: calc(0.25 * var(--space-unit));    /* 1px */
-  --space-1-5: calc(0.375 * var(--space-unit)); /* 1.5px */
-  --space-2: calc(0.5 * var(--space-unit));     /* 2px */
-  --space-2-5: calc(0.625 * var(--space-unit)); /* 2.5px */
-  --space-3: calc(0.75 * var(--space-unit));    /* 3px */
-  --space-3-5: calc(0.875 * var(--space-unit)); /* 3.5px */
-  --space-4: var(--space-unit);                 /* 4px */
-  --space-5: calc(1.25 * var(--space-unit));    /* 5px */
-  --space-6: calc(1.5 * var(--space-unit));     /* 6px */
-  --space-7: calc(1.75 * var(--space-unit));    /* 7px */
-  --space-8: calc(2 * var(--space-unit));       /* 8px */
-  --space-9: calc(2.25 * var(--space-unit));    /* 9px */
-  --space-10: calc(2.5 * var(--space-unit));    /* 10px */
-  --space-11: calc(2.75 * var(--space-unit));   /* 11px */
-  --space-12: calc(3 * var(--space-unit));      /* 12px */
-  --space-14: calc(3.5 * var(--space-unit));    /* 14px */
-  --space-16: calc(4 * var(--space-unit));      /* 16px */
-  --space-20: calc(5 * var(--space-unit));      /* 20px */
-  --space-24: calc(6 * var(--space-unit));      /* 24px */
-  --space-28: calc(7 * var(--space-unit));      /* 28px */
-  --space-32: calc(8 * var(--space-unit));      /* 32px */
-  --space-36: calc(9 * var(--space-unit));      /* 36px */
-  --space-40: calc(10 * var(--space-unit));     /* 40px */
-  --space-44: calc(11 * var(--space-unit));     /* 44px */
-  --space-48: calc(12 * var(--space-unit));     /* 48px */
-  --space-52: calc(13 * var(--space-unit));     /* 52px */
-  --space-56: calc(14 * var(--space-unit));     /* 56px */
-  --space-60: calc(15 * var(--space-unit));     /* 60px */
-  --space-64: calc(16 * var(--space-unit));     /* 64px */
-  --space-72: calc(18 * var(--space-unit));     /* 72px */
-  --space-80: calc(20 * var(--space-unit));     /* 80px */
-  --space-96: calc(24 * var(--space-unit));     /* 96px */
+  --space-0: 0;                            /* 0px */
+  --space-px: 1px;                         /* 1px */
+  --space-0-5: calc(0.5 * var(--space-unit));  /* 2px */
+  --space-1: calc(1 * var(--space-unit));    /* 4px */
+  --space-1-5: calc(1.5 * var(--space-unit));  /* 6px */
+  --space-2: calc(2 * var(--space-unit));    /* 8px */
+  --space-2-5: calc(2.5 * var(--space-unit));  /* 10px */
+  --space-3: calc(3 * var(--space-unit));    /* 12px */
+  --space-3-5: calc(3.5 * var(--space-unit));  /* 14px */
+  --space-4: calc(4 * var(--space-unit));    /* 16px (1rem default) */
+  --space-5: calc(5 * var(--space-unit));    /* 20px */
+  --space-6: calc(6 * var(--space-unit));    /* 24px */
+  --space-7: calc(7 * var(--space-unit));    /* 28px */
+  --space-8: calc(8 * var(--space-unit));    /* 32px */
+  --space-9: calc(9 * var(--space-unit));    /* 36px */
+  --space-10: calc(10 * var(--space-unit));   /* 40px */
+  --space-11: calc(11 * var(--space-unit));   /* 44px */
+  --space-12: calc(12 * var(--space-unit));   /* 48px */
+  --space-14: calc(14 * var(--space-unit));   /* 56px */
+  --space-16: calc(16 * var(--space-unit));   /* 64px */
+  --space-20: calc(20 * var(--space-unit));   /* 80px */
+  --space-24: calc(24 * var(--space-unit));   /* 96px */
+  /* Add more as needed: 28, 32, 36, 40, 44, 48, 52, 56, 60, 64 */
 
-  /* Semantic Spacing */
-  --space-xs: var(--space-8);
-  --space-sm: var(--space-12);
-  --space-md: var(--space-16);
-  --space-lg: var(--space-24);
-  --space-xl: var(--space-32);
-  --space-2xl: var(--space-48);
-  --space-3xl: var(--space-64);
-  --space-4xl: var(--space-96);
+  /* Semantic Spacing Aliases */
+  --space-xxs: var(--space-0-5); /* 2px */
+  --space-xs: var(--space-1);   /* 4px */
+  --space-sm: var(--space-2);   /* 8px */
+  --space-md: var(--space-4);   /* 16px */
+  --space-lg: var(--space-6);   /* 24px */
+  --space-xl: var(--space-8);   /* 32px */
+  --space-2xl: var(--space-12); /* 48px */
+  --space-3xl: var(--space-16); /* 64px */
+  --space-4xl: var(--space-24); /* 96px */
 
   /* ==========================================================================
-     SHADOW SYSTEM - Depth & Elevation
+     DEFAULT THEME - Modern, Professional, Tech-Forward AI Interface
      ========================================================================== */
 
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  /* Primary Color System - Sophisticated & Approachable Tech Blue/Purple */
+  --primary: #6A5ACD; /* SlateBlue - a good starting point, can adjust */
+  --primary-rgb: 106, 90, 205;
+  --primary-dark: #483D8B; /* DarkSlateBlue */
+  --primary-darker: #3B3070; /* Even darker for depth */
+  --primary-darker-rgb: 59, 48, 112;
+  --primary-light: #9370DB; /* MediumPurple */
+  --primary-lighter: #B0A4E0; /* Lighter purple */
+  --primary-lighter-rgb: 176, 164, 224;
+
+  /* Accent Colors - Energetic & Contrasting */
+  --accent: #FF69B4; /* HotPink - for vibrant accents */
+  --accent-rgb: 255, 105, 180;
+  --accent-light: #FF85C1;
+  --accent-dark: #DB7093; /* PaleVioletRed */
+
+  /* Semantic Colors - Clear Visual Cues */
+  --success: #32CD32;  /* LimeGreen */
+  --success-rgb: 50, 205, 50;
+  --warning: #FFD700;  /* Gold */
+  --warning-rgb: 255, 215, 0;
+  --error: #DC143C;    /* Crimson */
+  --error-rgb: 220, 20, 60;
+  --info: #1E90FF;     /* DodgerBlue */
+  --info-rgb: 30, 144, 255;
+
+  /* Background System - Clean & Layered */
+  --bg-primary: var(--white);            /* Primary content background */
+  --bg-primary-rgb: 255, 255, 255;
+  --bg-secondary: var(--gray-50);        /* Slightly off-white for sections */
+  --bg-secondary-rgb: 249, 250, 251;
+  --bg-tertiary: var(--gray-100);       /* Subtle layering */
+  --bg-tertiary-rgb: 243, 244, 246;
+  --bg-elevated: var(--white);           /* For cards, modals that sit on top */
+  --bg-elevated-rgb: 255, 255, 255;
+  --bg-overlay: rgba(var(--gray-900-rgb, 17, 24, 39), 0.75); /* Dark overlay for modals */
+  --bg-backdrop: rgba(var(--gray-800-rgb, 31, 41, 55), 0.5); /* Subtle backdrop for dropdowns, etc. */
+
+  /* Text Color System - High Readability */
+  --text-primary: var(--gray-900);       /* Main text color */
+  --text-primary-rgb: 17, 24, 39;
+  --text-secondary: var(--gray-700);     /* Secondary, less emphasized text */
+  --text-secondary-rgb: 55, 65, 81;
+  --text-tertiary: var(--gray-500);      /* Tertiary, hints, captions */
+  --text-tertiary-rgb: 107, 114, 128;
+  --text-muted: var(--gray-400);         /* Muted, placeholder text */
+  --text-muted-rgb: 156, 163, 175;
+  --text-inverse: var(--white);          /* Text on dark/colored backgrounds */
+  --text-inverse-rgb: 255, 255, 255;
+  --text-link: var(--primary);           /* Default link color */
+  --text-link-hover: var(--primary-dark); /* Link hover color */
+
+  /* Border System - Subtle & Defining */
+  --border: var(--gray-300);             /* Default border color */
+  --border-rgb: 209, 213, 219;
+  --border-light: var(--gray-200);       /* Lighter border */
+  --border-light-rgb: 229, 231, 235;
+  --border-dark: var(--gray-400);        /* Darker, more prominent border */
+  --border-dark-rgb: 156, 163, 175;
+  --border-input: var(--gray-300);       /* Specific for form inputs */
+  --border-input-focus: var(--primary);
+
+  /* ==========================================================================
+     SHADOW SYSTEM - Depth & Elevation (Modern, subtle shadows)
+     ========================================================================== */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.04);
   --shadow-none: none;
 
-  /* Themed Shadows */
-  --shadow-glow: 0 0 20px rgba(var(--primary-rgb), 0.15);
-  --shadow-glow-strong: 0 0 30px rgba(var(--primary-rgb), 0.3);
-  --shadow-colored: 0 4px 14px 0 rgba(var(--primary-rgb), 0.1);
+  /* Themed Glow Effects (for primary interactive elements) */
+  --primary-glow-soft: rgba(var(--primary-rgb), 0.15);
+  --primary-glow-medium: rgba(var(--primary-rgb), 0.3);
+  --primary-glow-strong: rgba(var(--primary-rgb), 0.45);
 
   /* ==========================================================================
-     BORDER RADIUS SYSTEM
+     BORDER RADIUS SYSTEM - Consistent Curvature
      ========================================================================== */
-
-  --radius-none: 0;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
-  --radius-3xl: 24px;
-  --radius-full: 9999px;
+  --radius-none: 0px;
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.375rem; /* 6px (default) */
+  --radius-lg: 0.5rem;   /* 8px */
+  --radius-xl: 0.75rem;  /* 12px */
+  --radius-2xl: 1rem;    /* 16px */
+  --radius-3xl: 1.5rem;  /* 24px */
+  --radius-full: 9999px; /* For pills, circles */
 
   /* ==========================================================================
-     ANIMATION & TRANSITION SYSTEM
+     ANIMATION & TRANSITION SYSTEM - Smooth & Performant
      ========================================================================== */
 
-  /* Easing Functions */
+  /* Easing Functions - Based on common web standards */
   --ease-linear: cubic-bezier(0, 0, 1, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --ease-back: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-in: cubic-bezier(0.42, 0, 1, 1);         /* Decelerate */
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);        /* Accelerate */
+  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);  /* Standard ease */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring-like bounce */
+  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* More pronounced bounce */
+  --ease-back-in: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  --ease-back-out: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-back-in-out: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-  /* Duration Scale */
-  --duration-75: 75ms;
-  --duration-100: 100ms;
-  --duration-150: 150ms;
-  --duration-200: 200ms;
-  --duration-300: 300ms;
-  --duration-500: 500ms;
-  --duration-700: 700ms;
-  --duration-1000: 1000ms;
 
-  /* Semantic Durations */
-  --transition-fast: var(--duration-150);
-  --transition-base: var(--duration-300);
-  --transition-slow: var(--duration-500);
-  --transition-slower: var(--duration-700);
+  /* Duration Scale - Standardized timing */
+  --duration-shortest: 75ms;
+  --duration-short: 100ms;
+  --duration-base: 150ms;
+  --duration-long: 200ms;
+  --duration-longer: 300ms;
+  --duration-longest: 500ms;
+
+  /* Semantic Durations - For common UI transitions */
+  --transition-fast: var(--duration-base);    /* e.g., hover effects */
+  --transition-medium: var(--duration-longer); /* e.g., modal fades, drawer slides */
+  --transition-slow: var(--duration-longest);  /* e.g., major layout shifts */
 
   /* ==========================================================================
      Z-INDEX SYSTEM - Layering Stack
      ========================================================================== */
-
   --z-hide: -1;
   --z-base: 0;
-  --z-docked: 10;
-  --z-dropdown: 1000;
-  --z-sticky: 1020;
-  --z-banner: 1030;
-  --z-overlay: 1040;
-  --z-modal: 1050;
-  --z-popover: 1060;
-  --z-tooltip: 1070;
-  --z-toast: 1080;
-  --z-maximum: 2147483647;
+  --z-docked: 10;          /* For fixed headers/footers that don't overlay */
+  --z-dropdown: 1000;      /* Dropdown menus */
+  --z-sticky: 1020;        /* Sticky elements within scroll contexts */
+  --z-banner: 1030;        /* Site-wide banners or alerts */
+  --z-overlay-backdrop: 1040; /* Modal backdrops */
+  --z-modal: 1050;           /* Modals */
+  --z-popover: 1060;         /* Popovers, non-modal dialogs */
+  --z-tooltip: 1070;         /* Tooltips */
+  --z-toast: 1080;           /* Toast notifications */
+  --z-loading-overlay: 2000; /* Loading screen overlay */
+  --z-animation-overlay: 2100; /* Theme transition overlays */
+  --z-maximum: 2147483647;   /* Highest possible z-index */
 
   /* ==========================================================================
      BREAKPOINTS - Responsive Design System
      ========================================================================== */
-
-  --breakpoint-xs: 475px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
+  --breakpoint-xs: 480px;  /* Extra small devices (phones, portrait) */
+  --breakpoint-sm: 640px;  /* Small devices (phones, landscape) */
+  --breakpoint-md: 768px;  /* Medium devices (tablets) */
+  --breakpoint-lg: 1024px; /* Large devices (desktops, small laptops) */
+  --breakpoint-xl: 1280px; /* Extra large devices (large desktops) */
+  --breakpoint-2xl: 1536px;/* 2X large devices (wider desktops) */
 
   /* ==========================================================================
      GRADIENTS - Color Transitions
      ========================================================================== */
+  --gradient-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  --gradient-primary-hover: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); /* Subtle glass effect */
+  --gradient-dark-subtle: linear-gradient(180deg, rgba(var(--gray-900-rgb), 0.1) 0%, transparent 50%); /* For top edges of dark containers */
 
-  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-  --gradient-primary-hover: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  /* ==========================================================================
+     COMPONENT-SPECIFIC VARIABLES (Can be overridden by themes)
+     ========================================================================== */
+  --loading-progress-height: 12px; /* Thinner progress bar */
+  --sidebar-width: 280px;
+  --sidebar-width-mobile: 260px;
+  --chat-input-min-height: 48px;
+  --chat-input-max-height: 160px;
+  --message-avatar-size: 36px;
+  --button-height-md: 44px; /* Base button height */
 }
 
 /* ==========================================================================
-   JAWS THEME - Deep Ocean Terror
+   JAWS THEME - Deep Ocean Terror (Overrides for :root variables)
+   System font stacks from :root are inherited. Theme-specific display fonts
+   are applied directly in jaws/theme.css and jaws/typography.css using these.
    ========================================================================== */
-
 [data-theme="jaws"] {
-  /* Primary Color System - Ocean Blues */
-  --primary: #0099DD;
-  --primary-rgb: 0, 153, 221;
-  --primary-dark: #0070A3;
-  --primary-darker: #004066;
-  --primary-darker-rgb: 0, 64, 102;
-  --primary-light: #58C5F5;
-  --primary-lighter: #90DFFF;
-  --primary-lighter-rgb: 144, 223, 255;
+  /* Primary Color System - Ocean Blues & Blood Red */
+  --primary: #0D47A1; /* Deep Blue */
+  --primary-rgb: 13, 71, 161;
+  --primary-dark: #002171;
+  --primary-darker: #00154F;
+  --primary-darker-rgb: 0, 21, 79;
+  --primary-light: #5472D3;
+  --primary-lighter: #8E99F3;
+  --primary-lighter-rgb: 142, 153, 243;
 
-  /* Accent Colors - Blood Red Danger */
-  --accent: #FF3333;
-  --accent-rgb: 255, 51, 51;
-  --accent-light: #FF6666;
-  --accent-lighter: #FF9999;
+  --accent: #D32F2F; /* Blood Red */
+  --accent-rgb: 211, 47, 47;
+  --accent-light: #FF6659;
+  --accent-dark: #9A0007;
 
-  /* Background System - Abyss Depths */
-  --bg-primary: #000A14;
-  --bg-primary-rgb: 0, 10, 20;
-  --bg-secondary: #00060D;
-  --bg-secondary-rgb: 0, 6, 13;
-  --bg-tertiary: #000307;
-  --bg-tertiary-rgb: 0, 3, 7;
-  --bg-elevated: #010F1C;
-  --bg-elevated-rgb: 1, 15, 28;
-  --bg-overlay: rgba(0, 3, 7, 0.95);
-  --bg-backdrop: rgba(0, 3, 7, 0.98);
+  /* Backgrounds - Abyss & Murky Waters */
+  --bg-primary: #010D1A; /* Very Dark Blue, almost black */
+  --bg-primary-rgb: 1, 13, 26;
+  --bg-secondary: #021A30;
+  --bg-secondary-rgb: 2, 26, 48;
+  --bg-tertiary: #032644;
+  --bg-tertiary-rgb: 3, 38, 68;
+  --bg-elevated: #053057; /* Slightly lighter for "floating" elements */
+  --bg-elevated-rgb: 5, 48, 87;
+  --bg-overlay: rgba(var(--black-rgb, 0,0,0), 0.85);
+  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.7);
 
-  /* Text System - Bioluminescent */
-  --text-primary: #E8F8FF;
-  --text-primary-rgb: 232, 248, 255;
-  --text-secondary: #BDEBFF;
-  --text-secondary-rgb: 189, 235, 255;
-  --text-tertiary: #8AD5FF;
-  --text-tertiary-rgb: 138, 213, 255;
-  --text-muted: #58C5F5;
-  --text-muted-rgb: 88, 197, 245;
-  --text-inverse: #000307;
-  --text-inverse-rgb: 0, 3, 7;
+  /* Text - Bioluminescent & Weathered */
+  --text-primary: #E0F7FA; /* Light Cyan */
+  --text-primary-rgb: 224, 247, 250;
+  --text-secondary: #B2EBF2;
+  --text-tertiary: #80DEEA;
+  --text-muted: #4DD0E1;
+  --text-inverse: var(--white);
 
-  /* Border System - Tidal Lines */
-  --border: #58C5F5;
-  --border-rgb: 88, 197, 245;
-  --border-light: #90DFFF;
-  --border-light-rgb: 144, 223, 255;
-  --border-dark: #0070A3;
-  --border-dark-rgb: 0, 112, 163;
+  /* Borders - Rusted Metal & Deep Sea */
+  --border: var(--primary-dark);
+  --border-rgb: 0, 33, 113;
+  --border-light: var(--primary);
+  --border-dark: #000A14;
 
-  /* Typography - Nautical Themed */
-  --font-family-default: 'Inter', var(--font-family-default);
-  --font-family-theme: 'Nosifier', 'Creepster', 'Bangers', 'Pirata One', fantasy;
-  --font-family-heading: var(--font-family-theme);
+  /* Typography: System fonts used. Specific "themed" fonts applied via CSS classes from jaws/typography.css */
+  --font-family-heading: var(--font-family-system-sans-serif); /* Base, Jaws theme will override with display fonts for headings */
 
-  /* Shadows - Underwater Glow */
-  --shadow-glow: 0 0 30px rgba(var(--accent-rgb), 0.4), 0 0 15px rgba(var(--primary-light-rgb), 0.3);
-  --shadow-glow-strong: 0 0 50px rgba(var(--accent-rgb), 0.6), 0 0 25px rgba(var(--primary-light-rgb), 0.5);
-
-  /* Gradients - Ocean Depths */
-  --gradient-primary: linear-gradient(180deg, var(--primary) 0%, var(--primary-darker) 100%);
-  --gradient-primary-hover: linear-gradient(180deg, var(--primary-dark) 0%, #002C4A 100%);
-  --gradient-danger: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-
-  /* Environmental Effects */
-  --water-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='water'%3E%3CfeTurbulence baseFrequency='0.02 0.03' numOctaves='3'/%3E%3CfeDisplacementMap scale='2'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='100' height='100' fill='%23004066' filter='url(%23water)'/%3E%3C/svg%3E");
-  --bubble-animation-duration: 8s;
+  /* Shadows - Underwater Murk & Menace */
+  --shadow-xs: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-sm: 0 2px 5px rgba(0,0,0,0.4);
+  --shadow-md: 0 5px 10px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 18px rgba(0,0,0,0.6), 0 0 10px rgba(var(--accent-rgb),0.3);
+  --shadow-xl: 0 12px 25px rgba(0,0,0,0.7), 0 0 15px rgba(var(--accent-rgb),0.4);
+  --shadow-2xl: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px rgba(var(--accent-rgb),0.5);
+  --shadow-inner: inset 0 1px 3px rgba(0,0,0,0.5);
+  --primary-glow-soft: rgba(var(--accent-rgb), 0.25);
+  --primary-glow-medium: rgba(var(--accent-rgb), 0.45);
+  --primary-glow-strong: rgba(var(--accent-rgb), 0.65);
 }
 
 /* ==========================================================================
-   JURASSIC PARK THEME - Prehistoric Amber
+   JURASSIC PARK THEME - Ancient Amber & Untamed Jungle
+   System font stacks from :root are inherited. Theme-specific display fonts
+   are applied directly in jurassic/theme.css and jurassic/typography.css.
    ========================================================================== */
-
 [data-theme="jurassic"] {
-  /* Primary Color System - Amber & Gold */
-  --primary: #D4AC5A;
-  --primary-rgb: 212, 172, 90;
-  --primary-dark: #B08D45;
-  --primary-darker: #8A6C2F;
-  --primary-darker-rgb: 138, 108, 47;
-  --primary-light: #F0CEA0;
-  --primary-lighter: #F8E5C0;
-  --primary-lighter-rgb: 248, 229, 192;
+  /* Primary Color System - Amber & Earth Tones */
+  --primary: #F5A623; /* Amber/Orange */
+  --primary-rgb: 245, 166, 35;
+  --primary-dark: #D4890A;
+  --primary-darker: #A96600;
+  --primary-darker-rgb: 169, 102, 0;
+  --primary-light: #FFC55C;
+  --primary-lighter: #FFE0A3;
+  --primary-lighter-rgb: 255, 224, 163;
 
-  /* Accent Colors - Lush Vegetation */
-  --accent: #507D32;
-  --accent-rgb: 80, 125, 50;
-  --accent-light: #78A858;
-  --accent-lighter: #9BC274;
+  /* Accent - Jungle Green */
+  --accent: #4A783A; /* Deep Jungle Green */
+  --accent-rgb: 74, 120, 58;
+  --accent-light: #7DB866;
+  --accent-dark: #2D571E;
 
-  /* Background System - Ancient Earth */
-  --bg-primary: #1E1A12;
-  --bg-primary-rgb: 30, 26, 18;
-  --bg-secondary: #15120A;
-  --bg-secondary-rgb: 21, 18, 10;
-  --bg-tertiary: #0F0D07;
-  --bg-tertiary-rgb: 15, 13, 7;
-  --bg-elevated: #2A251B;
-  --bg-elevated-rgb: 42, 37, 27;
-  --bg-overlay: rgba(15, 13, 7, 0.94);
-  --bg-backdrop: rgba(15, 13, 7, 0.97);
+  /* Backgrounds - Earth & Foliage */
+  --bg-primary: #1A140D; /* Darkest Brown, like rich soil */
+  --bg-primary-rgb: 26, 20, 13;
+  --bg-secondary: #2C241B;
+  --bg-secondary-rgb: 44, 36, 27;
+  --bg-tertiary: #3E352A;
+  --bg-tertiary-rgb: 62, 53, 42;
+  --bg-elevated: #251F16; /* Slightly lighter for cards */
+  --bg-elevated-rgb: 37, 31, 22;
+  --bg-overlay: rgba(var(--black-rgb,0,0,0), 0.88);
+  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.75);
 
-  /* Text System - Fossil Ivory */
-  --text-primary: #F8E5C0;
-  --text-primary-rgb: 248, 229, 192;
-  --text-secondary: #F0CEA0;
-  --text-secondary-rgb: 240, 206, 160;
-  --text-tertiary: #D4AC5A;
-  --text-tertiary-rgb: 212, 172, 90;
-  --text-muted: #B08D45;
-  --text-muted-rgb: 176, 141, 69;
-  --text-inverse: #0F0D07;
-  --text-inverse-rgb: 15, 13, 7;
+  /* Text - Fossil & Bone White */
+  --text-primary: #EDE7D9; /* Off-white, like aged paper/bone */
+  --text-primary-rgb: 237, 231, 217;
+  --text-secondary: #D4CBAF;
+  --text-tertiary: #B0A085;
+  --text-muted: #8C7F69;
+  --text-inverse: var(--black);
 
-  /* Border System - Ancient Metal */
-  --border: #8A6C2F;
+  /* Borders - Weathered Wood & Stone */
+  --border: var(--primary-darker);
   --border-rgb: 138, 108, 47;
-  --border-light: #B08D45;
-  --border-light-rgb: 176, 141, 69;
-  --border-dark: #685022;
-  --border-dark-rgb: 104, 80, 34;
+  --border-light: var(--primary-dark);
+  --border-dark: #5C4033; /* Dark Brown */
 
-  /* Typography - Prehistoric Carved */
-  --font-family-default: 'Inter', var(--font-family-default);
-  --font-family-theme: 'Rye', 'Metal Mania', 'Ewert', 'Special Elite', serif;
-  --font-family-heading: var(--font-family-theme);
+  /* Typography: System fonts used. Specific "themed" fonts applied via CSS classes from jurassic/typography.css */
+  --font-family-heading: var(--font-family-system-serif); /* Base, Jurassic theme will override with display fonts */
 
-  /* Shadows - Amber Glow */
-  --shadow-glow: 0 0 25px rgba(var(--accent-rgb), 0.35), 0 0 15px rgba(var(--primary-rgb), 0.25);
-  --shadow-glow-strong: 0 0 40px rgba(var(--accent-rgb), 0.5), 0 0 25px rgba(var(--primary-rgb), 0.4);
-
-  /* Gradients - Weathered Materials */
-  --gradient-primary: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #755827 100%);
-  --gradient-primary-hover: linear-gradient(135deg, #8A6C2F 0%, var(--primary-dark) 50%, #A07C3E 100%);
-  --gradient-amber: radial-gradient(circle, var(--primary-light) 0%, var(--primary) 50%, var(--primary-dark) 100%);
-
-  /* Environmental Effects */
-  --foliage-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='foliage'%3E%3CfeTurbulence baseFrequency='0.05 0.08' numOctaves='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.5 0 0 0 0 0.1 0 0 0 0.3 0'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='100' height='100' fill='%23507D32' filter='url(%23foliage)' opacity='0.6'/%3E%3C/svg%3E");
-  --amber-glow-animation-duration: 3s;
-  --electric-fence-warning: #FFDD00;
+  /* Shadows - Earthy & Deep */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4);
+  --shadow-xl: 0 15px 30px rgba(0,0,0,0.6), 0 6px 12px rgba(0,0,0,0.5);
+  --shadow-2xl: 0 25px 50px rgba(0,0,0,0.7);
+  --shadow-inner: inset 0 2px 5px rgba(0,0,0,0.4);
+  --primary-glow-soft: rgba(var(--primary-rgb), 0.2);
+  --primary-glow-medium: rgba(var(--primary-rgb), 0.35);
+  --primary-glow-strong: rgba(var(--primary-rgb), 0.5);
 }
 
 /* ==========================================================================
-   COMPONENT-SPECIFIC VARIABLES
-   ========================================================================== */
-
-:root {
-  /* Loading Screen */
-  --loading-duration-total: 6s;
-  --loading-tip-duration: 4s;
-  --loading-logo-size: 6.5rem;
-
-  /* Character System */
-  --character-transition-duration: 1.2s;
-  --walkie-talkie-size: 60px;
-  --mr-dna-size: 80px;
-
-  /* Transition Animations */
-  --theme-transition-duration: 2.8s;
-  --gate-animation-duration: 2.5s;
-  --wave-animation-duration: 2.2s;
-
-  /* Chat Interface */
-  --message-appear-duration: 0.5s;
-  --typing-indicator-duration: 1.5s;
-  --sidebar-width: 320px;
-  --sidebar-width-mobile: 300px;
-
-  /* Input System */
-  --input-height-min: 44px;
-  --input-height-max: 200px;
-  --voice-indicator-size: 30px;
-
-  /* Button System */
-  --button-height-sm: 32px;
-  --button-height-md: 40px;
-  --button-height-lg: 48px;
-  --button-ripple-duration: 0.6s;
-}
-
-/* ==========================================================================
-   ACCESSIBILITY & REDUCED MOTION
+   ACCESSIBILITY & REDUCED MOTION - Applies to all themes
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --transition-fast: 0ms;
-    --transition-base: 0ms;
-    --transition-slow: 0ms;
-    --transition-slower: 0ms;
-    --theme-transition-duration: 0ms;
-    --character-transition-duration: 0ms;
-    --loading-duration-total: 1s;
+    --transition-fast: 0ms !important;
+    --transition-medium: 0ms !important;
+    --transition-slow: 0ms !important;
+    --theme-transition-duration: 0ms !important; /* Ensure theme transitions are also instant */
+    --character-transition-speed: 0ms !important;
   }
 }
 
-/* ==========================================================================
-   HIGH CONTRAST MODE
-   ========================================================================== */
-
-@media (prefers-contrast: high) {
+/* High Contrast Mode Defaults (Can be further refined by themes) */
+@media (prefers-contrast: more) { /* Using 'more' instead of 'high' for broader compatibility */
   :root {
-    --primary: #0066CC;
-    --accent: #CC0000;
-    --bg-primary: #FFFFFF;
-    --text-primary: #000000;
-    --border: #000000;
-    --shadow-xs: none;
-    --shadow-sm: none;
-    --shadow-md: 0 0 0 2px var(--border);
-    --shadow-lg: 0 0 0 3px var(--border);
-    --shadow-xl: 0 0 0 4px var(--border);
-  }
-}
+    /* Invert or use system high-contrast colors */
+    --primary: #0000FF; /* Example: System Blue */
+    --accent: #FF0000;  /* Example: System Red */
+    --bg-primary: var(--white);
+    --text-primary: var(--black);
+    --border: var(--black);
 
-/* ==========================================================================
-   PRINT STYLES
-   ========================================================================== */
-
-@media print {
-  :root {
-    --bg-primary: white;
-    --text-primary: black;
-    --shadow-xs: none;
-    --shadow-sm: none;
-    --shadow-md: none;
-    --shadow-lg: none;
-    --shadow-xl: none;
-    --shadow-2xl: none;
+    --shadow-xs: none; --shadow-sm: none; --shadow-md: none; --shadow-lg: none;
+    --shadow-xl: none; --shadow-2xl: none; --shadow-inner: none;
   }
 }
