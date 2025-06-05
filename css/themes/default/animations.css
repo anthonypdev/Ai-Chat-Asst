@@ -4,602 +4,294 @@
    Production-Ready | AAA Quality | GPU Accelerated
    =================================================================== */
 
-/* --- LOADING SCREEN ANIMATIONS --- */
+/* ===================================================================
+   LOADING SCREEN ANIMATIONS
+   =================================================================== */
 @keyframes pulseLogoLoadingEnhancedOpus {
-    0% {
-        transform: scale(0.9) rotate(-4deg) translateY(5px) translateZ(0); /* Added translateZ for GPU layer */
-        opacity: 0.85;
-        filter: blur(1px);
+    0%, 100% {
+        transform: scale(0.95) rotate(-3deg) translateY(3px);
+        opacity: 0.9;
+        filter: blur(0.5px) brightness(0.95);
     }
     33% {
-        transform: scale(1.25) rotate(2deg) translateY(-10px) translateZ(0);
+        transform: scale(1.15) rotate(1deg) translateY(-8px);
         opacity: 1;
-        filter: blur(0px);
-        /* text-shadow can be costly to animate frequently, applied on a specific keyframe is okay */
-        text-shadow: 0 0 20px rgba(200, 190, 255, 0.5),
-                     0 0 45px rgba(200, 190, 255, 0.75),
-                     0 0 70px rgba(200, 190, 255, 0.65),
-                     0 0 120px rgba(200, 190, 255, 0.45);
+        filter: blur(0px) brightness(1.1);
+        text-shadow:
+            0 0 15px var(--primary-glow-soft),
+            0 0 30px var(--primary-glow-medium),
+            0 0 50px var(--primary-glow-strong);
     }
     66% {
-        transform: scale(1.1) rotate(-2deg) translateY(-5px) translateZ(0);
+        transform: scale(1.05) rotate(-1deg) translateY(-3px);
         opacity: 0.95;
-        filter: blur(0.5px);
-    }
-    100% {
-        transform: scale(0.9) rotate(-4deg) translateY(5px) translateZ(0);
-        opacity: 0.85;
-        filter: blur(1px);
+        filter: blur(0.2px) brightness(1.05);
     }
 }
 
 @keyframes fadeInTextLoadingEnhancedOpus {
     from {
         opacity: 0;
-        transform: translateY(25px) scale(0.95) translateZ(0);
+        transform: translateY(20px) scale(0.97);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1) translateZ(0);
+        transform: translateY(0) scale(1);
     }
 }
 
-@keyframes progressBarShineOpus { /* filter animation, can be less performant but okay for loading */
-    0% {
-        filter: brightness(1);
-    }
-    50% {
-        filter: brightness(1.3) hue-rotate(10deg);
-    }
-    100% {
-        filter: brightness(1);
-    }
+@keyframes progressBarShineOpus {
+    0% { filter: brightness(1) contrast(1); }
+    50% { filter: brightness(1.25) contrast(1.1) hue-rotate(15deg); }
+    100% { filter: brightness(1) contrast(1); }
 }
 
 @keyframes fadeInTipLoadingOpus {
     from {
         opacity: 0;
-        transform: translateY(15px) translateZ(0);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
-        transform: translateY(0) translateZ(0);
+        transform: translateY(0);
     }
 }
 
-/* --- GLOBAL ENTRANCE ANIMATIONS --- */
-@keyframes fadeInChatContainerOpusEnhanced {
+/* Apply loading animations */
+[data-theme="default"] .loading-logo {
+  animation: pulseLogoLoadingEnhancedOpus 3.8s infinite var(--ease-in-out);
+}
+[data-theme="default"] .loading-text {
+  animation: fadeInTextLoadingEnhancedOpus 1.5s var(--ease-out) 0.1s forwards;
+}
+[data-theme="default"] .progress-bar {
+  animation: progressBarShineOpus 2.2s infinite linear;
+}
+[data-theme="default"] .loading-tip {
+  animation: fadeInTipLoadingOpus 1.5s var(--ease-out) 0.5s forwards;
+}
+
+
+/* ===================================================================
+   GLOBAL ENTRANCE & UI ELEMENT ANIMATIONS
+   =================================================================== */
+@keyframes fadeInViewContainerOpus { /* For main views like chatContainer, loginContainer */
     from {
         opacity: 0;
-        transform: scale(0.97) translateY(10px) translateZ(0);
+        transform: scale(0.98) translateY(15px);
     }
     to {
         opacity: 1;
-        transform: scale(1) translateY(0) translateZ(0);
+        transform: scale(1) translateY(0);
     }
 }
 
-@keyframes fadeInElementAnimOpusEnhanced {
+@keyframes fadeInElementGenericOpus { /* General purpose fade-in */
     from {
         opacity: 0;
-        transform: translateY(8px) scale(0.98) translateZ(0);
+        transform: translateY(5px);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1) translateZ(0);
+        transform: translateY(0);
     }
 }
 
-@keyframes emptyStateFadeInOpus {
+@keyframes emptyStateAppearOpus {
     from {
         opacity: 0;
-        transform: scale(0.95) translateZ(0);
+        transform: scale(0.92) translateY(10px);
     }
     to {
         opacity: 1;
-        transform: scale(1) translateZ(0);
+        transform: scale(1) translateY(0);
     }
 }
 
-/* --- MESSAGE ANIMATIONS --- */
+/* ===================================================================
+   MESSAGE ANIMATIONS
+   =================================================================== */
 @keyframes messageAppearOpus {
     0% {
         opacity: 0;
-        transform: translateY(15px) scale(0.98) translateZ(0);
+        transform: translateY(12px) scale(0.97);
     }
     100% {
         opacity: 1;
-        transform: translateY(0px) scale(1) translateZ(0);
+        transform: translateY(0px) scale(1);
     }
 }
 
-@keyframes typingAvatarBounceEnhanced {
+@keyframes typingAvatarBounceEnhancedOpus { /* Renamed to avoid conflict if base-theme also has one */
     0%, 100% {
-        transform: translateY(0) scale(1) translateZ(0);
-        opacity: 0.8;
+        transform: translateY(0) scale(1);
+        opacity: 0.85;
     }
     50% {
-        transform: translateY(-5px) scale(1.1) translateZ(0);
+        transform: translateY(-4px) scale(1.08);
         opacity: 1;
     }
 }
 
 @keyframes typingDotBounceOpus {
     0%, 60%, 100% {
-        transform: translateY(0) scale(1) translateZ(0);
-        opacity: 0.5;
-    }
-    30% {
-        transform: translateY(-5px) scale(1.15) translateZ(0);
-        opacity: 1;
-    }
-}
-
-/* --- BUTTON ANIMATIONS --- */
-@keyframes buttonPulse { /* box-shadow animation is not ideal for perf, but common for pulse */
-    0% {
-        transform: scale(1) translateZ(0);
-        box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7);
-    }
-    70% {
-        transform: scale(1.02) translateZ(0);
-        box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
-    }
-    100% {
-        transform: scale(1) translateZ(0);
-        box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
-    }
-}
-
-@keyframes buttonShimmer { /* background-position is generally acceptable for gradients */
-    0% {
-        background-position: -200% center;
-    }
-    100% {
-        background-position: 200% center;
-    }
-}
-
-@keyframes buttonRipple {
-    0% {
-        transform: scale(0) translateZ(0);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(4) translateZ(0);
-        opacity: 0;
-    }
-}
-
-/* --- MODAL ANIMATIONS --- */
-@keyframes modalSlideIn {
-    from {
-        transform: scale(0.88) translateY(40px) rotateX(-15deg) rotateY(5deg) translateZ(0);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1) translateY(0) rotateX(0deg) rotateY(0deg) translateZ(0);
-        opacity: 1;
-    }
-}
-
-@keyframes modalBackdropFadeIn { /* backdrop-filter is expensive, use judiciously */
-    from {
-        opacity: 0;
-        backdrop-filter: blur(0px);
-    }
-    to {
-        opacity: 1;
-        backdrop-filter: blur(15px) saturate(220%) brightness(0.85);
-    }
-}
-
-/* --- SIDEBAR ANIMATIONS --- */
-@keyframes sidebarSlideIn {
-    from {
-        transform: translateX(-105%) translateZ(0);
-        opacity: 0.8;
-    }
-    to {
-        transform: translateX(0) translateZ(0);
-        opacity: 1;
-    }
-}
-
-@keyframes sidebarItemSlideIn {
-    from {
-        transform: translateX(-20px) translateZ(0);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0) translateZ(0);
-        opacity: 1;
-    }
-}
-
-/* --- VOICE INDICATOR ANIMATIONS --- */
-/* Animating height can cause layout reflow. For a few small elements, it might be acceptable.
-   A more performant approach might use transform: scaleY on child elements if height is variable.
-   Given these are fixed small bars, this is likely okay. */
-@keyframes voiceWaveOpusEnhanced {
-    0%, 100% {
-        height: 8px;
-        opacity: 0.3;
-        background-color: var(--primary-light);
-    }
-    50% {
-        height: 28px;
-        opacity: 1;
-        background-color: var(--primary);
-    }
-}
-
-@keyframes micPulseRecordingOpus {
-    0%, 100% {
-        transform: scale(1) translateZ(0);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2) translateZ(0);
-        opacity: 0.7;
-    }
-}
-
-@keyframes voiceIndicatorAppear {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(10px) scale(0.9) translateZ(0);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-5px) scale(1) translateZ(0);
-    }
-}
-
-/* --- FORM ANIMATIONS --- */
-@keyframes inputFocusGlow { /* box-shadow animation */
-    from {
-        box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
-    }
-    to {
-        box-shadow: 0 0 0 4.5px rgba(var(--primary-rgb), 0.25);
-    }
-}
-
-@keyframes labelFloat {
-    from {
-        transform: translateY(0) scale(1) translateZ(0);
-        color: var(--text-muted);
-    }
-    to {
-        transform: translateY(-20px) scale(0.85) translateZ(0);
-        color: var(--primary);
-    }
-}
-
-/* --- SETTINGS DROPDOWN ANIMATIONS --- */
-@keyframes dropdownSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px) scale(0.95) translateZ(0);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1) translateZ(0);
-    }
-}
-
-@keyframes settingsItemHover { /* background-color animation, generally okay for hover */
-    from {
-        background-color: transparent;
-        transform: translateX(0) translateZ(0);
-    }
-    to {
-        background-color: var(--bg-secondary);
-        transform: translateX(5px) translateZ(0);
-    }
-}
-
-/* --- SKELETON LOADING ANIMATIONS --- */
-@keyframes shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -200% 0;
-    }
-}
-
-@keyframes skeletonPulse {
-    0%, 100% {
-        opacity: 0.3;
-    }
-    50% {
+        transform: translateY(0) scale(1);
         opacity: 0.6;
     }
-}
-
-/* --- BRAND ICON ANIMATIONS --- */
-@keyframes brandIconHover {
-    0% {
-        transform: scale(1) rotate(0deg) translateZ(0);
-    }
-    50% {
-        transform: scale(1.2) rotate(-15deg) translateY(-3px) translateZ(0);
-    }
-    100% {
-        transform: scale(1.15) rotate(-12deg) translateY(-2px) translateZ(0);
-    }
-}
-
-@keyframes brandIconIdle {
-    0%, 100% {
-        transform: scale(1) rotate(0deg) translateZ(0);
-        filter: brightness(1);
-    }
-    50% {
-        transform: scale(1.05) rotate(2deg) translateZ(0);
-        filter: brightness(1.1);
-    }
-}
-
-/* --- SUGGESTION CARD ANIMATIONS --- */
-@keyframes suggestionCardHover { /* box-shadow animation */
-    from {
-        transform: translateY(0) scale(1) translateZ(0);
-        box-shadow: var(--shadow-md);
-    }
-    to {
-        transform: translateY(-6px) scale(1.03) translateZ(0);
-        box-shadow: var(--shadow-xl), 0 0 15px var(--primary-glow-soft);
-    }
-}
-
-@keyframes suggestionCardAppear {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95) translateZ(0);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1) translateZ(0);
-    }
-}
-
-/* --- LOGIN CARD ANIMATIONS --- */
-@keyframes popInLoginCardOpusEnhanced {
-    0% {
-        opacity: 0;
-        transform: scale(0.6) translateY(50px) rotateX(-10deg) translateZ(0);
-    }
-    70% {
-        opacity: 1;
-        transform: scale(1.05) translateY(-10px) rotateX(5deg) translateZ(0);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0) rotateX(0deg) translateZ(0);
-    }
-}
-
-@keyframes loginLogoHover {
-    0% {
-        transform: scale(1) rotate(0deg) translateY(0) translateZ(0);
-    }
-    50% {
-        transform: scale(1.28) rotate(-12deg) translateY(-5px) translateZ(0);
-    }
-    100% {
-        transform: scale(1.25) rotate(-10deg) translateY(-3px) translateZ(0);
-    }
-}
-
-/* --- NOTIFICATION ANIMATIONS --- */
-@keyframes notificationSlideIn {
-    from {
-        transform: translateX(100%) translateZ(0);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0) translateZ(0);
+    30% {
+        transform: translateY(-6px) scale(1.2);
         opacity: 1;
     }
 }
 
-@keyframes notificationBounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0) translateZ(0);
-    }
-    40% {
-        transform: translateY(-5px) translateZ(0);
-    }
-    60% {
-        transform: translateY(-3px) translateZ(0);
-    }
+/* Apply message animations */
+[data-theme="default"] .message.animate-in { /* Add .animate-in class with JS for new messages */
+  animation: messageAppearOpus 0.5s var(--ease-out) forwards;
+}
+[data-theme="default"] .message.assistant.typing-indicator-wrapper .message-avatar {
+  animation: typingAvatarBounceEnhancedOpus 1.4s var(--ease-in-out) infinite 0.15s;
+}
+[data-theme="default"] .typing-dot {
+  animation: typingDotBounceOpus 1.6s infinite var(--ease-in-out);
 }
 
-/* --- FOCUS ANIMATIONS --- */
-@keyframes focusRing { /* outline animations can cause repaints */
-    from {
-        outline-offset: 2px;
-        outline-width: 2px;
-    }
-    to {
-        outline-offset: 3px;
-        outline-width: 3.5px;
-    }
+
+/* ===================================================================
+   BUTTON ANIMATIONS
+   =================================================================== */
+@keyframes buttonHoverPulseOpus {
+    0% { transform: scale(1.02) translateY(-2px); } /* Start from hover state */
+    50% { transform: scale(1.04) translateY(-3px); }
+    100% { transform: scale(1.02) translateY(-2px); }
 }
 
-@keyframes focusGlow { /* box-shadow animation */
-    0% {
-        box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.5);
-    }
-    100% {
-        box-shadow: 0 0 0 6px rgba(var(--primary-rgb), 0.35);
-    }
+@keyframes buttonActivePressOpus {
+    to { transform: scale(0.97) translateY(1px); }
 }
 
-/* --- COPY FEEDBACK ANIMATION --- */
-@keyframes copySuccess {
-    0% {
-        transform: scale(1) translateZ(0);
-        color: var(--text-muted);
-    }
-    50% {
-        transform: scale(1.2) translateZ(0);
-        color: var(--success);
-    }
-    100% {
-        transform: scale(1) translateZ(0);
-        color: var(--success);
-    }
+@keyframes buttonRippleOpus {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0.35; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
 }
 
-/* --- SCROLL ANIMATIONS --- */
-@keyframes scrollIndicator {
-    0% {
-        opacity: 1;
-        transform: translateY(0) translateZ(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(10px) translateZ(0);
-    }
-}
+/* Note: Apply these via JS or :hover/:active states in buttons.css or theme.css */
 
-/* --- THEME TRANSITION PREPARATIONS --- */
-@keyframes themeTransitionPrepare { /* filter animation */
-    from {
-        filter: brightness(1) contrast(1);
-    }
-    to {
-        filter: brightness(0.7) contrast(1.2);
-    }
-}
-
-@keyframes themeTransitionReveal { /* filter animation */
+/* ===================================================================
+   MODAL ANIMATIONS
+   =================================================================== */
+@keyframes modalZoomInOpus {
     from {
         opacity: 0;
-        transform: scale(1.05) translateZ(0);
-        filter: blur(2px);
+        transform: scale(0.8) translateY(20px);
     }
     to {
         opacity: 1;
-        transform: scale(1) translateZ(0);
-        filter: blur(0);
+        transform: scale(1) translateY(0);
     }
 }
 
-/* --- PERFORMANCE OPTIMIZATIONS --- */
-.message,
-.sidebar,
-.modal,
-.btn,
-.suggestion-card,
-.chat-history-item {
-    will-change: transform, opacity; /* Common animated properties */
+@keyframes modalBackdropFadeInOpus {
+    from { opacity: 0; backdrop-filter: blur(0px) saturate(100%) brightness(1); }
+    to { opacity: 1; backdrop-filter: var(--glass-backdrop); } /* Uses variable from theme */
 }
 
-/* Ensure elements being animated are on their own compositor layer */
-.message.animating, /* Assuming an .animating class is added during JS-driven animations */
-.sidebar.animating,
-.modal.animating {
-    transform: translateZ(0);
+/* Apply modal animations */
+[data-theme="default"] .modal-overlay.active {
+  animation: modalBackdropFadeInOpus 0.4s var(--ease-out) forwards;
+}
+[data-theme="default"] .modal-overlay.active .modal {
+  animation: modalZoomInOpus 0.4s var(--ease-back-out) 0.1s forwards; /* Delay modal slightly after backdrop */
 }
 
-/* --- ACCESSIBILITY: REDUCED MOTION --- */
+/* ===================================================================
+   SIDEBAR ANIMATIONS
+   =================================================================== */
+@keyframes sidebarSlideInFromLeftOpus {
+    from { transform: translateX(-100%); opacity: 0.9; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes sidebarSlideOutToLeftOpus {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-100%); opacity: 0.9; }
+}
+
+@keyframes sidebarItemAppearOpus {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Apply sidebar animations (JS will toggle .open/.collapsed) */
+[data-theme="default"] .sidebar.open-animating {
+    animation: sidebarSlideInFromLeftOpus var(--transition-medium) var(--ease-out) forwards;
+}
+[data-theme="default"] .sidebar.close-animating {
+    animation: sidebarSlideOutToLeftOpus var(--transition-medium) var(--ease-in) forwards;
+}
+[data-theme="default"] .sidebar.open .chat-history-item {
+    /* Staggered animation for items can be applied by JS adding a class or using :nth-child delays */
+}
+
+/* ===================================================================
+   OTHER UI ELEMENT ANIMATIONS
+   =================================================================== */
+
+@keyframes inputFocusGlowOpus {
+    0% { box-shadow: var(--shadow-inner), 0 0 0 0px var(--primary-glow-soft); }
+    100% { box-shadow: var(--shadow-inner), 0 0 0 4px var(--primary-glow-soft); }
+}
+
+@keyframes errorShakeOpus {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes copySuccessFeedbackOpus {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ===================================================================
+   PERFORMANCE & ACCESSIBILITY
+   =================================================================== */
 @media (prefers-reduced-motion: reduce) {
-    *,
-    ::before,
-    ::after {
-        animation-delay: -1ms !important;
-        animation-duration: 1ms !important;
-        animation-iteration-count: 1 !important;
-        background-attachment: initial !important;
-        scroll-behavior: auto !important;
-        transition-duration: 0s !important;
-        transition-delay: 0s !important;
-    }
-
-    .loading-logo {
-        animation: none !important;
-    }
-
-    /* Ensure messages are visible if their appearance animation is disabled */
-    .message {
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-    }
+  /* Disable animations for users who prefer reduced motion */
+  *, *::before, *::after {
+    animation-delay: -1ms !important; /* Effectively disables animations */
+    animation-duration: 1ms !important; /* Effectively disables animations */
+    animation-iteration-count: 1 !important; /* Play only once */
+    background-attachment: initial !important; /* Fix background images */
+    scroll-behavior: auto !important; /* Disable smooth scrolling */
+    transition-duration: 0s !important; /* Disable transitions */
+    transition-delay: 0s !important; /* Disable transition delays */
+  }
 }
 
-/* --- HOVER STATES FOR DESKTOP (where pointer accuracy is high) --- */
-@media (hover: hover) and (pointer: fine) {
-    .btn:hover:not(:disabled) { /* Apply only if not disabled */
-        /* The buttonPulse animation is defined above */
-        /* Consider if this should be a class like .btn-pulse-hover instead of applying to all buttons */
-    }
-
-    .suggestion-card:hover {
-        animation: suggestionCardHover 0.3s var(--ease-out) forwards;
-    }
-
-    .brand-icon:hover { /* Assuming .brand-icon is the wrapper for the SVG/logo */
-        animation: brandIconHover 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-    }
+/* GPU Acceleration hints (apply these classes with JS or directly in HTML) */
+.gpu-accelerate-animation {
+  will-change: transform, opacity; /* Common animated properties */
+  transform: translateZ(0); /* Promote to own layer */
+  backface-visibility: hidden;
+  perspective: 1000px; /* Necessary for some 3D transform effects to be hardware accelerated */
 }
 
-/* --- TOUCH DEVICE OPTIMIZATIONS (no hover, rely on active states) --- */
-@media (hover: none) and (pointer: coarse) {
-    .btn:active:not(:disabled) {
-        animation: buttonRipple 0.3s var(--ease-out);
-    }
-
-    .suggestion-card:active {
-        transform: scale(0.98) translateZ(0); /* Add translateZ for consistency */
-        transition: transform 0.1s var(--ease-out);
-    }
+/* Animation application classes (to be added by JS or directly) */
+.animate-fade-in {
+  animation: fadeInElementGenericOpus 0.5s var(--ease-out) forwards;
+  opacity: 0; /* Start hidden */
 }
 
-/* --- HIGH REFRESH RATE DISPLAYS (smoother easing if supported) --- */
-@media (min-resolution: 120dpi) { /* This is a proxy, actual refresh rate detection is harder */
-    .message,
-    .typing-dot,
-    .voice-bar { /* Examples of elements with continuous/looping animations */
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* Smoother default ease */
-    }
+.animate-slide-in-left { /* Example for sidebar items */
+  animation: sidebarItemAppearOpus 0.4s var(--ease-out) forwards;
+  opacity: 0;
 }
 
-/* --- ANIMATION CLASSES FOR JAVASCRIPT TRIGGERS --- */
-.fade-in-element {
-    animation: fadeInElementAnimOpusEnhanced 0.7s var(--ease-out) forwards;
-    opacity: 0; /* Start hidden */
+.animate-pop-in { /* Example for modals or cards */
+   animation: modalZoomInOpus 0.4s var(--ease-back-out) forwards; /* Using modal animation as example */
+   opacity: 0;
 }
 
-.slide-in-element { /* Example for sidebar items or similar */
-    animation: sidebarItemSlideIn 0.5s var(--ease-out) forwards;
-    opacity: 0; /* Start hidden */
+.animate-shake {
+    animation: errorShakeOpus 0.5s var(--ease-in-out);
 }
-
-.bounce-in-element { /* Example for modals or prominent cards */
-    animation: popInLoginCardOpusEnhanced 1s var(--ease-bounce) forwards;
-    opacity: 0; /* Start hidden */
-}
-
-.shimmer-element { /* For skeleton loaders */
-    background: linear-gradient(90deg,
-        rgba(var(--bg-tertiary-rgb), 0.3) 25%,
-        rgba(var(--bg-tertiary-rgb), 0.5) 50%,
-        rgba(var(--bg-tertiary-rgb), 0.3) 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
-
-/* --- STAGGERED ANIMATIONS (applied to items in a list) --- */
-.stagger-item:nth-child(1) { animation-delay: 0ms; }
-.stagger-item:nth-child(2) { animation-delay: 100ms; }
-.stagger-item:nth-child(3) { animation-delay: 200ms; }
-.stagger-item:nth-child(4) { animation-delay: 300ms; }
-.stagger-item:nth-child(5) { animation-delay: 400ms; }
-.stagger-item:nth-child(n+6) { animation-delay: 500ms; } /* Cap delay for longer lists */
