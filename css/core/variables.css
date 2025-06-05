@@ -29,21 +29,26 @@
   /* RGB versions for opacity usage */
   --gray-900-rgb: 17, 24, 39;
   --gray-800-rgb: 31, 41, 55;
+  --white-rgb: 255, 255, 255;
+  --black-rgb: 0, 0, 0;
 
 
   /* ==========================================================================
      TYPOGRAPHY SYSTEM - SYSTEM FONTS ONLY (as per mandate)
+     Font loading for "Inter" and "JetBrains Mono" should be handled in index.html.
+     Theme-specific fonts like "Nosifer", "Rye" also via index.html if used.
+     These variables define the STACKS.
      ========================================================================== */
 
   /* System Font Stacks - Prioritizing modern system UI fonts */
   --font-family-system-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-family-system-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, Cambria, "Times New Roman", Times, serif; /* More classic serif stack */
-  --font-family-system-monospace: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* Developer-friendly monospaced fonts */
+  --font-family-system-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-family-system-monospace: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  /* Base Font Families (using system stacks) */
-  --font-family-default: var(--font-family-system-sans-serif);
-  --font-family-mono: var(--font-family-system-monospace);
-  --font-family-heading: var(--font-family-system-sans-serif); /* Default heading, can be overridden by themes or specific elements */
+  /* Base Font Families (using system stacks as primary, with Inter/JetBrains as preferred if loaded via index.html) */
+  --font-family-default: 'Inter', var(--font-family-system-sans-serif);
+  --font-family-mono: 'JetBrains Mono', var(--font-family-system-monospace);
+  --font-family-heading: 'Inter', var(--font-family-system-sans-serif);
 
   /* Font Scale - Harmonious & Fluid Typography (using clamp for responsiveness) */
   --font-size-xs: clamp(0.75rem, 0.8vw + 0.1rem, 0.875rem);   /* Approx 12px-14px */
@@ -85,12 +90,12 @@
   --letter-spacing-widest: 0.1em;
 
   /* ==========================================================================
-     SPACING SYSTEM - Consistent Rhythmic Scale (Based on 4px grid, 1rem = 16px base)
+     SPACING SYSTEM - Consistent Rhythmic Scale (Based on 4px grid, 1rem = 16px base assumed for calculations)
      ========================================================================== */
-  --space-unit: 4px; /* Base unit for scaling */
+  --space-unit: 4px;
 
-  --space-0: 0;                            /* 0px */
-  --space-px: 1px;                         /* 1px */
+  --space-0: 0;
+  --space-px: 1px;
   --space-0-5: calc(0.5 * var(--space-unit));  /* 2px */
   --space-1: calc(1 * var(--space-unit));    /* 4px */
   --space-1-5: calc(1.5 * var(--space-unit));  /* 6px */
@@ -98,7 +103,7 @@
   --space-2-5: calc(2.5 * var(--space-unit));  /* 10px */
   --space-3: calc(3 * var(--space-unit));    /* 12px */
   --space-3-5: calc(3.5 * var(--space-unit));  /* 14px */
-  --space-4: calc(4 * var(--space-unit));    /* 16px (1rem default) */
+  --space-4: calc(4 * var(--space-unit));    /* 16px */
   --space-5: calc(5 * var(--space-unit));    /* 20px */
   --space-6: calc(6 * var(--space-unit));    /* 24px */
   --space-7: calc(7 * var(--space-unit));    /* 28px */
@@ -126,33 +131,34 @@
 
   /* ==========================================================================
      DEFAULT THEME - Modern, Professional, Tech-Forward AI Interface
+     These are the base values, also used by the default theme.
      ========================================================================== */
 
   /* Primary Color System - Sophisticated & Approachable Tech Blue/Purple */
-  --primary: #6A5ACD; /* SlateBlue */
-  --primary-rgb: 106, 90, 205;
-  --primary-dark: #483D8B; /* DarkSlateBlue */
-  --primary-darker: #3B3070; /* Even darker for depth */
-  --primary-darker-rgb: 59, 48, 112;
-  --primary-light: #9370DB; /* MediumPurple */
-  --primary-lighter: #B0A4E0; /* Lighter purple */
-  --primary-lighter-rgb: 176, 164, 224;
+  --primary: #7A77FF;
+  --primary-rgb: 122, 119, 255;
+  --primary-dark: #5A57E0;
+  --primary-darker: #403EBA;
+  --primary-darker-rgb: 64, 62, 186;
+  --primary-light: #9C9AFF;
+  --primary-lighter: #BFBDFF;
+  --primary-lighter-rgb: 191, 189, 255;
 
   /* Accent Colors - Energetic & Contrasting */
-  --accent: #FF69B4; /* HotPink - for vibrant accents */
-  --accent-rgb: 255, 105, 180;
-  --accent-light: #FF85C1;
-  --accent-dark: #DB7093; /* PaleVioletRed */
+  --accent: #FF4DA8;
+  --accent-rgb: 255, 77, 168;
+  --accent-light: #FF85C2;
+  --accent-dark: #E63995; /* Adjusted for better contrast */
 
   /* Semantic Colors - Clear Visual Cues */
-  --success: #32CD32;  /* LimeGreen */
-  --success-rgb: 50, 205, 50;
-  --warning: #FFD700;  /* Gold */
-  --warning-rgb: 255, 215, 0;
-  --error: #DC143C;    /* Crimson */
-  --error-rgb: 220, 20, 60;
-  --info: #1E90FF;     /* DodgerBlue */
-  --info-rgb: 30, 144, 255;
+  --success: #00D15B;
+  --success-rgb: 0, 209, 91;
+  --warning: #FFAA00;
+  --warning-rgb: 255, 170, 0;
+  --error: #E60000;
+  --error-rgb: 230, 0, 0;
+  --info: #00B8FF;
+  --info-rgb: 0, 184, 255;
 
   /* Background System - Clean & Layered */
   --bg-primary: var(--white);
@@ -163,8 +169,8 @@
   --bg-tertiary-rgb: 243, 244, 246;
   --bg-elevated: var(--white);
   --bg-elevated-rgb: 255, 255, 255;
-  --bg-overlay: rgba(var(--gray-900-rgb), 0.85); /* Darker overlay */
-  --bg-backdrop: rgba(var(--gray-800-rgb), 0.6); /* More blur, less opacity */
+  --bg-overlay: rgba(var(--gray-900-rgb), 0.88); /* Slightly increased opacity */
+  --bg-backdrop: rgba(var(--gray-800-rgb), 0.75); /* More substantial backdrop */
 
   /* Text Color System - High Readability */
   --text-primary: var(--gray-900);
@@ -217,19 +223,19 @@
      ANIMATION & TRANSITION SYSTEM - Smooth & Performant
      ========================================================================== */
 
-  /* Easing Functions - Based on common web standards */
+  /* Easing Functions */
   --ease-linear: cubic-bezier(0, 0, 1, 1);
   --ease-in: cubic-bezier(0.42, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.58, 1);
   --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* More pronounced bounce */
+  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --ease-back-in: cubic-bezier(0.36, 0, 0.66, -0.56);
   --ease-back-out: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-back-in-out: cubic-bezier(0.68, -0.6, 0.32, 1.6);
 
 
-  /* Duration Scale - Standardized timing */
+  /* Duration Scale */
   --duration-shortest: 75ms;
   --duration-short: 100ms;
   --duration-base: 150ms;
@@ -237,7 +243,7 @@
   --duration-longer: 300ms;
   --duration-longest: 500ms;
 
-  /* Semantic Durations - For common UI transitions */
+  /* Semantic Durations */
   --transition-fast: var(--duration-base);
   --transition-medium: var(--duration-longer);
   --transition-slow: var(--duration-longest);
@@ -251,13 +257,13 @@
   --z-dropdown: 1000;
   --z-sticky: 1020;
   --z-banner: 1030;
-  --z-overlay-backdrop: 1040; /* Changed name for clarity */
+  --z-overlay-backdrop: 1040;
   --z-modal: 1050;
   --z-popover: 1060;
   --z-tooltip: 1070;
   --z-toast: 1080;
   --z-loading-overlay: 2000;
-  --z-animation-overlay: 2100; /* For full-screen theme transitions */
+  --z-animation-overlay: 2100;
   --z-maximum: 2147483647;
 
   /* ==========================================================================
@@ -276,17 +282,18 @@
   --gradient-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
   --gradient-primary-hover: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   --gradient-accent: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(var(--white-rgb, 255,255,255), 0.15) 0%, rgba(var(--white-rgb, 255,255,255), 0.05) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(var(--white-rgb), 0.15) 0%, rgba(var(--white-rgb), 0.05) 100%);
   --gradient-dark-subtle: linear-gradient(180deg, rgba(var(--gray-900-rgb), 0.08) 0%, transparent 70%);
 
   /* ==========================================================================
      COMPONENT-SPECIFIC VARIABLES (Can be overridden by themes)
      ========================================================================== */
-  --loading-progress-height: 12px;
+  --loading-logo-size: 5rem;
+  --loading-progress-height: 10px;
   --sidebar-width: 280px;
   --sidebar-width-mobile: 260px;
   --chat-input-min-height: 48px;
-  --chat-input-max-height: 180px; /* Increased slightly */
+  --chat-input-max-height: 180px;
   --message-avatar-size: 36px;
   --button-height-md: 44px;
 }
@@ -315,7 +322,7 @@
   --bg-tertiary: #032644;
   --bg-elevated: #053057;
   --bg-elevated-rgb: 5, 48, 87;
-  --bg-overlay: rgba(var(--black-rgb, 0,0,0), 0.9);
+  --bg-overlay: rgba(var(--black-rgb), 0.9);
   --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
 
   --text-primary: #E0F7FA; /* Light Cyan */
@@ -326,10 +333,17 @@
 
   --border: var(--primary-dark);
   --border-light: var(--primary);
-  --border-dark: #000A14; /* Very dark for contrast */
+  --border-dark: #000A14;
 
-  --font-family-heading: 'Nosifer', 'Creepster', var(--font-family-system-sans-serif); /* Themed heading */
-  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Nautical/typewriter body */
+  /* Theme-specific Font Family Variables (points to system stacks or loaded themed fonts) */
+  --font-family-jaws-nosifer: 'Nosifer', var(--font-family-system-sans-serif);
+  --font-family-jaws-creepster: 'Creepster', var(--font-family-system-sans-serif);
+  --font-family-jaws-bangers: 'Bangers', var(--font-family-system-sans-serif);
+  --font-family-jaws-pirata: 'Pirata One', var(--font-family-system-serif);
+  --font-family-jaws-elite: 'Special Elite', var(--font-family-system-monospace);
+
+  --font-family-heading: var(--font-family-jaws-nosifer); /* Example override */
+  --font-family-default: var(--font-family-jaws-elite);  /* Example override */
 
   --shadow-lg: 0 8px 18px rgba(0,0,0,0.7), 0 0 15px rgba(var(--accent-rgb),0.4);
   --shadow-xl: 0 12px 25px rgba(0,0,0,0.8), 0 0 20px rgba(var(--accent-rgb),0.5);
@@ -356,27 +370,33 @@
   --accent-light: #7DB866;
   --accent-dark: #2D571E;
 
-  --bg-primary: #1A140D; /* Darkest Brown */
+  --bg-primary: #1A140D;
   --bg-primary-rgb: 26, 20, 13;
   --bg-secondary: #2C241B;
   --bg-tertiary: #3E352A;
   --bg-elevated: #251F16;
   --bg-elevated-rgb: 37, 31, 22;
-  --bg-overlay: rgba(var(--black-rgb,0,0,0), 0.9);
+  --bg-overlay: rgba(var(--black-rgb), 0.9);
   --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
 
   --text-primary: #EDE7D9; /* Fossil/Bone White */
   --text-secondary: #D4CBAF;
   --text-tertiary: #B0A085;
   --text-muted: #8C7F69;
-  --text-inverse: var(--gray-950); /* Dark text on amber */
+  --text-inverse: var(--gray-950);
 
   --border: var(--primary-darker);
   --border-light: var(--primary-dark);
-  --border-dark: #5C4033; /* Dark Brown */
+  --border-dark: #5C4033;
 
-  --font-family-heading: 'Rye', 'Metal Mania', var(--font-family-system-serif); /* Themed heading */
-  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Typewriter/field notes body */
+  /* Theme-specific Font Family Variables */
+  --font-family-jurassic-rye: 'Rye', var(--font-family-system-serif);
+  --font-family-jurassic-metal: 'Metal Mania', var(--font-family-system-sans-serif);
+  --font-family-jurassic-ewert: 'Ewert', var(--font-family-system-serif);
+  --font-family-jurassic-elite: 'Special Elite', var(--font-family-system-monospace);
+
+  --font-family-heading: var(--font-family-jurassic-rye); /* Example override */
+  --font-family-default: var(--font-family-jurassic-elite); /* Example override */
 
   --shadow-lg: 0 8px 16px rgba(0,0,0,0.6), 0 0 12px rgba(var(--primary-darker-rgb),0.5);
   --shadow-xl: 0 15px 30px rgba(0,0,0,0.7), 0 0 18px rgba(var(--primary-darker-rgb),0.6);
@@ -391,22 +411,20 @@
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  :root { /* Apply to all themes when reduced motion is preferred */
+  :root {
     --transition-fast: 0ms !important;
     --transition-medium: 0ms !important;
     --transition-slow: 0ms !important;
     --theme-transition-duration: 0ms !important;
     --character-transition-speed: 0ms !important;
-    /* Keep other animation durations for critical feedback if absolutely necessary,
-       or set them to very short (e.g., 50ms) instead of 0ms.
-       For Opus Magnum, assume JS will also respect this for JS-driven animations. */
+    /* Other animation durations for critical feedback can be set to very short (e.g., 50ms) */
   }
 }
 
 /* High Contrast Mode Defaults (System high contrast can be very different) */
 @media (prefers-contrast: more) {
   :root {
-    --primary: ButtonText; /* Use system colors */
+    --primary: ButtonText;
     --accent: LinkText;
     --bg-primary: Canvas;
     --text-primary: CanvasText;
@@ -415,5 +433,4 @@
     --shadow-lg: none !important; --shadow-xl: none !important; --shadow-2xl: none !important;
     --shadow-inner: none !important;
   }
-  /* Theme-specific high contrast overrides might be needed in theme.css if system colors aren't thematic enough */
 }
