@@ -59,18 +59,16 @@ class App {
 
         console.log('🚀 Parkland AI - Opus Magnum Edition: Initializing App...');
         document.body.classList.add('app-loading');
-        // Ensure loadingOverlay is selected before trying to use it.
-        // _selectUIElements is called later, so for now, query directly or ensure it's available globally if used this early.
         const loadingOverlayDirect = document.getElementById('loadingOverlay');
         if(loadingOverlayDirect) this.utils.removeClass(loadingOverlayDirect, 'hidden');
 
 
-        this._selectUIElements(); // Now ui elements are populated
+        this._selectUIElements();
 
         // Initialize Feature Modules in correct order
-        // Adding checks for class definitions before instantiation
-        if (typeof MarkdownProcessor === 'undefined') { console.error("MarkdownProcessor class is undefined! Ensure markdown.js is loaded."); return Promise.reject("MarkdownProcessor missing"); }
-        this.markdownProcessor = new MarkdownProcessor();
+        if (typeof MarkdownProcessor === 'undefined') { console.error("MarkdownProcessor class is undefined! Ensure markdown.js is loaded before app.js."); return Promise.reject("MarkdownProcessor missing"); }
+        this.markdownProcessor = new MarkdownProcessor(this.utils); // Pass utils for polling
+        await this.markdownProcessor.init(); // Wait for markdown-it and DOMPurify
 
         if (typeof ClaudeAPIService === 'undefined') { console.error("ClaudeAPIService class is undefined! Ensure claude.js is loaded."); return Promise.reject("ClaudeAPIService missing"); }
         this.apiService = new ClaudeAPIService(this.stateManager, this.utils);
@@ -83,17 +81,15 @@ class App {
 
         if (typeof VoiceRecognition === 'undefined') { console.error("VoiceRecognition class is undefined! Ensure recognition.js is loaded."); return Promise.reject("VoiceRecognition missing"); }
         this.voiceRecognition = new VoiceRecognition(this.stateManager, this.eventEmitter, this.utils, this.ui.micBtn);
-        // VoiceRecognition constructor handles its setup. We check support before enabling UI.
         if (this.ui.micBtn && !this.voiceRecognition.isSupported()) {
             this.ui.micBtn.disabled = true;
             this.ui.micBtn.title = "Voice recognition not supported by your browser.";
             this.utils.addClass(this.ui.micBtn, 'btn-disabled');
         }
 
-
         if (typeof VoiceSynthesis === 'undefined') { console.error("VoiceSynthesis class is undefined! Ensure synthesis.js is loaded."); return Promise.reject("VoiceSynthesis missing"); }
         this.voiceSynthesis = new VoiceSynthesis(this.stateManager, this.eventEmitter, this.utils);
-        this.voiceSynthesis.init(); // VoiceSynthesis has an init to populate voices
+        this.voiceSynthesis.init(); 
 
         if (typeof ThemePersistence === 'undefined') { console.error("ThemePersistence class is undefined! Ensure persistence.js is loaded."); return Promise.reject("ThemePersistence missing"); }
         this.themePersistence = new ThemePersistence(this.stateManager);
@@ -186,19 +182,30 @@ class App {
         this.ui.micBtn = this.utils.$('#micBtn');
         this.ui.chatMessagesContainer = this.utils.$('.messages-container .messages-inner', this.ui.chatContainer);
         this.ui.chatHistoryContainer = this.utils.$('.sidebar-content .chat-history-list', this.ui.sidebar);
-        this.ui.newChatBtn = this.utils.$('#newChatBtn', this.ui.sidebarHeader); // Scope to sidebar header if possible
-        this.ui.settingsBtn = this.utils.$('#settingsBtn', this.ui.sidebarFooter); // Scope to sidebar footer
-        this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle', this.ui.sidebarHeader); // Scope to sidebar header
+        // Scope UI element selection to their parent containers where appropriate
+        const sidebarHeader = this.utils.$('.sidebar-header', this.ui.sidebar);
+        if(sidebarHeader) {
+            this.ui.newChatBtn = this.utils.$('#newChatBtn', sidebarHeader);
+            this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle', sidebarHeader);
+        }
+        const sidebarFooter = this.utils.$('.sidebar-footer', this.ui.sidebar);
+        if(sidebarFooter) {
+            this.ui.settingsBtn = this.utils.$('#settingsBtn', sidebarFooter);
+        }
         this.ui.settingsModal = this.utils.$('#appSettingsModal');
-        this.ui.settingsForm = this.utils.$('#settingsForm', this.ui.settingsModal); 
-        this.ui.closeSettingsModalBtn = this.utils.$('.modal-close', this.ui.settingsModal); // More specific
-        this.ui.emptyStateContainer = this.utils.$('.empty-state-container', this.ui.chatContainer);
+        if(this.ui.settingsModal){
+            this.ui.settingsForm = this.utils.$('#settingsForm', this.ui.settingsModal); 
+            this.ui.closeSettingsModalBtn = this.utils.$('.modal-close', this.ui.settingsModal);
+        }
+        if(this.ui.chatContainer) {
+            this.ui.emptyStateContainer = this.utils.$('.empty-state-container', this.ui.chatContainer);
+        }
     }
 
     _registerEventListeners() {
         if (this.ui.loginForm) {
             this.ui.loginForm.addEventListener('submit', this._handleLoginSubmit.bind(this));
-        } else if (this.ui.loginButton) { // Fallback if only button exists
+        } else if (this.ui.loginButton) { 
             this.ui.loginButton.addEventListener('click', (e) => {
                  e.preventDefault(); 
                  this._handleLoginSubmit(e);
@@ -211,8 +218,8 @@ class App {
         
         if(this.ui.micBtn && this.voiceRecognition && this.voiceRecognition.isSupported()) {
             this.ui.micBtn.addEventListener('click', () => this.voiceRecognition.toggleListening());
-        } else if (this.ui.micBtn) { // Disable if not supported
-            this.utils.addClass(this.ui.micBtn, 'btn-disabled'); // Use a class for styling disabled state
+        } else if (this.ui.micBtn) { 
+            this.utils.addClass(this.ui.micBtn, 'btn-disabled'); 
             this.ui.micBtn.disabled = true;
         }
 
@@ -233,7 +240,6 @@ class App {
                 }
             });
         }
-        // Also add cancel button functionality for settings modal
         const settingsCancelBtn = this.utils.$('.modal-cancel-btn', this.ui.settingsModal);
         if(settingsCancelBtn) {
             settingsCancelBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', false));
@@ -252,7 +258,6 @@ class App {
         }
 
         window.addEventListener('keydown', this._handleGlobalKeyDown.bind(this));
-        // Store debounced handler to be able to remove it later if app is destroyed
         this._debouncedResizeHandler = this.utils.debounce(this._handleResize.bind(this), 200);
         window.addEventListener('resize', this._debouncedResizeHandler);
         document.addEventListener('visibilitychange', this._handleVisibilityChange);
@@ -274,10 +279,8 @@ class App {
                 this.voiceSynthesis.speak(text, characterKey, options);
             }
         });
-        // Listener for when chat history updates active session
         this.eventEmitter.on('chatSessionLoaded', ({ sessionId, messages }) => {
-            // App.js can react if needed, e.g., update chat title
-            const sessions = this.chatHistory._getStoredSessions(); // Access internal method carefully or add public getter
+            const sessions = this.chatHistory ? this.chatHistory._getStoredSessions() : []; 
             const loadedSession = sessions.find(s => s.id === sessionId);
             if(this.ui.chatHeader) {
                 const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
@@ -306,10 +309,9 @@ class App {
         this.stateManager.subscribe('change:chatHistory', ({ newValue, oldValue }) => {
             if(this.chatMessages) this.chatMessages.renderHistory(newValue); 
             this._toggleEmptyState(newValue.length === 0);
-            // Update session in history list on new messages
-            if (newValue.length > (oldValue ? oldValue.length : 0) || 
-               (newValue.length > 0 && (!oldValue || oldValue.length === 0)) ||
-               (newValue.length === 0 && oldValue && oldValue.length > 0) ) { // Also update on clear
+            if ( (newValue.length > (oldValue ? oldValue.length : 0)) || 
+                 (newValue.length > 0 && (!oldValue || oldValue.length === 0)) ||
+                 (newValue.length === 0 && oldValue && oldValue.length > 0) ) { 
                 if(this.chatHistory) this.chatHistory.addOrUpdateCurrentSession(); 
             }
         });
@@ -321,7 +323,6 @@ class App {
             if(this.ui.appContainer) this.ui.appContainer.classList.toggle('sidebar-collapsed', !newValue);
         });
         this.stateManager.subscribe('change:isLoginModalOpen', ({ newValue }) => {
-            // This state now more accurately reflects if the login *view* should be shown
             if (newValue) this._showLoginView(); else this._showChatView();
         });
         this.stateManager.subscribe('change:isSettingsModalOpen', ({ newValue }) => {
@@ -333,13 +334,12 @@ class App {
                 this.ui.micBtn.classList.toggle('active', newValue); 
                 this.ui.micBtn.classList.toggle('listening', newValue); 
                 this.ui.micBtn.setAttribute('aria-pressed', newValue.toString());
-                 // Change icon based on state (example)
                 const iconSvg = this.utils.$('svg', this.ui.micBtn);
                 if (iconSvg) {
-                    if (newValue) { // Listening
-                        iconSvg.innerHTML = '<path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>'; // Stop icon
-                    } else { // Not listening
-                        iconSvg.innerHTML = '<path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path>'; // Mic icon
+                    if (newValue) { 
+                        iconSvg.innerHTML = '<path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>';
+                    } else { 
+                        iconSvg.innerHTML = '<path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path>';
                     }
                 }
             }
@@ -352,7 +352,7 @@ class App {
             }
         });
          this.stateManager.subscribe('change:activeSessionId', ({ newValue }) => {
-            if (this.chatHistory) this.chatHistory.renderHistoryList(); // Re-render to update active state styling
+            if (this.chatHistory) this.chatHistory.renderHistoryList(); 
             const sessions = this.chatHistory ? this.chatHistory._getStoredSessions() : [];
             const loadedSession = sessions.find(s => s.id === newValue);
             if(this.ui.chatHeader) {
@@ -406,7 +406,7 @@ class App {
         if(this.ui.loginContainer) this.utils.addClass(this.ui.loginContainer, 'hidden');
         if(this.ui.chatContainer) this.utils.removeClass(this.ui.chatContainer, 'hidden');
         this.stateManager.set('currentView', 'chat', true); 
-        if(this.chatMessages) this.chatMessages.scrollToBottom(true); // Force scroll when view becomes active
+        if(this.chatMessages) this.chatMessages.scrollToBottom(true);
         if(this.ui.chatInput) this.ui.chatInput.focus();
 
         if(!this.chatViewShownBefore) {
@@ -433,7 +433,7 @@ class App {
         this.stateManager.set('userInput', '');
         if(this.ui.chatInput) {
             this.ui.chatInput.value = '';
-            this.ui.chatInput.style.height = 'auto'; // Reset height
+            this.ui.chatInput.style.height = 'auto'; 
             this.ui.chatInput.focus();
         }
 
@@ -445,7 +445,6 @@ class App {
             return;
         }
         
-        // Pass a copy of chat history that ClaudeAPIService might modify for API call (e.g. system prompt)
         const historyForApi = this.utils.deepClone(this.stateManager.get('chatHistory'));
 
         this.apiService.sendMessage(messageText, historyForApi)
@@ -461,7 +460,7 @@ class App {
         if (typeof apiResponse === 'string') content = apiResponse;
         else if (apiResponse && typeof apiResponse.content === 'string') {
             content = apiResponse.content;
-            if (apiResponse.character) character = apiResponse.character; // API might suggest a character override
+            if (apiResponse.character) character = apiResponse.character; 
         } else {
             content = "Sorry, I received an unexpected response from the AI.";
              console.warn("Unexpected API response format in _processAssistantResponse:", apiResponse);
@@ -487,7 +486,7 @@ class App {
         const errorMessage = (error && error.message) ? error.message : "An unknown API error occurred.";
         const errorResponseMessage = {
             id: `msg-error-${this.utils.generateId('')}`,
-            role: 'assistant', // Display as an assistant message for errors
+            role: 'assistant', 
             content: `⚠️ ${errorMessage}`,
             timestamp: Date.now(),
             isError: true
@@ -502,7 +501,7 @@ class App {
 
     _handleInputKeyDown(event) {
         if(!event || !event.target) return;
-        this.stateManager.set('userInput', event.target.value, true); // Update state silently
+        this.stateManager.set('userInput', event.target.value, true);
 
         const sendOnEnter = this.stateManager.get('userPreferences.sendOnEnter');
         if (event.key === 'Enter' && sendOnEnter && !event.shiftKey) {
@@ -510,7 +509,6 @@ class App {
             this._handleSendMessage();
         }
         
-        // Auto-resize textarea
         event.target.style.height = 'auto';
         const maxHeightStyle = this.utils.getStyle(event.target, 'max-height');
         const maxHeight = maxHeightStyle && maxHeightStyle !== 'none' ? parseInt(maxHeightStyle, 10) : Infinity;
@@ -522,14 +520,13 @@ class App {
         this.stateManager.setActiveSessionId(null); 
         if(this.chatHistory) this.chatHistory.renderHistoryList(); 
         if(this.ui.chatInput) {
-            this.ui.chatInput.value = ""; // Clear input field
-            this.ui.chatInput.style.height = 'auto'; // Reset height
+            this.ui.chatInput.value = ""; 
+            this.ui.chatInput.style.height = 'auto'; 
             this.ui.chatInput.focus();
         }
         this._toggleEmptyState(true);
         if (this.soundEffects) this.soundEffects.playSoundEffect('newChat');
         this.eventEmitter.emit('newChatStarted');
-         // Potentially reset/update current chat title in header
         if(this.ui.chatHeader) {
             const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
             if(chatTitleEl) chatTitleEl.textContent = 'New Chat';
@@ -549,26 +546,19 @@ class App {
         const modelSelectEl = this.utils.$('#modelSelection', this.ui.settingsForm);
         if(modelSelectEl) modelSelectEl.value = currentApiModel || 'claude-3-haiku-20240307';
 
-        const autoScrollEl = this.utils.$('#autoScroll', this.ui.settingsForm);
-        if(autoScrollEl) autoScrollEl.checked = !!prefs.autoScroll;
-        
-        const sendOnEnterEl = this.utils.$('#sendOnEnter', this.ui.settingsForm);
-        if(sendOnEnterEl) sendOnEnterEl.checked = !!prefs.sendOnEnter;
+        // Helper to set checkbox state
+        const setCheckbox = (id, value) => {
+            const el = this.utils.$(`#${id}`, this.ui.settingsForm);
+            if(el) el.checked = !!value;
+        };
 
-        const markdownRenderingEl = this.utils.$('#markdownRendering', this.ui.settingsForm);
-        if(markdownRenderingEl) markdownRenderingEl.checked = !!prefs.markdownRendering;
-
-        const voiceInputEnabledEl = this.utils.$('#voiceInputEnabled', this.ui.settingsForm);
-        if(voiceInputEnabledEl) voiceInputEnabledEl.checked = !!prefs.voiceInputEnabled;
-        
-        const voiceOutputEnabledEl = this.utils.$('#voiceOutputEnabled', this.ui.settingsForm);
-        if(voiceOutputEnabledEl) voiceOutputEnabledEl.checked = !!prefs.voiceOutputEnabled;
-        
-        const soundEffectsEnabledEl = this.utils.$('#soundEffectsEnabled', this.ui.settingsForm);
-        if(soundEffectsEnabledEl) soundEffectsEnabledEl.checked = !!prefs.soundEffectsEnabled;
-
-        const reduceMotionEl = this.utils.$('#reduceMotion', this.ui.settingsForm);
-        if(reduceMotionEl) reduceMotionEl.checked = !!prefs.reduceMotion;
+        setCheckbox('autoScroll', prefs.autoScroll);
+        setCheckbox('sendOnEnter', prefs.sendOnEnter);
+        setCheckbox('markdownRendering', prefs.markdownRendering);
+        setCheckbox('voiceInputEnabled', prefs.voiceInputEnabled);
+        setCheckbox('voiceOutputEnabled', prefs.voiceOutputEnabled);
+        setCheckbox('soundEffectsEnabled', prefs.soundEffectsEnabled);
+        setCheckbox('reduceMotion', prefs.reduceMotion);
 
         const themeSelect = this.utils.$('#themeSelectorSetting', this.ui.settingsForm);
         if (themeSelect && this.themeManager) {
@@ -616,9 +606,8 @@ class App {
         }
 
         ['autoScroll', 'sendOnEnter', 'markdownRendering', 'voiceInputEnabled', 'voiceOutputEnabled', 'soundEffectsEnabled', 'reduceMotion'].forEach(key => {
-             const el = this.utils.$(`#${key}`, this.ui.settingsForm); // Ensure element exists before checking .has
-             if(el) this.stateManager.setUserPreference(key, formData.has(key) && el.checked);
-             else this.stateManager.setUserPreference(key, formData.has(key)); // Fallback for non-checkboxes or direct name
+             const el = this.utils.$(`#${key}`, this.ui.settingsForm);
+             this.stateManager.setUserPreference(key, el ? el.checked : formData.has(key));
         });
         this.stateManager.setUserPreference('voiceCharacter', formData.get('characterVoiceSelector') || 'default');
 
@@ -636,16 +625,11 @@ class App {
     _handlePreferenceChange(event) {
         if(!event || !event.target) return;
         const target = event.target;
-        // Use a mapping or more specific handling for preference keys if IDs/names are not direct matches
         let prefKey = target.name || target.id; 
         const value = target.type === 'checkbox' ? target.checked : target.value;
 
-        if (['reduceMotion', 'soundEffectsEnabled', 'voiceInputEnabled', 'voiceOutputEnabled', 'autoScroll', 'sendOnEnter', 'markdownRendering'].includes(prefKey)) {
+        if (['reduceMotion', 'soundEffectsEnabled'].includes(prefKey)) { // Only "instant apply" for these
             this.stateManager.setUserPreference(prefKey, value);
-        } else if (prefKey === 'themeSelectorSetting') {
-            // Theme is applied on save, but could preview here if desired
-        } else if (prefKey === 'characterVoiceSelector') {
-            this.stateManager.setUserPreference('voiceCharacter', value);
         }
     }
 
@@ -654,7 +638,6 @@ class App {
             if (this.stateManager.get('isSettingsModalOpen')) {
                 this.stateManager.setModalOpen('isSettingsModalOpen', false);
             }
-            // Add other global escape handlers here if needed
         }
     }
 
@@ -690,7 +673,7 @@ class App {
         if (!overlay) return;
         
         const transitionDurationStyle = this.utils.getStyle(overlay, 'transition-duration');
-        const transitionDuration = transitionDurationStyle ? parseFloat(transitionDurationStyle) * 1000 : 300;
+        const transitionDuration = transitionDurationStyle ? parseFloat(transitionDurationStyle.replace('s','')) * 1000 : 300;
 
 
         if (show) {
@@ -723,14 +706,12 @@ class App {
     _displayError({ message, type = 'general' }) {
         console.error(`App Error (${type}):`, message);
         this.stateManager.set('lastError', { message, type, timestamp: Date.now() });
-        // Replace with a more sophisticated UI notification system
         alert(`Error: ${message}`); 
     }
 
     _displayNotification({ message, type = 'info', duration = 3000}) {
         console.log(`Notification (${type}): ${message}`);
-        // Replace with a more sophisticated UI notification system
-        if(type !== 'error') alert(`Info: ${message}`);
+        if(type !== 'error' && typeof alert === 'function') alert(`Info: ${message}`); // Avoid alert for errors if _displayError also alerts
     }
 
     destroy() {
@@ -742,8 +723,7 @@ class App {
         if(this.voiceSynthesis) this.voiceSynthesis.destroy();
         if(this.themeManager) this.themeManager.destroy();
         if(this.audioWorker) this.audioWorker.terminate();
-        // Destroy other managers and remove event listeners from eventEmitter as needed
-
+        
         this.stateManager.enableDebugging(false);
         this.isInitialized = false;
     }
@@ -786,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     const parklandApp = new App();
-    window.parklandApp = parklandApp; // Make app instance globally available for debugging or specific integrations
+    window.parklandApp = parklandApp; 
     parklandApp.init().catch(err => {
         console.error("Fatal error during app initialization sequence:", err.message, err.stack);
         const loadingOverlay = document.getElementById('loadingOverlay');
