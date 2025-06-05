@@ -6,12 +6,19 @@
 /* ==========================================================================
    CORE FOUNDATION IMPORTS - Load First
    These are essential for the entire application's base styling.
+   The order of these core imports is important.
    ========================================================================== */
 
-/* Design System Foundation */
+/* 1. Design Tokens (CSS Custom Properties) */
 @import url('core/variables.css');    /* Defines all CSS custom properties (colors, spacing, typography, etc.) */
+
+/* 2. Browser Normalization & Reset */
 @import url('core/reset.css');        /* Modern browser normalization and baseline reset */
+
+/* 3. Base Typographic Styles */
 @import url('core/typography.css');   /* Base typographic styles, heading system, text utilities */
+
+/* 4. Utility Helper Classes */
 @import url('core/utilities.css');    /* Reusable helper classes (visibility, flex, spacing, etc.) */
 
 /* ==========================================================================
@@ -27,100 +34,84 @@
 
 /* ==========================================================================
    THEME SYSTEM IMPORTS - Base and Default (Always loaded)
-   Theme-specific styles are loaded dynamically by ThemeManager.js
+   Theme-specific styles (Jaws, Jurassic) are loaded dynamically by ThemeManager.js
+   by adding/removing <link> tags to the <head>, not typically @imported here.
    ========================================================================== */
 
-/* Base theme structure (shared foundational styles for all themes, e.g., character UI containers) */
+/* 1. Base theme structure (shared foundational styles for all themes) */
 @import url('themes/base-theme.css');
 
-/* Default theme (loaded as fallback and base visual style) */
+/* 2. Default theme (loaded as fallback and base visual style) */
 @import url('themes/default/theme.css');      /* Specific styles for the default theme */
 @import url('themes/default/animations.css'); /* Animations specific to the default theme */
 
 /* ==========================================================================
    ROOT APPLICATION STYLES
    Global styles applied to html, body, and the main app container.
+   These are styles that don't neatly fit into the above categories or
+   provide overarching layout.
    ========================================================================== */
 
 html {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
-  font-kerning: normal;
-  font-variant-ligatures: common-ligatures;
-  font-size: var(--font-size-base); /* Root font size for rem calculations */
-  line-height: var(--line-height-normal);
-  overflow-x: hidden; /* Prevent horizontal scrollbars */
-  scroll-behavior: smooth; /* Default smooth scrolling */
-  scrollbar-width: thin; /* For Firefox */
-  scrollbar-color: var(--gray-400) var(--gray-100); /* For Firefox */
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto !important; /* Override for reduced motion */
-  }
+  /* Base font size is set in typography.css using var(--font-size-base) from variables.css */
+  /* Other global html settings like text rendering, scroll behavior are in reset.css or typography.css */
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-family-default);
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-  min-height: 100vh;
-  min-height: 100dvh; /* More accurate viewport height on mobile */
-  overflow-x: hidden;
-  display: flex; /* Prepare for potential full-page flex layouts if needed */
+  /* Base body styles (font-family, color, background-color) are set in reset.css and typography.css using variables */
+  /* Ensure body covers full viewport and enables flex layout for its direct children if needed for sticky footers etc. */
+  display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh; /* More accurate for mobile browsers */
   position: relative; /* For absolutely positioned children like overlays */
-  transition: background-color 0.5s var(--ease-in-out), color 0.5s var(--ease-in-out);
+  overflow-x: hidden; /* Prevent horizontal scroll on body */
 }
 
-/* Ensures the app container takes up available space, useful if body is flex */
+/* Main application container - takes up remaining space if body is flex */
 #appContainer {
   flex-grow: 1;
-  display: flex; /* This will be key for sidebar + main content layout */
+  display: flex; /* Key for sidebar + main content layout */
   position: relative; /* For z-indexing of internal components */
   overflow: hidden; /* Prevent app container itself from causing scrollbars due to transitions */
+  background-color: var(--bg-primary); /* Ensure app container has a background */
 }
 
-/* Application loading state */
+/* Application loading state - managed by JavaScript */
 body.app-loading {
   overflow: hidden; /* Prevent scrolling during initial load */
   cursor: wait;
 }
-body.app-loading * {
+body.app-loading * { /* Force wait cursor on all elements during load */
   cursor: wait !important;
 }
 
-/* Theme transition state */
+/* Theme transition state - managed by JavaScript */
 body.theme-transitioning {
   pointer-events: none !important; /* Prevent interaction during full-screen theme transitions */
   user-select: none !important;
 }
-body.theme-transitioning * {
+body.theme-transitioning * { /* Ensure children are also non-interactive */
   pointer-events: none !important;
 }
 
 
 /* ==========================================================================
-   LOADING SCREEN STYLES (Global, also defined in default/theme.css but good to have a base here)
+   LOADING SCREEN STYLES (Basic structure, enhanced by themes)
    ========================================================================== */
 
 #loadingOverlay {
   position: fixed;
   inset: 0;
-  background: var(--bg-primary, #FFFFFF); /* Fallback to a solid color initially */
-  z-index: var(--z-loading-overlay); /* Ensure it's on top */
+  background: var(--bg-backdrop, rgba(17, 24, 39, 0.98)); /* Fallback using gray-900 from default */
+  z-index: var(--z-loading-overlay);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.5s var(--ease-out) 0.3s, visibility 0s linear 0.8s; /* Delay hiding visibility */
+  transition: opacity 0.5s var(--ease-out) 0.3s, visibility 0s linear 0.8s;
   will-change: opacity, visibility;
 }
 
@@ -133,13 +124,14 @@ body.theme-transitioning * {
 
 .loading-logo-container {
   margin-bottom: var(--space-lg);
+  /* Specific logo animation will be in theme or default/animations.css */
 }
 
 .loading-logo {
   font-size: var(--loading-logo-size, 5rem); /* From variables.css */
   font-weight: var(--font-weight-black);
   color: var(--primary);
-  /* Animation for logo is in default/animations.css and theme-specific animation files */
+  /* Theme-specific animations will style this further */
 }
 
 .loading-text {
@@ -147,8 +139,8 @@ body.theme-transitioning * {
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   margin-bottom: var(--space-xl);
-  opacity: 0; /* Animation will fade it in */
-  animation: fadeInTextLoadingEnhancedOpus 1.2s var(--ease-out) 0.3s forwards; /* Animation from default/animations.css */
+  opacity: 0;
+  /* Fade-in animation usually handled by default/animations.css */
 }
 
 .progress-bar-container {
@@ -161,13 +153,12 @@ body.theme-transitioning * {
 }
 
 .progress-bar {
-  width: 0%; /* JS will update this */
+  width: 0%; /* JavaScript will update this */
   height: 100%;
   background-color: var(--primary);
   border-radius: var(--radius-full);
   transition: width 0.3s var(--ease-out);
-  /* Shine/pulse animation from default/animations.css */
-  animation: progressBarShineOpus 1.5s infinite linear;
+  /* Shine/pulse animation usually handled by default/animations.css */
 }
 
 .loading-tip {
@@ -177,29 +168,29 @@ body.theme-transitioning * {
   font-style: italic;
   max-width: 80%;
   text-align: center;
-  opacity: 0; /* Animation will fade it in */
-  animation: fadeInTipLoadingOpus 1.2s var(--ease-out) 0.6s forwards; /* Animation from default/animations.css */
+  opacity: 0;
+  /* Fade-in animation usually handled by default/animations.css */
 }
 
 /* ==========================================================================
    THEME TRANSITION OVERLAYS (Base structural style)
+   Specific animations are in theme transition CSS files.
    ========================================================================== */
 
 .theme-transition-overlay {
   position: fixed;
   inset: 0;
   z-index: var(--z-animation-overlay);
-  pointer-events: none; /* Allows clicks through unless explicitly made active */
+  pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  /* Default transition for the overlay itself - can be overridden by specific transitions */
   transition: opacity 0.3s var(--ease-out), visibility 0s linear 0.3s;
 }
 
 .theme-transition-overlay.active {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto; /* Block interaction during transition */
+  pointer-events: auto; /* Allow interaction if the overlay itself is interactive */
   transition-delay: 0s;
 }
 
@@ -210,7 +201,7 @@ body.theme-transitioning * {
   overflow: hidden;
 }
 
-/* Fallback if specific transition CSS fails to load or apply */
+/* Ensure specific transition containers are hidden by default if not active */
 .jaws-wave-transition.hidden,
 .jurassic-gate-transition.hidden {
   display: none !important;
