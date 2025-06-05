@@ -2,9 +2,10 @@
  * Parkland AI - Opus Magnum Edition
  * Markdown Processor
  *
- * Handles conversion of Markdown text to sanitized HTML, including syntax highlighting for code blocks.
- * Relies on external libraries: markdown-it, DOMPurify, and Prism.js,
- * which are expected to be loaded globally via <script> tags in index.html.
+ * Handles conversion of Markdown text to HTML.
+ * HTML sanitization with DOMPurify has been REMOVED as per user directive to ensure app loads.
+ * This means any HTML in AI responses will be rendered as-is (SECURITY RISK).
+ * Relies on markdown-it and Prism.js (if available) loaded globally.
  */
 
 class MarkdownProcessor {
@@ -20,34 +21,36 @@ class MarkdownProcessor {
         }
 
         this.md = null;
-        this.sanitizer = null;
-        this.highlighter = null;
-        this.domPurifyConfig = {
-            USE_PROFILES: { html: true },
-            ADD_TAGS: ['figure', 'figcaption', 'details', 'summary', 'kbd', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
-            ADD_ATTR: ['target', 'rel', 'start', 'type', 'class', 'id', 'scope', 'colspan', 'rowspan', 'alt', 'title', 'href', 'src', 'style'],
-            ALLOW_DATA_ATTR: true,
-            ALLOW_UNKNOWN_PROTOCOLS: false
+        // DOMPurify is intentionally removed. Sanitizer will be a passthrough.
+        this.sanitizer = {
+            sanitize: (html) => {
+                // This is a passthrough, no actual sanitization.
+                // console.warn("DOMPurify not loaded; HTML sanitization is being SKIPPED. This is a security risk.");
+                return html;
+            }
         };
+        this.highlighter = null; // For Prism.js
+        // domPurifyConfig is no longer used by this passthrough sanitizer.
+        // this.domPurifyConfig = { /* ... */ };
+
         this._isInitialized = false;
         this._markdownItLoaded = false;
-        this._domPurifyLoaded = false;
+        this._domPurifyLoaded = false; // Will remain false
         this._prismLoaded = false;
     }
 
     /**
      * Asynchronously initializes the MarkdownProcessor by attempting to load
-     * and configure markdown-it, DOMPurify, and Prism.js from global scope.
-     * @returns {Promise<boolean>} Resolves to true if core dependencies (markdown-it, DOMPurify) are properly loaded, false otherwise.
+     * markdown-it and Prism.js from global scope. DOMPurify is no longer waited for.
+     * @returns {Promise<boolean>} Resolves to true if markdown-it is loaded, false otherwise.
      */
     async init() {
         if (this._isInitialized) {
-            return this._markdownItLoaded && this._domPurifyLoaded;
+            return this._markdownItLoaded;
         }
 
-        const pollingAttemptsMarkdown = 30; // Try for 3 seconds (30 * 100ms)
-        const pollingAttemptsDOMPurify = 40; // Try for 4 seconds for DOMPurify (40 * 100ms)
-        const pollingAttemptsPrism = 30;    // Try for 3 seconds for Prism
+        const pollingAttemptsMarkdown = 30; // Try for 3 seconds
+        const pollingAttemptsPrism = 30;    // Try for 3 seconds
         const pollingInterval = 100;
 
         // Wait for markdown-it
@@ -55,8 +58,12 @@ class MarkdownProcessor {
             if (typeof window.markdownit === 'function') {
                 try {
                     this.md = window.markdownit({
-                        html: true, xhtmlOut: false, breaks: true,
-                        linkify: true, typographer: true, langPrefix: 'language-',
+                        html: true,        // Enable HTML tags in source
+                        xhtmlOut: false,
+                        breaks: true,
+                        linkify: true,
+                        typographer: true,
+                        langPrefix: 'language-',
                     });
                     const defaultRenderTableOpen = this.md.renderer.rules.table_open || function(tokens, idx, options, env, self) {
                         return self.renderToken(tokens, idx, options);
@@ -75,15 +82,10 @@ class MarkdownProcessor {
             await this.utils.wait(pollingInterval);
         }
 
-        // Wait for DOMPurify
-        for (let i = 0; i < pollingAttemptsDOMPurify; i++) {
-            if (typeof window.DOMPurify === 'object' && typeof window.DOMPurify.sanitize === 'function') {
-                this.sanitizer = window.DOMPurify;
-                this._domPurifyLoaded = true;
-                break;
-            }
-            await this.utils.wait(pollingInterval);
-        }
+        // DOMPurify is intentionally skipped.
+        this._domPurifyLoaded = false; // Explicitly false
+        console.warn('MarkdownProcessor Init: DOMPurify dependency has been REMOVED. HTML sanitization will NOT occur. This is a security risk.');
+
 
         // Check for Prism.js
         for (let i = 0; i < pollingAttemptsPrism; i++) {
@@ -95,7 +97,6 @@ class MarkdownProcessor {
             await this.utils.wait(pollingInterval);
         }
 
-        // Set fallbacks if libraries weren't loaded
         if (!this._markdownItLoaded) {
             console.error('MarkdownProcessor Init Error: Markdown library (markdown-it) NOT FOUND after waiting. Markdown processing will be very basic.');
             this.md = {
@@ -105,10 +106,6 @@ class MarkdownProcessor {
                 }
             };
         }
-        if (!this._domPurifyLoaded) {
-            console.error('MarkdownProcessor Init Error: DOMPurify NOT FOUND after waiting. HTML sanitization will be SKIPPED (VERY RISKY!).');
-            this.sanitizer = { sanitize: (html) => html }; // Passthrough (dangerous)
-        }
         if (!this._prismLoaded) {
             console.warn('MarkdownProcessor Init: Prism.js not found after waiting. Code syntax highlighting will not be available.');
             this.highlighter = null;
@@ -116,15 +113,19 @@ class MarkdownProcessor {
 
         this._isInitialized = true;
         
-        // Corrected logging
-        if (this._markdownItLoaded && this._domPurifyLoaded) {
-            console.log(`📝 MarkdownProcessor initialized. markdown-it: loaded, DOMPurify: loaded, Prism.js: ${this._prismLoaded ? 'loaded' : 'NOT FOUND'}.`);
+        if (this._markdownItLoaded) {
+            console.log(`📝 MarkdownProcessor initialized. markdown-it: loaded, DOMPurify: SKIPPED (SECURITY RISK), Prism.js: ${this._prismLoaded ? 'loaded' : 'NOT FOUND'}.`);
         } else {
-            console.error(`📝 MarkdownProcessor initialized with MISSING CORE DEPENDENCIES. markdown-it: ${this._markdownItLoaded}, DOMPurify: ${this._domPurifyLoaded}. Functionality will be limited/insecure.`);
+            console.error(`📝 MarkdownProcessor initialized with MISSING markdown-it. DOMPurify: SKIPPED. Functionality severely limited.`);
         }
-        return this._markdownItLoaded && this._domPurifyLoaded;
+        return this._markdownItLoaded; // Success now only depends on markdown-it for basic processing
     }
 
+    /**
+     * Converts raw Markdown text to HTML (unsanitized) and highlights code.
+     * @param {string} rawMarkdown - The raw Markdown text.
+     * @returns {string} The processed HTML string.
+     */
     process(rawMarkdown) {
         if (!this._isInitialized) {
             console.warn("MarkdownProcessor.process() called before init() has completed. Using basic fallback.");
@@ -141,12 +142,8 @@ class MarkdownProcessor {
             return `<p style="color: red;">Error rendering Markdown content.</p>`;
         }
 
-        try {
-            html = this.sanitizer.sanitize(html, this.domPurifyConfig);
-        } catch (error) {
-            console.error('Error sanitizing HTML with DOMPurify instance:', error);
-            return `<p style="color: red;">Error sanitizing content.</p>`;
-        }
+        // HTML Sanitization is SKIPPED
+        // html = this.sanitizer.sanitize(html, this.domPurifyConfig); 
 
         if (this.highlighter && (html.includes('<pre') || html.includes('<code'))) {
             try {
@@ -154,20 +151,6 @@ class MarkdownProcessor {
                 tempDiv.innerHTML = html;
                 this.utils.$$('pre code[class*="language-"]', tempDiv).forEach((block) => {
                     this.highlighter.highlightElement(block);
-                });
-                // Attempt to highlight blocks even without language- prefix if autoloader might handle it
-                // but this usually needs Prism.js Autoloader script tag and languages available.
-                // For now, explicit language class is more reliable for highlightElement.
-                this.utils.$$('pre code:not([class*="language-"])', tempDiv).forEach((block) => {
-                    // To make Prism guess, we might need to wrap its content or use highlightAllUnder
-                    // For simplicity, only highlighting if language- class is present.
-                    // To try and force highlighting:
-                    // const language = 'clike'; // Default or try to guess
-                    // const grammar = this.highlighter.languages[language];
-                    // if (grammar) {
-                    //    block.innerHTML = this.highlighter.highlight(block.textContent, grammar, language);
-                    //    this.utils.addClass(block, `language-${language}`);
-                    // }
                 });
                 html = tempDiv.innerHTML;
             } catch (error) {
@@ -177,7 +160,12 @@ class MarkdownProcessor {
         return html;
     }
 
-    toSanitizedHtml(rawMarkdown) {
+    /**
+     * A simplified processing method that only converts markdown to HTML (unsanitized).
+     * @param {string} rawMarkdown - The raw Markdown text.
+     * @returns {string} HTML string (unsanitized).
+     */
+    toSanitizedHtml(rawMarkdown) { // Method name is now a misnomer, but kept for API compatibility
         if (!this._isInitialized) {
              console.warn("MarkdownProcessor.toSanitizedHtml() called before init() or dependencies missing. Using basic fallback.");
             const escapedText = String(rawMarkdown || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
@@ -191,12 +179,8 @@ class MarkdownProcessor {
             console.error('Error rendering Markdown (toSanitizedHtml):', error);
             return '<p style="color: red;">Error rendering content.</p>';
         }
-        try {
-            html = this.sanitizer.sanitize(html, this.domPurifyConfig);
-        } catch (error) {
-            console.error('Error sanitizing HTML (toSanitizedHtml):', error);
-            return '<p style="color: red;">Error sanitizing content.</p>';
-        }
+        // HTML Sanitization is SKIPPED
+        // html = this.sanitizer.sanitize(html, this.domPurifyConfig);
         return html;
     }
 }
