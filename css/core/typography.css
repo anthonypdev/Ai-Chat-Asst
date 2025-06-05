@@ -1,13 +1,13 @@
 /* ==========================================================================
    TYPOGRAPHY SYSTEM - PARKLAND AI OPUS MAGNUM EDITION
-   Complete Font System with Theme-Specific Typography
+   Complete Font System using System Fonts with Theme-Specific Adaptations
    ========================================================================== */
 
 /* ==========================================================================
-   NO FONT IMPORTS - System Fonts Only
-   External font imports (@import) are removed as per System Font Mandate.
-   All font styling relies on system font stacks defined in css/core/variables.css
-   and applied here or in theme-specific CSS.
+   NO FONT IMPORTS - SYSTEM FONTS ONLY
+   Font loading is handled by index.html (for web fonts like Prism's theme)
+   or relies on system font stacks defined in css/core/variables.css.
+   This file applies those system fonts.
    ========================================================================== */
 
 /* ==========================================================================
@@ -15,36 +15,37 @@
    ========================================================================== */
 
 html {
-  /* Optimize text rendering */
+  /* Improve text rendering globally */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1; /* Common ligatures and kerning */
   font-kerning: normal;
   font-variant-ligatures: common-ligatures;
 
-  /* Base font size from variables */
-  font-size: var(--font-size-base);
+  /* Base font size from variables.css for rem calculations */
+  font-size: var(--font-size-base); /* This is clamp(1rem, 1.2vw + 0.1rem, 1.125rem); */
 }
 
 body {
-  font-family: var(--font-family-default);
-  font-size: var(--font-size-base);
+  font-family: var(--font-family-default); /* Default system sans-serif stack */
+  font-size: 1rem; /* Equivalent to var(--font-size-base) if html font-size is 100% of browser default (16px) */
   line-height: var(--line-height-normal);
   font-weight: var(--font-weight-normal);
   color: var(--text-primary);
 
-  /* Improve hyphenation */
+  /* Improve hyphenation for better text flow */
   -webkit-hyphens: auto;
   -moz-hyphens: auto;
   hyphens: auto;
 
-  /* Optimize font loading (though system fonts are used) */
+  /* Optimize font loading behavior (though primarily for web fonts) */
   font-display: swap;
 }
 
 /* ==========================================================================
    HEADING SYSTEM - HARMONIOUS SCALE
+   Uses variables from variables.css
    ========================================================================== */
 
 h1, .h1 {
@@ -54,7 +55,8 @@ h1, .h1 {
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
   color: var(--text-primary);
-  margin-bottom: var(--space-lg);
+  margin-top: var(--space-lg); /* Example top margin */
+  margin-bottom: var(--space-md); /* Consistent bottom margin */
 }
 
 h2, .h2 {
@@ -64,6 +66,7 @@ h2, .h2 {
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
   color: var(--text-primary);
+  margin-top: var(--space-lg);
   margin-bottom: var(--space-md);
 }
 
@@ -74,16 +77,18 @@ h3, .h3 {
   line-height: var(--line-height-snug);
   letter-spacing: var(--letter-spacing-normal);
   color: var(--text-primary);
-  margin-bottom: var(--space-md);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 h4, .h4 {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium); /* Changed from semibold for better hierarchy */
   line-height: var(--line-height-snug);
   letter-spacing: var(--letter-spacing-normal);
   color: var(--text-primary);
+  margin-top: var(--space-md);
   margin-bottom: var(--space-sm);
 }
 
@@ -94,7 +99,8 @@ h5, .h5 {
   line-height: var(--line-height-normal);
   letter-spacing: var(--letter-spacing-normal);
   color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-xs);
 }
 
 h6, .h6 {
@@ -105,7 +111,8 @@ h6, .h6 {
   letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
-  margin-bottom: var(--space-sm);
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-xs);
 }
 
 /* ==========================================================================
@@ -114,21 +121,21 @@ h6, .h6 {
 
 p, .paragraph {
   font-family: var(--font-family-default);
-  font-size: var(--font-size-base);
+  font-size: 1rem; /* Explicitly 1rem, relative to root html font-size */
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-md); /* Default paragraph spacing */
 }
 
-p:last-child {
+p:last-child, .paragraph:last-child {
   margin-bottom: 0;
 }
 
-/* Lead text */
+/* Lead text - for introductory paragraphs */
 .lead {
   font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-light); /* Lighter for lead */
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
   margin-bottom: var(--space-lg);
@@ -143,7 +150,7 @@ small, .small {
 }
 
 /* Extra small text */
-.xs {
+.text-xs { /* Renamed from .xs to follow text-* pattern */
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-normal);
@@ -154,9 +161,9 @@ small, .small {
    EMPHASIS & INLINE ELEMENTS
    ========================================================================== */
 
-strong, b, .bold {
+strong, b, .font-bold { /* .bold renamed to .font-bold for consistency */
   font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
+  color: inherit; /* Inherit color by default, can be overridden */
 }
 
 em, i, .italic {
@@ -164,28 +171,28 @@ em, i, .italic {
 }
 
 mark, .highlight {
-  background-color: rgba(var(--warning-rgb), 0.2);
-  color: var(--text-primary);
-  padding: 0.125em 0.25em;
+  background-color: rgba(var(--warning-rgb), 0.25); /* Use warning color with opacity */
+  color: var(--text-primary); /* Ensure good contrast */
+  padding: 0.15em 0.3em;
   border-radius: var(--radius-sm);
 }
 
 u, .underline {
   text-decoration: underline;
   text-decoration-color: var(--primary);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1.5px; /* Adjusted for subtlety */
+  text-underline-offset: 0.15em; /* Slight offset for better readability */
 }
 
-s, del, .strikethrough {
+s, del, .line-through { /* .strikethrough renamed for consistency */
   text-decoration: line-through;
   text-decoration-color: var(--text-muted);
-  color: var(--text-muted);
+  color: var(--text-muted); /* Mute color for struck-through text */
 }
 
 abbr[title] {
-  text-decoration: underline dotted;
-  border-bottom: none;
+  text-decoration: underline dotted var(--text-muted);
+  border-bottom: none; /* Reset.css handles this usually */
   cursor: help;
 }
 
@@ -195,84 +202,90 @@ abbr[title] {
 
 code, kbd, samp {
   font-family: var(--font-family-mono);
-  font-size: 0.875em; /* Slightly smaller for inline code */
+  font-size: 0.9em; /* Slightly smaller for inline code relative to surrounding text */
   font-weight: var(--font-weight-normal);
-  background-color: rgba(var(--text-primary-rgb), 0.08);
-  color: var(--text-primary);
-  padding: 0.25em 0.5em;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.2em 0.4em;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(var(--text-primary-rgb), 0.1);
+  border: 1px solid var(--border-light);
 }
 
 pre {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-normal);
   line-height: var(--line-height-relaxed);
-  background-color: var(--gray-900);
-  color: var(--gray-100);
-  padding: var(--space-lg);
-  border-radius: var(--radius-lg);
+  background-color: var(--gray-900); /* Dark background for code blocks */
+  color: var(--gray-100);       /* Light text on dark background */
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
   border: 1px solid var(--gray-700);
-  overflow-x: auto;
-  margin: var(--space-lg) 0;
-  white-space: pre;
-  word-wrap: normal;
-  tab-size: 2;
+  overflow-x: auto; /* Enable horizontal scrolling for long lines */
+  margin: var(--space-md) 0; /* Consistent margin */
+  white-space: pre; /* Preserve whitespace and newlines */
+  word-wrap: normal; /* Prevent wrapping of long lines */
+  tab-size: 2; /* Consistent tab rendering */
   -moz-tab-size: 2;
 }
 
-pre code {
+pre code { /* Code inside pre should inherit pre's styles and not have its own background/border */
   background: none;
   border: none;
   padding: 0;
-  font-size: inherit; /* Code inside pre should inherit pre's font size */
+  font-size: inherit;
   color: inherit;
+  line-height: inherit;
+  border-radius: 0;
 }
 
 kbd {
   background-color: var(--gray-800);
-  color: var(--white);
+  color: var(--gray-100);
   border: 1px solid var(--gray-600);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 1px 0 var(--gray-600);
-  font-size: 0.75em;
-  padding: 0.25em 0.5em;
+  border-bottom-width: 2px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  font-size: 0.8em;
+  padding: 0.2em 0.4em;
 }
 
 /* ==========================================================================
    LINKS & INTERACTIVE TEXT
    ========================================================================== */
 
-a, .link {
-  color: var(--primary);
-  text-decoration: none;
-  transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+a, .link { /* .link utility class */
+  color: var(--text-link);
+  text-decoration: none; /* Underline on hover is common */
+  transition: color var(--transition-fast) var(--ease-out),
+              text-decoration-color var(--transition-fast) var(--ease-out);
   cursor: pointer;
 }
 
 a:hover, .link:hover {
-  color: var(--primary-dark);
+  color: var(--text-link-hover);
   text-decoration: underline;
-  text-decoration-color: var(--primary-dark);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.2em;
+  text-decoration-color: var(--text-link-hover);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.15em;
 }
 
-a:focus-visible, .link:focus-visible {
+a:focus-visible, .link:focus-visible { /* Modern focus styling */
   outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
-/* External links icon - can be styled further for themes */
-a[href^="http"]:not([href*="parkland"]):after { /* Assuming parkland is a local domain part */
-  content: ' ↗'; /* Unicode North East Arrow */
-  font-size: 0.8em;
+/* External links icon (optional, can be themed) */
+/* Consider if this is wanted for all external links or specific ones */
+/*
+a[href^="http"]:not([href*="yourdomain.com"])::after,
+a[target="_blank"]::after {
+  content: ' ↗';
+  font-size: 0.85em;
   opacity: 0.7;
-  display: inline-block; /* Prevents line break issues */
-  padding-left: 0.15em;
+  margin-left: 0.15em;
+  display: inline-block;
 }
+*/
 
 /* ==========================================================================
    LISTS & STRUCTURED CONTENT
@@ -280,364 +293,169 @@ a[href^="http"]:not([href*="parkland"]):after { /* Assuming parkland is a local 
 
 ul, ol {
   margin: var(--space-md) 0;
-  padding-left: var(--space-lg); /* Standard indentation */
+  padding-left: var(--space-xl); /* Standard indentation for lists */
 }
 
-ul {
-  list-style-type: disc;
-}
-
-ol {
-  list-style-type: decimal;
-}
+ul { list-style-type: disc; }
+ol { list-style-type: decimal; }
 
 li {
   margin-bottom: var(--space-xs);
   line-height: var(--line-height-relaxed);
 }
-
-li:last-child {
-  margin-bottom: 0;
-}
+li:last-child { margin-bottom: 0; }
 
 /* Nested lists */
 ul ul, ol ol, ul ol, ol ul {
-  margin-top: var(--space-xs);
-  margin-bottom: 0; /* Avoid double margin with parent li */
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-sm); /* Ensure consistent spacing for nested lists */
+  padding-left: var(--space-lg); /* Slightly less indent for nested */
 }
 
 /* Definition lists */
-dl {
-  margin: var(--space-md) 0;
-}
-
+dl { margin: var(--space-md) 0; }
 dt {
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin-bottom: var(--space-xs);
 }
-
 dd {
-  margin-left: var(--space-lg);
-  margin-bottom: var(--space-sm);
+  margin-left: var(--space-lg); /* Standard indent for definition details */
+  margin-bottom: var(--space-md);
   color: var(--text-secondary);
 }
+dd:last-child { margin-bottom: 0; }
 
 /* ==========================================================================
    QUOTES & CITATIONS
    ========================================================================== */
 
 blockquote {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base); /* Keep blockquotes readable */
   font-style: italic;
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
   border-left: 4px solid var(--primary);
-  padding: var(--space-lg);
-  margin: var(--space-xl) 0;
-  background-color: rgba(var(--primary-rgb), 0.05);
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-lg) 0;
+  background-color: rgba(var(--primary-rgb), 0.05); /* Subtle background */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
-blockquote p:last-child {
-  margin-bottom: 0;
-}
+blockquote p:last-child { margin-bottom: 0; }
 
 cite {
-  font-style: normal;
+  font-style: normal; /* Citations are often not italicized by default in resets */
   font-size: var(--font-size-sm);
   color: var(--text-muted);
+  display: block; /* Make cite a block element for easier spacing */
+  margin-top: var(--space-xs);
 }
+blockquote cite { margin-top: var(--space-sm); }
 
-q {
-  font-style: italic;
-}
-
-q::before {
-  content: '"';
-}
-
-q::after {
-  content: '"';
-}
+q { font-style: italic; } /* Quotes are usually italicized */
+q::before { content: open-quote; }
+q::after { content: close-quote; }
 
 /* ==========================================================================
-   UTILITY CLASSES - TEXT STYLING
+   TYPOGRAPHIC UTILITY CLASSES (defined in utilities.css but listed here for context)
+   .font-thin, .font-bold, .text-lg, .text-center, .uppercase, .truncate, etc.
    ========================================================================== */
-
-/* Font weights */
-.font-thin { font-weight: var(--font-weight-thin); }
-.font-light { font-weight: var(--font-weight-light); }
-.font-normal { font-weight: var(--font-weight-normal); }
-.font-medium { font-weight: var(--font-weight-medium); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.font-bold { font-weight: var(--font-weight-bold); }
-.font-extrabold { font-weight: var(--font-weight-extrabold); }
-.font-black { font-weight: var(--font-weight-black); }
-
-/* Font families */
-.font-default { font-family: var(--font-family-default); }
-.font-mono { font-family: var(--font-family-mono); }
-.font-heading { font-family: var(--font-family-heading); }
-
-/* Font sizes */
-.text-xs { font-size: var(--font-size-xs); }
-.text-sm { font-size: var(--font-size-sm); }
-.text-base { font-size: var(--font-size-base); }
-.text-lg { font-size: var(--font-size-lg); }
-.text-xl { font-size: var(--font-size-xl); }
-.text-2xl { font-size: var(--font-size-2xl); }
-.text-3xl { font-size: var(--font-size-3xl); }
-.text-4xl { font-size: var(--font-size-4xl); }
-.text-5xl { font-size: var(--font-size-5xl); }
-.text-6xl { font-size: var(--font-size-6xl); }
-
-/* Text colors */
-.text-primary { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.text-tertiary { color: var(--text-tertiary); }
-.text-muted { color: var(--text-muted); }
-.text-inverse { color: var(--text-inverse); }
-.text-success { color: var(--success); }
-.text-warning { color: var(--warning); }
-.text-error { color: var(--error); }
-.text-info { color: var(--info); }
-
-/* Text alignment */
-.text-left { text-align: left; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-justify { text-align: justify; }
-
-/* Text transform */
-.uppercase { text-transform: uppercase; }
-.lowercase { text-transform: lowercase; }
-.capitalize { text-transform: capitalize; }
-.normal-case { text-transform: none; }
-
-/* Letter spacing */
-.tracking-tighter { letter-spacing: var(--letter-spacing-tighter); }
-.tracking-tight { letter-spacing: var(--letter-spacing-tight); }
-.tracking-normal { letter-spacing: var(--letter-spacing-normal); }
-.tracking-wide { letter-spacing: var(--letter-spacing-wide); }
-.tracking-wider { letter-spacing: var(--letter-spacing-wider); }
-.tracking-widest { letter-spacing: var(--letter-spacing-widest); }
-
-/* Line height */
-.leading-tight { line-height: var(--line-height-tight); }
-.leading-snug { line-height: var(--line-height-snug); }
-.leading-normal { line-height: var(--line-height-normal); }
-.leading-relaxed { line-height: var(--line-height-relaxed); }
-.leading-loose { line-height: var(--line-height-loose); }
-
-/* Text decoration */
-.no-underline { text-decoration: none; }
-/* .underline class already defined in base styles for `u` tag */
-/* .line-through class already defined in base styles for `s` and `del` tags */
-
-/* White space */
-.whitespace-normal { white-space: normal; }
-.whitespace-nowrap { white-space: nowrap; }
-.whitespace-pre { white-space: pre; }
-.whitespace-pre-line { white-space: pre-line; }
-.whitespace-pre-wrap { white-space: pre-wrap; }
-
-/* Word break */
-.break-normal { word-break: normal; overflow-wrap: normal; }
-.break-words { overflow-wrap: break-word; }
-.break-all { word-break: break-all; }
-
-/* Text overflow */
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 /* ==========================================================================
-   JAWS THEME TYPOGRAPHY (System Font Adaptations)
-   Original custom fonts: Nosifer, Creepster, Bangers, Pirata One, Special Elite
+   THEME-SPECIFIC TYPOGRAPHY ADAPTATIONS (Using System Fonts)
+   These aim to evoke the *feel* of the original theme fonts using system stacks
+   and additional CSS properties like text-shadow, letter-spacing, etc.
+   Actual font-family assignments would happen in theme-specific CSS files (e.g., themes/jaws/theme.css).
+   This section provides a baseline for those theme files.
    ========================================================================== */
 
+/* JAWS THEME TYPOGRAPHY (Evoking Nosifer, Creepster, Bangers, Pirata One, Special Elite) */
 [data-theme="jaws"] {
-  /* Use a bold, possibly condensed system sans-serif for headings, styled further in jaws/theme.css */
-  --font-family-heading-jaws: var(--font-family-system-sans-serif);
+  --font-family-jaws-display1: var(--font-family-system-sans-serif); /* For Nosifer-like: bold, possibly condensed, heavily styled */
+  --font-family-jaws-display2: var(--font-family-system-sans-serif); /* For Creepster-like: irregular, hand-drawn feel */
+  --font-family-jaws-display3: var(--font-family-system-sans-serif); /* For Bangers-like: bold, comic/poster style */
+  --font-family-jaws-serif: var(--font-family-system-serif);         /* For Pirata One-like: old-style, slightly rugged serif */
+  --font-family-jaws-mono: var(--font-family-system-monospace);     /* For Special Elite-like: typewriter monospace */
 }
 
-[data-theme="jaws"] h1,
-[data-theme="jaws"] .h1 {
-  font-family: var(--font-family-heading-jaws);
-  /* Further styling (text-shadow, letter-spacing, color) will be in jaws/theme.css to evoke "Nosifer" */
-}
+[data-theme="jaws"] body { font-family: var(--font-family-jaws-mono); } /* Default body text to typewriter style */
+[data-theme="jaws"] h1, [data-theme="jaws"] .h1 { font-family: var(--font-family-jaws-display1); /* Styled heavily in theme.css */ }
+[data-theme="jaws"] h2, [data-theme="jaws"] .h2 { font-family: var(--font-family-jaws-display2); }
+[data-theme="jaws"] h3, [data-theme="jaws"] .h3 { font-family: var(--font-family-jaws-display3); }
+[data-theme="jaws"] .character-quint { font-family: var(--font-family-jaws-serif); }
+[data-theme="jaws"] code, [data-theme="jaws"] pre { font-family: var(--font-family-jaws-mono); }
 
-[data-theme="jaws"] h2,
-[data-theme="jaws"] .h2 {
-  font-family: var(--font-family-heading-jaws);
-  /* Further styling for "Creepster" feel */
-}
-
-[data-theme="jaws"] h3,
-[data-theme="jaws"] .h3 {
-  font-family: var(--font-family-heading-jaws);
-  /* Further styling for "Bangers" feel */
-}
-
-[data-theme="jaws"] .brand-name,
-[data-theme="jaws"] .login-title {
-  font-family: var(--font-family-heading-jaws);
-  /* Styling for "Nosifer" feel */
-}
-
-[data-theme="jaws"] .message.assistant .message-bubble {
-  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" or "Pirata One" feel */
-}
-
-[data-theme="jaws"] code,
-[data-theme="jaws"] pre {
-  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
-}
-
-[data-theme="jaws"] .character-quint {
-  font-family: var(--font-family-system-serif); /* System serif for "Pirata One" feel */
-}
-
-[data-theme="jaws"] .character-brody {
-  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
-}
-
-[data-theme="jaws"] .character-hooper {
-  font-family: var(--font-family-default); /* Standard system sans-serif */
-}
-
-/* ==========================================================================
-   JURASSIC PARK THEME TYPOGRAPHY (System Font Adaptations)
-   Original custom fonts: Rye, Metal Mania, Ewert, Special Elite
-   ========================================================================== */
-
+/* JURASSIC PARK THEME TYPOGRAPHY (Evoking Rye, Metal Mania, Ewert, Special Elite) */
 [data-theme="jurassic"] {
-  /* Use a system serif or distinct sans-serif for headings, styled further in jurassic/theme.css */
-  --font-family-heading-jurassic: var(--font-family-system-serif);
-  --font-family-display-jurassic: var(--font-family-system-serif); /* For brand/login titles */
+  --font-family-jurassic-display1: var(--font-family-system-serif); /* For Rye-like: Western, slab-serif feel */
+  --font-family-jurassic-display2: var(--font-family-system-sans-serif);/* For Metal Mania-like: heavy, distressed */
+  --font-family-jurassic-display3: var(--font-family-system-serif);/* For Ewert-like: decorative, slightly old-fashioned */
+  --font-family-jurassic-mono: var(--font-family-system-monospace);  /* For Special Elite-like: typewriter monospace */
 }
 
-[data-theme="jurassic"] h1,
-[data-theme="jurassic"] .h1 {
-  font-family: var(--font-family-heading-jurassic);
-  /* Further styling for "Rye" feel */
-}
-
-[data-theme="jurassic"] h2,
-[data-theme="jurassic"] .h2 {
-  font-family: var(--font-family-heading-jurassic);
-  /* Further styling for "Metal Mania" feel */
-}
-
-[data-theme="jurassic"] h3,
-[data-theme="jurassic"] .h3 {
-  font-family: var(--font-family-heading-jurassic);
-  /* Further styling for "Ewert" feel */
-}
-
-[data-theme="jurassic"] .brand-name,
-[data-theme="jurassic"] .login-title {
-  font-family: var(--font-family-display-jurassic);
-  /* Styling for "Rye" feel */
-}
-
-[data-theme="jurassic"] .message.assistant .message-bubble {
-  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" feel */
-}
-
-[data-theme="jurassic"] code,
-[data-theme="jurassic"] pre {
-  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
-}
-
-[data-theme="jurassic"] .character-muldoon {
-  font-family: var(--font-family-system-monospace); /* System mono for "Special Elite" */
-}
-
-[data-theme="jurassic"] .character-mr-dna {
-  font-family: var(--font-family-system-sans-serif); /* System sans for "Metal Mania" feel, styled further */
-}
-
-[data-theme="jurassic"] .fence-warning {
-  font-family: var(--font-family-system-sans-serif); /* System sans for "Ewert" feel, styled further */
-}
-
+[data-theme="jurassic"] body { font-family: var(--font-family-jurassic-mono); } /* Default body text to typewriter style */
+[data-theme="jurassic"] h1, [data-theme="jurassic"] .h1 { font-family: var(--font-family-jurassic-display1); /* Styled heavily in theme.css */ }
+[data-theme="jurassic"] h2, [data-theme="jurassic"] .h2 { font-family: var(--font-family-jurassic-display2); }
+[data-theme="jurassic"] h3, [data-theme="jurassic"] .h3 { font-family: var(--font-family-jurassic-display3); }
+[data-theme="jurassic"] code, [data-theme="jurassic"] pre { font-family: var(--font-family-jurassic-mono); }
 
 /* ==========================================================================
-   RESPONSIVE TYPOGRAPHY
+   RESPONSIVE TYPOGRAPHY ADJUSTMENTS
    ========================================================================== */
 
-/* Tablet adjustments */
-@media (max-width: 768px) {
-  html {
-    font-size: 15px; /* Adjust base for slightly smaller text on tablets */
-  }
-
-  h1, .h1 { font-size: var(--font-size-3xl); }
-  h2, .h2 { font-size: var(--font-size-2xl); }
-  h3, .h3 { font-size: var(--font-size-xl); }
+/* Tablet adjustments - html font-size adjusted in variables.css typically, or directly */
+@media (max-width: var(--breakpoint-md)) {
+  /* Slightly reduce heading sizes or margins if needed, relying on clamp() mostly */
 }
 
 /* Mobile adjustments */
-@media (max-width: 480px) {
-  html {
-    font-size: 14px; /* Adjust base for smaller mobile screens */
-  }
-
-  h1, .h1 { font-size: var(--font-size-2xl); }
-  h2, .h2 { font-size: var(--font-size-xl); }
-  h3, .h3 { font-size: var(--font-size-lg); }
-
-  /* Further adjustments to letter-spacing might be needed in theme-specific CSS for system fonts */
-  [data-theme="jaws"] h1,
-  [data-theme="jaws"] .h1 {
-    /* Example: letter-spacing might need tweaking if a system font is very wide/narrow */
-  }
-
-  [data-theme="jurassic"] h1,
-  [data-theme="jurassic"] .h1 {
-    /* Example */
-  }
+@media (max-width: var(--breakpoint-sm)) {
+  /* html { font-size: 14px; } // This base change is often better than individual element changes */
+  /* Reduce heading sizes further if clamp() isn't enough for aesthetics */
 }
 
 /* ==========================================================================
-   ACCESSIBILITY ENHANCEMENTS
+   PRINT STYLES FOR TYPOGRAPHY
    ========================================================================== */
-
-/* High contrast mode - text shadows removed by default for system fonts unless specifically beneficial */
-@media (prefers-contrast: high) {
-  [data-theme="jaws"] h1,
-  [data-theme="jaws"] h2,
-  [data-theme="jaws"] h3,
-  [data-theme="jurassic"] h1,
-  [data-theme="jurassic"] h2,
-  [data-theme="jurassic"] h3 {
-    text-shadow: none;
-    -webkit-text-stroke: none;
-  }
-}
-
-/* Reduced motion - animations related to text might be handled in animation files */
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="jurassic"] .fence-warning {
-    animation: none; /* Assuming this animation is purely decorative */
-  }
-}
-
-/* Print styles */
 @media print {
+  body {
+    font-family: var(--font-family-system-serif); /* Use a generic serif for print */
+    font-size: 12pt;
+    line-height: 1.4;
+    color: var(--black);
+    background-color: var(--white);
+  }
+
   h1, h2, h3, h4, h5, h6 {
-    color: black !important;
+    font-family: var(--font-family-system-sans-serif); /* Sans-serif for print headings */
+    color: var(--black) !important;
     text-shadow: none !important;
     -webkit-text-stroke: none !important;
   }
+  h1 { font-size: 24pt; margin-bottom: 18pt; }
+  h2 { font-size: 18pt; margin-bottom: 14pt; }
+  h3 { font-size: 14pt; margin-bottom: 10pt; }
 
-  code, pre {
-    background: #f5f5f5 !important;
-    color: black !important;
-    border: 1px solid #ccc !important;
+  p { margin-bottom: 12pt; }
+  a { color: #0000EE; text-decoration: underline; } /* Standard blue for print links */
+  a[href]::after { content: " (" attr(href) ")"; font-size: 90%; }
+  a[href^="#"]::after, a[href^="javascript:"]::after { content: ""; } /* Don't show for internal/JS links */
+
+  pre, code, kbd, samp {
+    font-family: var(--font-family-system-monospace);
+    font-size: 10pt;
+    background: var(--gray-100) !important; /* Light background for print */
+    color: var(--black) !important;
+    border: 1px solid var(--gray-300) !important;
+    white-space: pre-wrap !important; /* Ensure code wraps in print */
+    word-wrap: break-word !important;
+  }
+
+  blockquote {
+    border-left: 3px solid var(--gray-400);
+    padding-left: 1em;
+    margin-left: 0;
+    font-style: italic;
   }
 }
