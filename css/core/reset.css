@@ -1,1419 +1,419 @@
 /* ==========================================================================
-   CSS RESET - PARKLAND AI OPUS MAGNUM EDITION
-   Modern Browser Normalization & Foundation Reset
+   CSS VARIABLES - PARKLAND AI OPUS MAGNUM EDITION
+   Design Token System for Premium Multi-Theme Experience
    ========================================================================== */
+
+:root {
+  /* ==========================================================================
+     CORE DESIGN TOKENS - Universal Foundation
+     ========================================================================== */
+
+  /* Color Primitives */
+  --white: #FFFFFF;
+  --black: #000000;
+  --transparent: transparent;
+
+  /* Gray Scale - Neutral Palette (Refined for modern, clean look) */
+  --gray-50: #F9FAFB;  /* Softer off-white */
+  --gray-100: #F3F4F6; /* Lightest gray */
+  --gray-200: #E5E7EB; /* Light gray */
+  --gray-300: #D1D5DB; /* Medium-light gray */
+  --gray-400: #9CA3AF; /* Medium gray (good for muted text) */
+  --gray-500: #6B7280; /* Dark-medium gray (good for secondary text) */
+  --gray-600: #4B5563; /* Dark gray */
+  --gray-700: #374151; /* Darker gray */
+  --gray-800: #1F2937; /* Very dark gray */
+  --gray-900: #111827; /* Near black */
+  --gray-950: #030712; /* Deepest, almost black */
+
+  /* RGB versions for opacity usage */
+  --gray-900-rgb: 17, 24, 39;
+  --gray-800-rgb: 31, 41, 55;
+
+
+  /* ==========================================================================
+     TYPOGRAPHY SYSTEM - SYSTEM FONTS ONLY (as per mandate)
+     ========================================================================== */
+
+  /* System Font Stacks - Prioritizing modern system UI fonts */
+  --font-family-system-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-family-system-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, Cambria, "Times New Roman", Times, serif; /* More classic serif stack */
+  --font-family-system-monospace: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* Developer-friendly monospaced fonts */
+
+  /* Base Font Families (using system stacks) */
+  --font-family-default: var(--font-family-system-sans-serif);
+  --font-family-mono: var(--font-family-system-monospace);
+  --font-family-heading: var(--font-family-system-sans-serif); /* Default heading, can be overridden by themes or specific elements */
+
+  /* Font Scale - Harmonious & Fluid Typography (using clamp for responsiveness) */
+  --font-size-xs: clamp(0.75rem, 0.8vw + 0.1rem, 0.875rem);   /* Approx 12px-14px */
+  --font-size-sm: clamp(0.875rem, 1vw + 0.1rem, 1rem);      /* Approx 14px-16px */
+  --font-size-base: clamp(1rem, 1.2vw + 0.1rem, 1.125rem);  /* Approx 16px-18px (base) */
+  --font-size-lg: clamp(1.125rem, 1.4vw + 0.1rem, 1.25rem); /* Approx 18px-20px */
+  --font-size-xl: clamp(1.25rem, 1.6vw + 0.1rem, 1.5rem);   /* Approx 20px-24px */
+  --font-size-2xl: clamp(1.5rem, 2vw + 0.1rem, 1.875rem);  /* Approx 24px-30px */
+  --font-size-3xl: clamp(1.875rem, 2.5vw + 0.1rem, 2.25rem);/* Approx 30px-36px */
+  --font-size-4xl: clamp(2.25rem, 3vw + 0.1rem, 3rem);     /* Approx 36px-48px */
+  --font-size-5xl: clamp(3rem, 4vw + 0.1rem, 3.75rem);     /* Approx 48px-60px */
+  --font-size-6xl: clamp(3.75rem, 5vw + 0.1rem, 4.5rem);   /* Approx 60px-72px */
+
+  /* Line Heights - For readability and rhythm */
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;      /* Good for body text */
+  --line-height-relaxed: 1.625;   /* Slightly more spacious */
+  --line-height-loose: 2;
+
+  /* Font Weights (standard numeric values) */
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Letter Spacing - For headings and special text treatments */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* ==========================================================================
+     SPACING SYSTEM - Consistent Rhythmic Scale (Based on 4px grid, 1rem = 16px base)
+     ========================================================================== */
+  --space-unit: 4px; /* Base unit for scaling */
+
+  --space-0: 0;                            /* 0px */
+  --space-px: 1px;                         /* 1px */
+  --space-0-5: calc(0.5 * var(--space-unit));  /* 2px */
+  --space-1: calc(1 * var(--space-unit));    /* 4px */
+  --space-1-5: calc(1.5 * var(--space-unit));  /* 6px */
+  --space-2: calc(2 * var(--space-unit));    /* 8px */
+  --space-2-5: calc(2.5 * var(--space-unit));  /* 10px */
+  --space-3: calc(3 * var(--space-unit));    /* 12px */
+  --space-3-5: calc(3.5 * var(--space-unit));  /* 14px */
+  --space-4: calc(4 * var(--space-unit));    /* 16px (1rem default) */
+  --space-5: calc(5 * var(--space-unit));    /* 20px */
+  --space-6: calc(6 * var(--space-unit));    /* 24px */
+  --space-7: calc(7 * var(--space-unit));    /* 28px */
+  --space-8: calc(8 * var(--space-unit));    /* 32px */
+  --space-9: calc(9 * var(--space-unit));    /* 36px */
+  --space-10: calc(10 * var(--space-unit));   /* 40px */
+  --space-11: calc(11 * var(--space-unit));   /* 44px */
+  --space-12: calc(12 * var(--space-unit));   /* 48px */
+  --space-14: calc(14 * var(--space-unit));   /* 56px */
+  --space-16: calc(16 * var(--space-unit));   /* 64px */
+  --space-20: calc(20 * var(--space-unit));   /* 80px */
+  --space-24: calc(24 * var(--space-unit));   /* 96px */
+
+  /* Semantic Spacing Aliases (based on the 8-point grid system common in UI design) */
+  --space-xxs: var(--space-1);  /* 4px */
+  --space-xs: var(--space-2);   /* 8px */
+  --space-sm: var(--space-3);   /* 12px */
+  --space-md: var(--space-4);   /* 16px */
+  --space-lg: var(--space-6);   /* 24px */
+  --space-xl: var(--space-8);   /* 32px */
+  --space-2xl: var(--space-10); /* 40px */
+  --space-3xl: var(--space-12); /* 48px */
+  --space-4xl: var(--space-16); /* 64px */
+
+
+  /* ==========================================================================
+     DEFAULT THEME - Modern, Professional, Tech-Forward AI Interface
+     ========================================================================== */
+
+  /* Primary Color System - Sophisticated & Approachable Tech Blue/Purple */
+  --primary: #6A5ACD; /* SlateBlue */
+  --primary-rgb: 106, 90, 205;
+  --primary-dark: #483D8B; /* DarkSlateBlue */
+  --primary-darker: #3B3070; /* Even darker for depth */
+  --primary-darker-rgb: 59, 48, 112;
+  --primary-light: #9370DB; /* MediumPurple */
+  --primary-lighter: #B0A4E0; /* Lighter purple */
+  --primary-lighter-rgb: 176, 164, 224;
+
+  /* Accent Colors - Energetic & Contrasting */
+  --accent: #FF69B4; /* HotPink - for vibrant accents */
+  --accent-rgb: 255, 105, 180;
+  --accent-light: #FF85C1;
+  --accent-dark: #DB7093; /* PaleVioletRed */
+
+  /* Semantic Colors - Clear Visual Cues */
+  --success: #32CD32;  /* LimeGreen */
+  --success-rgb: 50, 205, 50;
+  --warning: #FFD700;  /* Gold */
+  --warning-rgb: 255, 215, 0;
+  --error: #DC143C;    /* Crimson */
+  --error-rgb: 220, 20, 60;
+  --info: #1E90FF;     /* DodgerBlue */
+  --info-rgb: 30, 144, 255;
+
+  /* Background System - Clean & Layered */
+  --bg-primary: var(--white);
+  --bg-primary-rgb: 255, 255, 255;
+  --bg-secondary: var(--gray-50);
+  --bg-secondary-rgb: 249, 250, 251;
+  --bg-tertiary: var(--gray-100);
+  --bg-tertiary-rgb: 243, 244, 246;
+  --bg-elevated: var(--white);
+  --bg-elevated-rgb: 255, 255, 255;
+  --bg-overlay: rgba(var(--gray-900-rgb), 0.85); /* Darker overlay */
+  --bg-backdrop: rgba(var(--gray-800-rgb), 0.6); /* More blur, less opacity */
+
+  /* Text Color System - High Readability */
+  --text-primary: var(--gray-900);
+  --text-primary-rgb: 17, 24, 39;
+  --text-secondary: var(--gray-700);
+  --text-tertiary: var(--gray-500);
+  --text-muted: var(--gray-400);
+  --text-inverse: var(--white);
+  --text-link: var(--primary);
+  --text-link-hover: var(--primary-dark);
+
+  /* Border System - Subtle & Defining */
+  --border: var(--gray-300);
+  --border-rgb: 209, 213, 219;
+  --border-light: var(--gray-200);
+  --border-dark: var(--gray-400);
+  --border-input: var(--gray-300);
+  --border-input-focus: var(--primary);
+
+  /* ==========================================================================
+     SHADOW SYSTEM - Depth & Elevation (Modern, subtle shadows)
+     ========================================================================== */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -4px rgba(0, 0, 0, 0.09);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  --shadow-none: none;
+
+  /* Themed Glow Effects (for primary interactive elements) */
+  --primary-glow-soft: rgba(var(--primary-rgb), 0.15);
+  --primary-glow-medium: rgba(var(--primary-rgb), 0.3);
+  --primary-glow-strong: rgba(var(--primary-rgb), 0.45);
+
+  /* ==========================================================================
+     BORDER RADIUS SYSTEM - Consistent Curvature
+     ========================================================================== */
+  --radius-none: 0px;
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.375rem; /* 6px (default) */
+  --radius-lg: 0.5rem;   /* 8px */
+  --radius-xl: 0.75rem;  /* 12px */
+  --radius-2xl: 1rem;    /* 16px */
+  --radius-3xl: 1.5rem;  /* 24px */
+  --radius-full: 9999px; /* For pills, circles */
+
+  /* ==========================================================================
+     ANIMATION & TRANSITION SYSTEM - Smooth & Performant
+     ========================================================================== */
+
+  /* Easing Functions - Based on common web standards */
+  --ease-linear: cubic-bezier(0, 0, 1, 1);
+  --ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* More pronounced bounce */
+  --ease-back-in: cubic-bezier(0.36, 0, 0.66, -0.56);
+  --ease-back-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-back-in-out: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+
+
+  /* Duration Scale - Standardized timing */
+  --duration-shortest: 75ms;
+  --duration-short: 100ms;
+  --duration-base: 150ms;
+  --duration-long: 200ms;
+  --duration-longer: 300ms;
+  --duration-longest: 500ms;
+
+  /* Semantic Durations - For common UI transitions */
+  --transition-fast: var(--duration-base);
+  --transition-medium: var(--duration-longer);
+  --transition-slow: var(--duration-longest);
+
+  /* ==========================================================================
+     Z-INDEX SYSTEM - Layering Stack
+     ========================================================================== */
+  --z-hide: -1;
+  --z-base: 0;
+  --z-docked: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-banner: 1030;
+  --z-overlay-backdrop: 1040; /* Changed name for clarity */
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  --z-loading-overlay: 2000;
+  --z-animation-overlay: 2100; /* For full-screen theme transitions */
+  --z-maximum: 2147483647;
+
+  /* ==========================================================================
+     BREAKPOINTS - Responsive Design System
+     ========================================================================== */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* ==========================================================================
+     GRADIENTS - Color Transitions
+     ========================================================================== */
+  --gradient-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  --gradient-primary-hover: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(var(--white-rgb, 255,255,255), 0.15) 0%, rgba(var(--white-rgb, 255,255,255), 0.05) 100%);
+  --gradient-dark-subtle: linear-gradient(180deg, rgba(var(--gray-900-rgb), 0.08) 0%, transparent 70%);
+
+  /* ==========================================================================
+     COMPONENT-SPECIFIC VARIABLES (Can be overridden by themes)
+     ========================================================================== */
+  --loading-progress-height: 12px;
+  --sidebar-width: 280px;
+  --sidebar-width-mobile: 260px;
+  --chat-input-min-height: 48px;
+  --chat-input-max-height: 180px; /* Increased slightly */
+  --message-avatar-size: 36px;
+  --button-height-md: 44px;
+}
 
 /* ==========================================================================
-   DOCUMENT & ROOT ELEMENT RESET
+   JAWS THEME - Deep Ocean Terror (Overrides for :root variables)
+   ========================================================================== */
+[data-theme="jaws"] {
+  --primary: #0D47A1; /* Deep Blue */
+  --primary-rgb: 13, 71, 161;
+  --primary-dark: #002171;
+  --primary-darker: #00154F;
+  --primary-darker-rgb: 0, 21, 79;
+  --primary-light: #5472D3;
+  --primary-lighter: #8E99F3;
+  --primary-lighter-rgb: 142, 153, 243;
+
+  --accent: #D32F2F; /* Blood Red */
+  --accent-rgb: 211, 47, 47;
+  --accent-light: #FF6659;
+  --accent-dark: #9A0007;
+
+  --bg-primary: #010D1A;
+  --bg-primary-rgb: 1, 13, 26;
+  --bg-secondary: #021A30;
+  --bg-tertiary: #032644;
+  --bg-elevated: #053057;
+  --bg-elevated-rgb: 5, 48, 87;
+  --bg-overlay: rgba(var(--black-rgb, 0,0,0), 0.9);
+  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
+
+  --text-primary: #E0F7FA; /* Light Cyan */
+  --text-secondary: #B2EBF2;
+  --text-tertiary: #80DEEA;
+  --text-muted: #4DD0E1;
+  --text-inverse: var(--white);
+
+  --border: var(--primary-dark);
+  --border-light: var(--primary);
+  --border-dark: #000A14; /* Very dark for contrast */
+
+  --font-family-heading: 'Nosifer', 'Creepster', var(--font-family-system-sans-serif); /* Themed heading */
+  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Nautical/typewriter body */
+
+  --shadow-lg: 0 8px 18px rgba(0,0,0,0.7), 0 0 15px rgba(var(--accent-rgb),0.4);
+  --shadow-xl: 0 12px 25px rgba(0,0,0,0.8), 0 0 20px rgba(var(--accent-rgb),0.5);
+  --primary-glow-soft: rgba(var(--primary-lighter-rgb), 0.2);
+  --primary-glow-medium: rgba(var(--primary-lighter-rgb), 0.4);
+  --primary-glow-strong: rgba(var(--primary-lighter-rgb), 0.6);
+}
+
+/* ==========================================================================
+   JURASSIC PARK THEME - Ancient Amber & Untamed Jungle
+   ========================================================================== */
+[data-theme="jurassic"] {
+  --primary: #F5A623; /* Amber/Orange */
+  --primary-rgb: 245, 166, 35;
+  --primary-dark: #D4890A;
+  --primary-darker: #A96600;
+  --primary-darker-rgb: 169, 102, 0;
+  --primary-light: #FFC55C;
+  --primary-lighter: #FFE0A3;
+  --primary-lighter-rgb: 255, 224, 163;
+
+  --accent: #4A783A; /* Deep Jungle Green */
+  --accent-rgb: 74, 120, 58;
+  --accent-light: #7DB866;
+  --accent-dark: #2D571E;
+
+  --bg-primary: #1A140D; /* Darkest Brown */
+  --bg-primary-rgb: 26, 20, 13;
+  --bg-secondary: #2C241B;
+  --bg-tertiary: #3E352A;
+  --bg-elevated: #251F16;
+  --bg-elevated-rgb: 37, 31, 22;
+  --bg-overlay: rgba(var(--black-rgb,0,0,0), 0.9);
+  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
+
+  --text-primary: #EDE7D9; /* Fossil/Bone White */
+  --text-secondary: #D4CBAF;
+  --text-tertiary: #B0A085;
+  --text-muted: #8C7F69;
+  --text-inverse: var(--gray-950); /* Dark text on amber */
+
+  --border: var(--primary-darker);
+  --border-light: var(--primary-dark);
+  --border-dark: #5C4033; /* Dark Brown */
+
+  --font-family-heading: 'Rye', 'Metal Mania', var(--font-family-system-serif); /* Themed heading */
+  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Typewriter/field notes body */
+
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.6), 0 0 12px rgba(var(--primary-darker-rgb),0.5);
+  --shadow-xl: 0 15px 30px rgba(0,0,0,0.7), 0 0 18px rgba(var(--primary-darker-rgb),0.6);
+  --primary-glow-soft: rgba(var(--primary-rgb), 0.25);
+  --primary-glow-medium: rgba(var(--primary-rgb), 0.4);
+  --primary-glow-strong: rgba(var(--primary-rgb), 0.6);
+}
+
+
+/* ==========================================================================
+   ACCESSIBILITY & REDUCED MOTION (Global, overrides :root if necessary)
    ========================================================================== */
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  /* Prevent iOS text size adjust after orientation change */
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-
-  /* Improve text rendering */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-
-  /* Set default font size for rem calculations */
-  font-size: 16px; /* Base font size, can be overridden by variables */
-
-  /* Smooth scrolling for anchor links */
-  scroll-behavior: smooth;
-
-  /* Prevent horizontal scrolling */
-  overflow-x: hidden;
-
-  /* Enable momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
-
-  /* Custom scrollbar styling using variables */
-  scrollbar-width: thin;
-  scrollbar-color: var(--gray-400, #a9b0bc) var(--gray-100, #f3f4f8); /* Fallbacks for robustness */
-}
-
-/* Disable smooth scrolling for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  :root { /* Apply to all themes when reduced motion is preferred */
+    --transition-fast: 0ms !important;
+    --transition-medium: 0ms !important;
+    --transition-slow: 0ms !important;
+    --theme-transition-duration: 0ms !important;
+    --character-transition-speed: 0ms !important;
+    /* Keep other animation durations for critical feedback if absolutely necessary,
+       or set them to very short (e.g., 50ms) instead of 0ms.
+       For Opus Magnum, assume JS will also respect this for JS-driven animations. */
   }
 }
 
-body {
-  /* Reset browser defaults */
-  margin: 0;
-  padding: 0;
-
-  /* Set base typography using CSS variables */
-  font-family: var(--font-family-default);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
-  font-weight: var(--font-weight-normal);
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-
-  /* Improve font rendering */
-  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
-  font-kerning: normal;
-  font-variant-ligatures: common-ligatures;
-
-  /* Prevent rubber band scrolling on iOS */
-  overscroll-behavior: none;
-
-  /* Set minimum height */
-  min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height for mobile */
-
-  /* Remove default margins on Safari */
-  -webkit-margin-before: 0;
-  -webkit-margin-after: 0;
-}
-
-/* ==========================================================================
-   HEADING ELEMENTS RESET
-   ========================================================================== */
-
-h1, h2, h3, h4, h5, h6 {
-  font-size: inherit;
-  font-weight: inherit; /* Headings will get specific weights from typography.css */
-  line-height: inherit;
-  color: inherit;
-}
-
-/* Remove default heading margins and paddings in all browsers */
-h1, h2, h3, h4, h5, h6,
-p, blockquote, pre,
-ul, ol, dl, figure,
-hr, fieldset, legend {
-  margin: 0;
-  padding: 0;
-}
-
-/* ==========================================================================
-   TEXT ELEMENTS RESET
-   ========================================================================== */
-
-p {
-  /* Default paragraph margins will be handled by typography.css or component styles */
-}
-
-/* Reset emphasis elements */
-b, strong {
-  font-weight: var(--font-weight-bold); /* Use variable for bold weight */
-}
-
-i, em {
-  font-style: italic;
-}
-
-small {
-  font-size: var(--font-size-sm); /* Use variable for small size */
-}
-
-/* Reset subscript and superscript */
-sub, sup {
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
-
-sub {
-  bottom: -0.25em;
-}
-
-sup {
-  top: -0.5em;
-}
-
-/* Reset abbreviations */
-abbr[title] {
-  text-decoration: underline dotted;
-  border-bottom: none; /* Remove browser default border */
-}
-
-/* Reset mark element */
-mark {
-  background-color: var(--warning, #ffaa00); /* Use semantic color variable */
-  color: var(--text-primary); /* Ensure contrast */
-  padding: 0.125em 0.25em;
-}
-
-/* Reset quote elements */
-blockquote, q {
-  quotes: none;
-}
-
-blockquote::before,
-blockquote::after,
-q::before,
-q::after {
-  content: '';
-  content: none;
-}
-
-/* Reset code elements */
-code, kbd, samp, pre {
-  font-family: var(--font-family-mono); /* Use monospace variable */
-  font-size: 1em; /* Relative to parent, can be overridden */
-}
-
-pre {
-  overflow: auto;
-  white-space: pre;
-  word-wrap: normal; /* Allow horizontal scrolling for long lines */
-}
-
-/* ==========================================================================
-   LIST ELEMENTS RESET
-   ========================================================================== */
-
-ul, ol {
-  list-style: none; /* Remove default list bullets/numbers */
-}
-
-/* Reset definition lists */
-dl, dt, dd {
-  /* Default margins removed by earlier group reset */
-}
-
-/* ==========================================================================
-   LINK ELEMENTS RESET
-   ========================================================================== */
-
-a {
-  color: inherit; /* Links will inherit color, styled specifically elsewhere */
-  text-decoration: none;
-  background-color: transparent;
-
-  /* Remove gaps in links underline in iOS 8+ and Safari 8+ */
-  -webkit-text-decoration-skip: objects;
-}
-
-a:hover {
-  text-decoration: none; /* Specific hover styles will be applied elsewhere */
-}
-
-/* Remove default focus outline, custom focus styles will be applied */
-a:focus {
-  outline: none;
-}
-
-/* ==========================================================================
-   MEDIA ELEMENTS RESET
-   ========================================================================== */
-
-img, picture, video, canvas, svg {
-  display: block; /* Remove extra space below inline images */
-  max-width: 100%; /* Ensure images are responsive */
-  height: auto;
-}
-
-img {
-  border-style: none; /* Remove border from linked images */
-  vertical-align: middle; /* Align images better with text */
-}
-
-/* Remove border on images inside links in IE 10 */
-/* Covered by img { border-style: none; } */
-
-/* Reset SVG elements */
-svg {
-  /* overflow: hidden; No longer recommended for a general reset, can hide parts of SVGs */
-  vertical-align: middle;
-}
-
-svg:not(:root) {
-  overflow: hidden; /* For embedded SVGs */
-}
-
-/* Reset audio and video elements */
-audio, video {
-  display: inline-block;
-  vertical-align: baseline;
-}
-
-audio:not([controls]) {
-  display: none;
-  height: 0;
-}
-
-/* ==========================================================================
-   FORM ELEMENTS RESET
-   ========================================================================== */
-
-/* Reset form containers */
-form {
-  /* Default margins removed by earlier group reset */
-}
-
-fieldset {
-  border: none; /* Remove default fieldset border */
-  min-width: 0; /* Fixes width issues in flex/grid */
-}
-
-legend {
-  /* border: 0; Redundant */
-  /* padding: 0; Redundant */
-  white-space: normal;
-  color: inherit;
-  display: block; /* For consistent rendering */
-  max-width: 100%;
-  width: 100%; /* Ensure legend takes full width */
-}
-
-/* Reset form controls */
-button, input, optgroup, select, textarea {
-  font-family: inherit; /* Ensure form elements inherit body font */
-  font-size: inherit;
-  line-height: inherit;
-  margin: 0; /* Remove default margins */
-  padding: 0; /* Remove default padding */
-  border: none; /* Remove default borders */
-  background: none; /* Remove default backgrounds */
-  color: inherit;
-  vertical-align: middle; /* Better alignment */
-}
-
-/* Remove default button styling */
-button {
-  cursor: pointer;
-  outline: none; /* Custom focus styles will be applied */
-  text-shadow: none; /* Remove button text shadow in Firefox 4+ */
-  -moz-appearance: none; /* Remove Firefox-specific styling */
-  -webkit-appearance: none; /* Remove WebKit/Blink-specific styling */
-  appearance: none; /* Remove default system styling */
-}
-
-button::-moz-focus-inner {
-  border: 0;
-  padding: 0;
-}
-
-/* Reset input elements */
-input {
-  outline: none; /* Custom focus styles will be applied */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none; /* Remove number input spinners on WebKit */
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield; /* Remove number input spinners on Firefox */
-}
-
-/* Reset search input */
-input[type="search"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none; /* Remove search input specific styling */
-}
-
-input[type="search"]::-webkit-search-decoration,
-input[type="search"]::-webkit-search-cancel-button,
-input[type="search"]::-webkit-search-results-button,
-input[type="search"]::-webkit-search-results-decoration {
-  -webkit-appearance: none; /* Remove WebKit search input icons */
-}
-
-/* Reset checkbox and radio */
-input[type="checkbox"],
-input[type="radio"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: auto; /* Allow custom styling to define size */
-  height: auto;
-}
-
-/* Reset select elements */
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  outline: none; /* Custom focus styles will be applied */
-}
-
-select::-ms-expand {
-  display: none; /* Remove IE arrow */
-}
-
-/* Reset textarea */
-textarea {
-  resize: vertical; /* Allow vertical resizing only */
-  overflow: auto; /* Show scrollbars when content overflows */
-  vertical-align: top; /* Align text to the top */
-  outline: none; /* Custom focus styles will be applied */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* Reset placeholder styling */
-::placeholder {
-  color: var(--text-muted); /* Use variable for placeholder color */
-  opacity: 1; /* Ensure placeholder is visible */
-}
-
-/* ==========================================================================
-   TABLE ELEMENTS RESET
-   ========================================================================== */
-
-table {
-  border-collapse: collapse; /* Remove space between table borders */
-  border-spacing: 0;
-  width: 100%; /* Make tables responsive by default */
-}
-
-th, td {
-  text-align: left; /* Align text to the left by default */
-  vertical-align: top;
-}
-
-th {
-  font-weight: var(--font-weight-semibold); /* Use variable for table header weight */
-}
-
-/* ==========================================================================
-   INTERACTIVE ELEMENTS RESET
-   ========================================================================== */
-
-/* Reset details/summary */
-details {
-  display: block; /* Ensure block display */
-}
-
-summary {
-  display: list-item; /* Use list-item marker */
-  cursor: pointer;
-}
-
-/* Reset progress element */
-progress {
-  vertical-align: baseline;
-}
-
-/* Reset hidden attribute */
-[hidden] {
-  display: none !important; /* Ensure hidden elements are not displayed */
-}
-
-/* ==========================================================================
-   ACCESSIBILITY IMPROVEMENTS
-   ========================================================================== */
-
-/* Improve focus visibility - specific styles will be in variables/components */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* Remove focus for mouse users but keep for keyboard users */
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* Screen reader only content */
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-/* ==========================================================================
-   WEBKIT SCROLLBAR STYLING (Using Variables)
-   ========================================================================== */
-
-::-webkit-scrollbar {
-  width: 10px; /* Slightly thinner */
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--gray-100);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--gray-300);
-  border-radius: 5px;
-  border: 2px solid var(--gray-100); /* Create padding effect */
-  background-clip: padding-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-400);
-}
-
-::-webkit-scrollbar-corner {
-  background: var(--gray-100);
-}
-
-/* ==========================================================================
-   SELECTION STYLING (Using Variables)
-   ========================================================================== */
-
-::selection {
-  background: var(--primary);
-  color: var(--text-inverse);
-  text-shadow: none;
-}
-
-::-moz-selection {
-  background: var(--primary);
-  color: var(--text-inverse);
-  text-shadow: none;
-}
-
-/* ==========================================================================
-   MOBILE SPECIFIC RESETS
-   ========================================================================== */
-
-/* Prevent zoom on focus for iOS form inputs */
-@media screen and (max-width: 768px) {
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="search"],
-  input[type="tel"],
-  input[type="url"],
-  select,
-  textarea {
-    font-size: 16px !important; /* Minimum font size to prevent zoom */
+/* High Contrast Mode Defaults (System high contrast can be very different) */
+@media (prefers-contrast: more) {
+  :root {
+    --primary: ButtonText; /* Use system colors */
+    --accent: LinkText;
+    --bg-primary: Canvas;
+    --text-primary: CanvasText;
+    --border: GrayText;
+    --shadow-xs: none !important; --shadow-sm: none !important; --shadow-md: none !important;
+    --shadow-lg: none !important; --shadow-xl: none !important; --shadow-2xl: none !important;
+    --shadow-inner: none !important;
   }
-}
-
-/* iOS specific resets */
-@supports (-webkit-touch-callout: none) {
-  /* Prevent zoom on double tap (already handled by touch-action in base) */
-  /* * { touch-action: manipulation; } */
-
-  /* Remove iOS button styling */
-  input[type="submit"],
-  input[type="button"],
-  button {
-    -webkit-appearance: none;
-    border-radius: 0; /* Explicitly reset border-radius for buttons on iOS */
-  }
-
-  /* Fix iOS viewport units for body height */
-  body {
-    min-height: -webkit-fill-available;
-  }
-}
-
-/* ==========================================================================
-   PRINT STYLES RESET
-   ========================================================================== */
-
-@media print {
-  *,
-  *::before,
-  *::after {
-    background: transparent !important;
-    color: black !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-
-  a,
-  a:visited {
-    text-decoration: underline;
-  }
-
-  a[href]::after {
-    content: " (" attr(href) ")";
-  }
-
-  abbr[title]::after {
-    content: " (" attr(title) ")";
-  }
-
-  a[href^="#"]::after,
-  a[href^="javascript:"]::after {
-    content: "";
-  }
-
-  pre,
-  blockquote {
-    border: 1px solid #999;
-    page-break-inside: avoid;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tr,
-  img {
-    page-break-inside: avoid;
-  }
-
-  img {
-    max-width: 100% !important;
-  }
-
-  p,
-  h2,
-  h3 {
-    orphans: 3;
-    widows: 3;
-  }
-
-  h2,
-  h3 {
-    page-break-after: avoid;
-  }
-}
-
-/* ==========================================================================
-   UTILITY RESET CLASSES
-   ========================================================================== */
-
-/* Reset button appearance completely */
-.btn-reset {
-  /* background: none; Redundant */
-  /* border: none; Redundant */
-  /* padding: 0; Redundant */
-  /* margin: 0; Redundant */
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  /* outline: none; Redundant */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* Reset list appearance completely */
-.list-reset {
-  list-style: none;
-  /* margin: 0; Redundant */
-  /* padding: 0; Redundant */
-}
-
-/* Reset link appearance completely */
-.link-reset {
-  color: inherit;
-  text-decoration: none;
-  /* background: none; Redundant */
-}
-
-/* Reset input appearance completely */
-.input-reset {
-  /* background: none; Redundant */
-  /* border: none; Redundant */
-  /* outline: none; Redundant */
-  font: inherit;
-  color: inherit;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* ==========================================================================
-   PERFORMANCE OPTIMIZATIONS (General hints, specific usage in component CSS)
-   ========================================================================== */
-
-/* Optimize repaints for animated elements */
-.will-change-transform {
-  will-change: transform;
-}
-
-.will-change-opacity {
-  will-change: opacity;
-}
-
-.will-change-auto { /* Use when properties are unknown or vary */
-  will-change: auto;
-}
-
-/* GPU acceleration for smooth animations */
-.gpu-accelerated {
-  transform: translateZ(0); /* Promotes element to its own layer */
-  backface-visibility: hidden; /* May improve rendering of transformed elements */
-  perspective: 1000px; /* Needed for 3D transforms, sometimes helps with 2D too */
-}
-
-/* Contain layout changes for performance */
-.contain-layout {
-  contain: layout; /* Element's internal layout doesn't affect outside */
-}
-
-.contain-paint {
-  contain: paint; /* Element's children don't display outside its bounds */
-}
-
-.contain-strict { /* Use with caution */
-  contain: strict; /* layout paint size style */
-}/* ==========================================================================
-   CSS RESET - PARKLAND AI OPUS MAGNUM EDITION
-   Modern Browser Normalization & Foundation Reset
-   ========================================================================== */
-
-/* ==========================================================================
-   DOCUMENT & ROOT ELEMENT RESET
-   ========================================================================== */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  /* Prevent iOS text size adjust after orientation change */
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-
-  /* Improve text rendering */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-
-  /* Set default font size for rem calculations */
-  font-size: 16px;
-
-  /* Smooth scrolling for anchor links */
-  scroll-behavior: smooth;
-
-  /* Prevent horizontal scrolling */
-  overflow-x: hidden;
-
-  /* Enable momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
-
-  /* Custom scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: var(--gray-400, #A9B0BC) var(--gray-100, #F3F4F8);
-}
-
-/* Disable smooth scrolling for users who prefer reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-body {
-  /* Reset browser defaults */
-  margin: 0;
-  padding: 0;
-
-  /* Set base typography */
-  font-family: var(--font-family-default, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  font-size: var(--font-size-base, 1rem);
-  line-height: var(--line-height-normal, 1.5);
-  font-weight: var(--font-weight-normal, 400);
-  color: var(--text-primary, #16191E);
-  background-color: var(--bg-primary, #FFFFFF);
-
-  /* Improve font rendering */
-  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
-  font-kerning: normal;
-  font-variant-ligatures: common-ligatures;
-
-  /* Prevent rubber band scrolling on iOS */
-  overscroll-behavior: none;
-
-  /* Set minimum height */
-  min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height for mobile */
-
-  /* Remove default margins on Safari */
-  -webkit-margin-before: 0;
-  -webkit-margin-after: 0;
-}
-
-/* ==========================================================================
-   HEADING ELEMENTS RESET
-   ========================================================================== */
-
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-  padding: 0;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  color: inherit;
-}
-
-/* Remove default heading margins in all browsers */
-h1, h2, h3, h4, h5, h6,
-p, blockquote, pre,
-ul, ol, dl, figure,
-hr, fieldset, legend {
-  margin: 0;
-  padding: 0;
-}
-
-/* ==========================================================================
-   TEXT ELEMENTS RESET
-   ========================================================================== */
-
-p {
-  margin: 0;
-  padding: 0;
-}
-
-/* Reset emphasis elements */
-b, strong {
-  font-weight: var(--font-weight-bold, 700);
-}
-
-i, em {
-  font-style: italic;
-}
-
-small {
-  font-size: var(--font-size-sm, 0.875rem);
-}
-
-/* Reset subscript and superscript */
-sub, sup {
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
-
-sub {
-  bottom: -0.25em;
-}
-
-sup {
-  top: -0.5em;
-}
-
-/* Reset abbreviations */
-abbr[title] {
-  text-decoration: underline dotted;
-  border-bottom: none;
-}
-
-/* Reset mark element */
-mark {
-  background-color: #ffff99;
-  color: #000;
-  padding: 0.125em 0.25em;
-}
-
-/* Reset quote elements */
-blockquote, q {
-  quotes: none;
-}
-
-blockquote::before,
-blockquote::after,
-q::before,
-q::after {
-  content: '';
-  content: none;
-}
-
-/* Reset code elements */
-code, kbd, samp, pre {
-  font-family: var(--font-family-mono, 'Courier New', monospace);
-  font-size: 1em;
-}
-
-pre {
-  overflow: auto;
-  white-space: pre;
-  word-wrap: normal;
-}
-
-/* ==========================================================================
-   LIST ELEMENTS RESET
-   ========================================================================== */
-
-ul, ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-li {
-  margin: 0;
-  padding: 0;
-}
-
-/* Reset definition lists */
-dl {
-  margin: 0;
-}
-
-dt {
-  font-weight: var(--font-weight-semibold, 600);
-}
-
-dd {
-  margin: 0;
-  padding: 0;
-}
-
-/* ==========================================================================
-   LINK ELEMENTS RESET
-   ========================================================================== */
-
-a {
-  color: inherit;
-  text-decoration: none;
-  background-color: transparent;
-
-  /* Remove gaps in links underline in iOS 8+ and Safari 8+ */
-  -webkit-text-decoration-skip: objects;
-}
-
-a:hover {
-  text-decoration: none;
-}
-
-/* Remove default focus outline, we'll add our own */
-a:focus {
-  outline: none;
-}
-
-/* ==========================================================================
-   MEDIA ELEMENTS RESET
-   ========================================================================== */
-
-img, picture, video, canvas, svg {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-
-img {
-  border-style: none;
-  vertical-align: middle;
-}
-
-/* Remove border on images inside links in IE 10 */
-img {
-  border: 0;
-}
-
-/* Reset SVG elements */
-svg {
-  overflow: hidden;
-  vertical-align: middle;
-}
-
-svg:not(:root) {
-  overflow: hidden;
-}
-
-/* Reset audio and video elements */
-audio, video {
-  display: inline-block;
-  vertical-align: baseline;
-}
-
-audio:not([controls]) {
-  display: none;
-  height: 0;
-}
-
-/* ==========================================================================
-   FORM ELEMENTS RESET
-   ========================================================================== */
-
-/* Reset form containers */
-form {
-  margin: 0;
-  padding: 0;
-}
-
-fieldset {
-  border: none;
-  margin: 0;
-  padding: 0;
-  min-width: 0;
-}
-
-legend {
-  border: 0;
-  padding: 0;
-  white-space: normal;
-  color: inherit;
-  display: block;
-  max-width: 100%;
-  width: 100%;
-}
-
-/* Reset form controls */
-button, input, optgroup, select, textarea {
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-}
-
-/* Remove default button styling */
-button {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  outline: none;
-
-  /* Remove button text shadow in Firefox 4+ */
-  text-shadow: none;
-
-  /* Remove inner border and padding in Firefox */
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-button::-moz-focus-inner {
-  border: 0;
-  padding: 0;
-}
-
-/* Reset input elements */
-input {
-  background: none;
-  border: none;
-  outline: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-/* Reset search input */
-input[type="search"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-input[type="search"]::-webkit-search-decoration,
-input[type="search"]::-webkit-search-cancel-button,
-input[type="search"]::-webkit-search-results-button,
-input[type="search"]::-webkit-search-results-decoration {
-  -webkit-appearance: none;
-}
-
-/* Reset checkbox and radio */
-input[type="checkbox"],
-input[type="radio"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: auto;
-  height: auto;
-}
-
-/* Reset select elements */
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background: none;
-  border: none;
-  outline: none;
-}
-
-select::-ms-expand {
-  display: none;
-}
-
-/* Reset textarea */
-textarea {
-  resize: vertical;
-  overflow: auto;
-  vertical-align: top;
-  background: none;
-  border: none;
-  outline: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* Reset placeholder styling */
-::placeholder {
-  color: var(--text-muted, #A9B0BC);
-  opacity: 1;
-}
-
-::-webkit-input-placeholder {
-  color: var(--text-muted, #A9B0BC);
-  opacity: 1;
-}
-
-::-moz-placeholder {
-  color: var(--text-muted, #A9B0BC);
-  opacity: 1;
-}
-
-:-ms-input-placeholder {
-  color: var(--text-muted, #A9B0BC);
-  opacity: 1;
-}
-
-/* ==========================================================================
-   TABLE ELEMENTS RESET
-   ========================================================================== */
-
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-  width: 100%;
-}
-
-th, td {
-  padding: 0;
-  text-align: left;
-  vertical-align: top;
-}
-
-th {
-  font-weight: var(--font-weight-semibold, 600);
-}
-
-/* ==========================================================================
-   INTERACTIVE ELEMENTS RESET
-   ========================================================================== */
-
-/* Reset details/summary */
-details {
-  display: block;
-}
-
-summary {
-  display: list-item;
-  cursor: pointer;
-}
-
-/* Reset progress element */
-progress {
-  vertical-align: baseline;
-}
-
-/* Reset hidden attribute */
-[hidden] {
-  display: none !important;
-}
-
-/* ==========================================================================
-   ACCESSIBILITY IMPROVEMENTS
-   ========================================================================== */
-
-/* Improve focus visibility */
-:focus-visible {
-  outline: 2px solid var(--primary, #7A77FF);
-  outline-offset: 2px;
-}
-
-/* Remove focus for mouse users but keep for keyboard users */
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* Screen reader only content */
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-/* Reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ==========================================================================
-   WEBKIT SCROLLBAR STYLING
-   ========================================================================== */
-
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--gray-100, #F3F4F8);
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--gray-300, #D9DCE4);
-  border-radius: 6px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-400, #A9B0BC);
-}
-
-::-webkit-scrollbar-corner {
-  background: var(--gray-100, #F3F4F8);
-}
-
-/* ==========================================================================
-   SELECTION STYLING
-   ========================================================================== */
-
-::selection {
-  background: var(--primary, #7A77FF);
-  color: var(--text-inverse, #FFFFFF);
-  text-shadow: none;
-}
-
-::-moz-selection {
-  background: var(--primary, #7A77FF);
-  color: var(--text-inverse, #FFFFFF);
-  text-shadow: none;
-}
-
-/* ==========================================================================
-   MOBILE SPECIFIC RESETS
-   ========================================================================== */
-
-/* Prevent zoom on focus for iOS */
-@media screen and (max-width: 768px) {
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="search"],
-  input[type="tel"],
-  input[type="url"],
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
-}
-
-/* iOS specific resets */
-@supports (-webkit-touch-callout: none) {
-  /* Prevent zoom on double tap */
-  * {
-    touch-action: manipulation;
-  }
-
-  /* Remove iOS button styling */
-  input[type="submit"],
-  input[type="button"],
-  button {
-    -webkit-appearance: none;
-    border-radius: 0;
-  }
-
-  /* Fix iOS viewport units */
-  body {
-    min-height: -webkit-fill-available;
-  }
-}
-
-/* Android specific resets */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  select {
-    background-image: none;
-  }
-}
-
-/* ==========================================================================
-   PRINT STYLES RESET
-   ========================================================================== */
-
-@media print {
-  *,
-  *::before,
-  *::after {
-    background: transparent !important;
-    color: black !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-
-  a,
-  a:visited {
-    text-decoration: underline;
-  }
-
-  a[href]::after {
-    content: " (" attr(href) ")";
-  }
-
-  abbr[title]::after {
-    content: " (" attr(title) ")";
-  }
-
-  a[href^="#"]::after,
-  a[href^="javascript:"]::after {
-    content: "";
-  }
-
-  pre,
-  blockquote {
-    border: 1px solid #999;
-    page-break-inside: avoid;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tr,
-  img {
-    page-break-inside: avoid;
-  }
-
-  img {
-    max-width: 100% !important;
-  }
-
-  p,
-  h2,
-  h3 {
-    orphans: 3;
-    widows: 3;
-  }
-
-  h2,
-  h3 {
-    page-break-after: avoid;
-  }
-}
-
-/* ==========================================================================
-   UTILITY RESET CLASSES
-   ========================================================================== */
-
-/* Reset button appearance completely */
-.btn-reset {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  outline: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* Reset list appearance completely */
-.list-reset {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* Reset link appearance completely */
-.link-reset {
-  color: inherit;
-  text-decoration: none;
-  background: none;
-}
-
-/* Reset input appearance completely */
-.input-reset {
-  background: none;
-  border: none;
-  outline: none;
-  font: inherit;
-  color: inherit;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* ==========================================================================
-   PERFORMANCE OPTIMIZATIONS
-   ========================================================================== */
-
-/* Optimize repaints for animated elements */
-.will-change-transform {
-  will-change: transform;
-}
-
-.will-change-opacity {
-  will-change: opacity;
-}
-
-.will-change-auto {
-  will-change: auto;
-}
-
-/* GPU acceleration for smooth animations */
-.gpu-accelerated {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-/* Contain layout changes */
-.contain-layout {
-  contain: layout;
-}
-
-.contain-paint {
-  contain: paint;
-}
-
-.contain-strict {
-  contain: strict;
+  /* Theme-specific high contrast overrides might be needed in theme.css if system colors aren't thematic enough */
 }
