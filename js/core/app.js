@@ -60,7 +60,7 @@ class App {
         console.log('🚀 Parkland AI - Opus Magnum Edition: Initializing App...');
         document.body.classList.add('app-loading');
         const loadingOverlayDirect = document.getElementById('loadingOverlay');
-        if(loadingOverlayDirect) this.utils.removeClass(loadingOverlayDirect, 'hidden');
+        if(loadingOverlayDirect && this.utils) this.utils.removeClass(loadingOverlayDirect, 'hidden');
 
 
         this._selectUIElements();
@@ -70,8 +70,8 @@ class App {
             const msg = "MarkdownProcessor class is undefined! Ensure markdown.js is loaded before app.js.";
             console.error(msg); return Promise.reject(new Error(msg)); 
         }
-        this.markdownProcessor = new MarkdownProcessor(this.utils); // Pass utils
-        await this.markdownProcessor.init(); // *** MODIFICATION: Wait for markdown-it and DOMPurify ***
+        this.markdownProcessor = new MarkdownProcessor(this.utils);
+        await this.markdownProcessor.init(); // *** AWAIT MarkdownProcessor's async initialization ***
 
         if (typeof ClaudeAPIService === 'undefined') { 
             const msg = "ClaudeAPIService class is undefined! Ensure claude.js is loaded.";
@@ -218,7 +218,6 @@ class App {
             this.ui.newChatBtn = this.utils.$('#newChatBtn', sidebarHeader);
             this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle', sidebarHeader);
         } else {
-            // Fallback if sidebar structure is flatter
             this.ui.newChatBtn = this.utils.$('#newChatBtn');
             this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle');
         }
@@ -372,12 +371,12 @@ class App {
                 this.ui.micBtn.classList.toggle('active', newValue); 
                 this.ui.micBtn.classList.toggle('listening', newValue); 
                 this.ui.micBtn.setAttribute('aria-pressed', newValue.toString());
-                const iconContainer = this.utils.$('.icon', this.ui.micBtn); // Assuming icon is wrapped
+                const iconContainer = this.utils.$('.icon', this.ui.micBtn); 
                 if (iconContainer) {
                     if (newValue) { 
-                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path></svg>'; // Stop icon
+                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path></svg>';
                     } else { 
-                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>'; // Mic icon
+                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>';
                     }
                 }
             }
@@ -721,6 +720,7 @@ class App {
         
         const transitionDurationStyle = this.utils.getStyle(overlay, 'transition-duration');
         const transitionDuration = transitionDurationStyle ? parseFloat(transitionDurationStyle.replace('s','')) * 1000 : 300;
+
 
         if (show) {
             this.utils.removeClass(overlay, 'hidden');
