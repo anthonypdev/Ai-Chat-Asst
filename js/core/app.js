@@ -8,7 +8,7 @@
 
 class App {
     constructor() {
-        // Diagnostic logs PRECEDING the check
+        // This initial check for core globals should pass now.
         if (typeof console !== 'undefined') {
             console.log('App Constructor: Checking global singletons/classes...');
             console.log('typeof window.UtilsInstance:', typeof window.UtilsInstance, '; Value:', window.UtilsInstance);
@@ -27,6 +27,7 @@ class App {
         this.stateManager = window.StateManager.getInstance();
         this.eventEmitter = window.AppEvents;
 
+        // Initialize properties for modules that will be instantiated in init()
         this.themePersistence = null;
         this.themeTransition = null;
         this.characterManager = null;
@@ -40,17 +41,21 @@ class App {
         this.soundEffects = null;
         this.audioWorker = null;
 
-        this.ui = {};
+        this.ui = {}; // To store DOM element references
         this.isInitialized = false;
-        this.chatViewShownBefore = false;
+        this.chatViewShownBefore = false; // Flag for initial chat view presentation
 
-        this._handleVisibilityChange = this._handleVisibilityChange.bind(this);
+        this._handleVisibilityChange = this._handleVisibilityChange.bind(this); // Bind context for event listener
 
         if (this.stateManager && this.stateManager.get('debugMode')) {
             console.log('App constructor: Debug mode is ON.');
         }
     }
 
+    /**
+     * Initializes the application.
+     * Sets up UI elements, initializes modules, registers event listeners.
+     */
     async init() {
         if (this.isInitialized) {
             console.warn('App already initialized.');
@@ -60,18 +65,20 @@ class App {
         console.log('🚀 Parkland AI - Opus Magnum Edition: Initializing App...');
         document.body.classList.add('app-loading');
         const loadingOverlayDirect = document.getElementById('loadingOverlay');
-        if(loadingOverlayDirect && this.utils) this.utils.removeClass(loadingOverlayDirect, 'hidden');
+        if(loadingOverlayDirect && this.utils) { // Ensure utils is available
+             this.utils.removeClass(loadingOverlayDirect, 'hidden'); // Should be visible by default from CSS
+        }
 
 
-        this._selectUIElements();
+        this._selectUIElements(); // Populate this.ui
 
         // Initialize Feature Modules in correct order
         if (typeof MarkdownProcessor === 'undefined') { 
             const msg = "MarkdownProcessor class is undefined! Ensure markdown.js is loaded before app.js.";
             console.error(msg); return Promise.reject(new Error(msg)); 
         }
-        this.markdownProcessor = new MarkdownProcessor(this.utils);
-        await this.markdownProcessor.init(); // *** AWAIT MarkdownProcessor's async initialization ***
+        this.markdownProcessor = new MarkdownProcessor(this.utils); 
+        await this.markdownProcessor.init(); 
 
         if (typeof ClaudeAPIService === 'undefined') { 
             const msg = "ClaudeAPIService class is undefined! Ensure claude.js is loaded.";
@@ -101,6 +108,7 @@ class App {
             this.ui.micBtn.title = "Voice recognition not supported by your browser.";
             this.utils.addClass(this.ui.micBtn, 'btn-disabled');
         }
+
 
         if (typeof VoiceSynthesis === 'undefined') { 
             const msg = "VoiceSynthesis class is undefined! Ensure synthesis.js is loaded.";
@@ -190,9 +198,11 @@ class App {
         this.isInitialized = true;
         console.log('✅ App initialized successfully.');
 
+        console.log('DEBUG App.init: Scheduling isLoading=false timeout.');
         setTimeout(() => {
+            console.log('DEBUG App.init: setTimeout callback fired. Setting isLoading to false.');
             this.stateManager.set('isLoading', false);
-        }, 500);
+        }, 500); // Short delay to allow everything to settle before hiding loader
     }
 
     _selectUIElements() {
@@ -218,6 +228,7 @@ class App {
             this.ui.newChatBtn = this.utils.$('#newChatBtn', sidebarHeader);
             this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle', sidebarHeader);
         } else {
+            // Fallback if sidebar structure is flatter, though IDs should be unique
             this.ui.newChatBtn = this.utils.$('#newChatBtn');
             this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle');
         }
@@ -232,9 +243,9 @@ class App {
         this.ui.settingsModal = this.utils.$('#appSettingsModal');
         if(this.ui.settingsModal){
             this.ui.settingsForm = this.utils.$('#settingsForm', this.ui.settingsModal); 
-            this.ui.closeSettingsModalBtn = this.utils.$('.modal-close', this.ui.settingsModal);
+            this.ui.closeSettingsModalBtn = this.utils.$('.modal-close', this.ui.settingsModal); // More specific selector
         }
-        if(this.ui.chatContainer) {
+        if(this.ui.chatContainer) { // Ensure chatContainer is found before querying within it
             this.ui.emptyStateContainer = this.utils.$('.empty-state-container', this.ui.chatContainer);
         }
     }
@@ -242,9 +253,9 @@ class App {
     _registerEventListeners() {
         if (this.ui.loginForm) {
             this.ui.loginForm.addEventListener('submit', this._handleLoginSubmit.bind(this));
-        } else if (this.ui.loginButton) { 
+        } else if (this.ui.loginButton) { // Fallback if only button exists (e.g. if form tag was missed)
             this.ui.loginButton.addEventListener('click', (e) => {
-                 e.preventDefault(); 
+                 e.preventDefault(); // Prevent default if it's a button that might be in a form
                  this._handleLoginSubmit(e);
             });
         }
@@ -255,8 +266,8 @@ class App {
         
         if(this.ui.micBtn && this.voiceRecognition && this.voiceRecognition.isSupported()) {
             this.ui.micBtn.addEventListener('click', () => this.voiceRecognition.toggleListening());
-        } else if (this.ui.micBtn) { 
-            this.utils.addClass(this.ui.micBtn, 'btn-disabled'); 
+        } else if (this.ui.micBtn) { // Disable if not supported
+            this.utils.addClass(this.ui.micBtn, 'btn-disabled'); // Use a class for styling disabled state
             this.ui.micBtn.disabled = true;
         }
 
@@ -269,14 +280,16 @@ class App {
             this.ui.closeSettingsModalBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', false));
         }
         
-        const settingsModalOverlay = this.utils.$('#appSettingsModal');
+        // Handle modal overlay click to close settings modal
+        const settingsModalOverlay = this.utils.$('#appSettingsModal'); // This is the overlay itself
         if (settingsModalOverlay) {
             settingsModalOverlay.addEventListener('click', (event) => {
-                if (event.target === settingsModalOverlay) { 
+                if (event.target === settingsModalOverlay) { // Clicked on overlay itself, not modal content
                     this.stateManager.setModalOpen('isSettingsModalOpen', false);
                 }
             });
         }
+        // Also add cancel button functionality for settings modal
         const settingsCancelBtn = this.utils.$('.modal-cancel-btn', this.ui.settingsModal);
         if(settingsCancelBtn) {
             settingsCancelBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', false));
@@ -295,14 +308,16 @@ class App {
         }
 
         window.addEventListener('keydown', this._handleGlobalKeyDown.bind(this));
+        // Store debounced handler to be able to remove it later if app is destroyed
         this._debouncedResizeHandler = this.utils.debounce(this._handleResize.bind(this), 200);
         window.addEventListener('resize', this._debouncedResizeHandler);
         document.addEventListener('visibilitychange', this._handleVisibilityChange);
 
+        // Custom App Event Listeners
         this.eventEmitter.on('errorDisplay', this._displayError.bind(this));
         this.eventEmitter.on('notificationDisplay', this._displayNotification.bind(this));
         this.eventEmitter.on('playSound', (payload) => { 
-            if (this.soundEffects) {
+            if (this.soundEffects) { // Check if soundEffects (and thus audioWorker) initialized
                 this.soundEffects.playSoundEffect(payload.soundName, payload.volume, payload.loop, payload.soundId);
             }
         });
@@ -316,8 +331,9 @@ class App {
                 this.voiceSynthesis.speak(text, characterKey, options);
             }
         });
+        // Listener for when chat history loads a session, to update main chat title
         this.eventEmitter.on('chatSessionLoaded', ({ sessionId, messages }) => {
-            const sessions = this.chatHistory ? this.chatHistory._getStoredSessions() : []; 
+            const sessions = this.chatHistory ? this.chatHistory._getStoredSessions() : []; // Access internal method carefully or add public getter
             const loadedSession = sessions.find(s => s.id === sessionId);
             if(this.ui.chatHeader) {
                 const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
@@ -327,17 +343,19 @@ class App {
         this.eventEmitter.on('newChatStarted', () => {
             if(this.ui.chatHeader) {
                  const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
-                 if(chatTitleEl) chatTitleEl.textContent = 'New Chat';
+                 if(chatTitleEl) chatTitleEl.textContent = 'New Chat'; // Set title for new chat
             }
         });
     }
 
     _setupStateSubscriptions() {
         this.stateManager.subscribe('change:isLoading', ({ newValue }) => {
+            console.log(`DEBUG App: 'change:isLoading' event received by App. New value: ${newValue}`);
             newValue ? this._showLoadingScreen() : this._hideLoadingScreen();
         });
         this.stateManager.subscribe('change:currentTheme', ({ newValue }) => {
             if (this.themeManager) this.themeManager.applyThemeToBody(newValue);
+            // Update theme selector in settings modal if it's open
             const themeSelectSetting = this.utils.$('#themeSelectorSetting', this.ui.settingsForm);
             if (themeSelectSetting && this.stateManager.get('isSettingsModalOpen')) {
                 themeSelectSetting.value = newValue;
@@ -346,9 +364,10 @@ class App {
         this.stateManager.subscribe('change:chatHistory', ({ newValue, oldValue }) => {
             if(this.chatMessages) this.chatMessages.renderHistory(newValue); 
             this._toggleEmptyState(newValue.length === 0);
-            if ( (newValue.length > (oldValue ? oldValue.length : 0)) || 
-                 (newValue.length > 0 && (!oldValue || oldValue.length === 0)) ||
-                 (newValue.length === 0 && oldValue && oldValue.length > 0) ) { 
+            // Update session in history list on new messages or clear
+            if ( (newValue.length > (oldValue ? oldValue.length : 0)) || // Message added
+                 (newValue.length > 0 && (!oldValue || oldValue.length === 0)) || // History populated from empty
+                 (newValue.length === 0 && oldValue && oldValue.length > 0) ) { // History cleared
                 if(this.chatHistory) this.chatHistory.addOrUpdateCurrentSession(); 
             }
         });
@@ -360,6 +379,7 @@ class App {
             if(this.ui.appContainer) this.ui.appContainer.classList.toggle('sidebar-collapsed', !newValue);
         });
         this.stateManager.subscribe('change:isLoginModalOpen', ({ newValue }) => {
+            // This state now more accurately reflects if the login *view* should be shown
             if (newValue) this._showLoginView(); else this._showChatView();
         });
         this.stateManager.subscribe('change:isSettingsModalOpen', ({ newValue }) => {
@@ -369,27 +389,31 @@ class App {
         this.stateManager.subscribe('change:isMicListening', ({newValue}) => {
             if(this.ui.micBtn) {
                 this.ui.micBtn.classList.toggle('active', newValue); 
-                this.ui.micBtn.classList.toggle('listening', newValue); 
+                this.ui.micBtn.classList.toggle('listening', newValue); // More specific class for styling
                 this.ui.micBtn.setAttribute('aria-pressed', newValue.toString());
-                const iconContainer = this.utils.$('.icon', this.ui.micBtn); 
+                // Change icon based on state (example)
+                const iconContainer = this.utils.$('.icon', this.ui.micBtn); // Assuming icon is wrapped
                 if (iconContainer) {
-                    if (newValue) { 
-                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path></svg>';
-                    } else { 
-                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>';
+                    if (newValue) { // Listening
+                        //stop icon: <path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>
+                        iconContainer.innerHTML = this.utils.getIconSVG('stopMic') || '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path></svg>';
+                    } else { // Not listening
+                        // mic icon: <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path>
+                        iconContainer.innerHTML = this.utils.getIconSVG('mic') || '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>';
                     }
                 }
             }
         });
         this.stateManager.subscribe('change:userInput', ({newValue}) => {
-            if(this.ui.chatInput && this.ui.chatInput.value !== newValue) {
+            if(this.ui.chatInput && this.ui.chatInput.value !== newValue) { // Avoid feedback loop if programmatically set
                 this.ui.chatInput.value = newValue;
+                // Auto-resize textarea (also handled in keydown, but good for programmatic changes)
                 this.ui.chatInput.style.height = 'auto';
                 this.ui.chatInput.style.height = (this.ui.chatInput.scrollHeight) + 'px';
             }
         });
          this.stateManager.subscribe('change:activeSessionId', ({ newValue }) => {
-            if (this.chatHistory) this.chatHistory.renderHistoryList(); 
+            if (this.chatHistory) this.chatHistory.renderHistoryList(); // Re-render to update active state styling
             const sessions = this.chatHistory ? this.chatHistory._getStoredSessions() : [];
             const loadedSession = sessions.find(s => s.id === newValue);
             if(this.ui.chatHeader) {
@@ -413,41 +437,45 @@ class App {
         this._toggleEmptyState(this.stateManager.get('chatHistory').length === 0);
 
         const apiKey = this.stateManager.get('apiKey');
-        if (apiKey) this._showChatView(); else this._showLoginView();
+        if (apiKey) {
+            this._showChatView();
+        } else {
+            this._showLoginView();
+        }
     }
 
     _handleLoginSubmit(event) {
         if(event) event.preventDefault();
-        if(!this.ui.apiKeyInput) return;
+        if(!this.ui.apiKeyInput) { console.error("API Key input not found"); return; }
         const apiKey = this.ui.apiKeyInput.value.trim();
 
         if (this.apiService && this.apiService.validateApiKey(apiKey)) {
-            this.stateManager.setApiKey(apiKey); 
+            this.stateManager.setApiKey(apiKey); // This will trigger view change via state subscription
             if(this.ui.loginErrorMessage) this.ui.loginErrorMessage.textContent = '';
             if (this.soundEffects) this.soundEffects.playSoundEffect('loginSuccess');
         } else {
             if(this.ui.loginErrorMessage) this.ui.loginErrorMessage.textContent = 'Invalid API Key format or value.';
             if (this.soundEffects) this.soundEffects.playSoundEffect('error');
-            if(this.ui.loginForm && this.utils) this.utils.shake(this.ui.loginForm);
+            if(this.ui.loginForm && this.utils && typeof this.utils.shake === 'function') this.utils.shake(this.ui.loginForm);
         }
     }
 
     _showLoginView() {
         if(this.ui.chatContainer) this.utils.addClass(this.ui.chatContainer, 'hidden');
         if(this.ui.loginContainer) this.utils.removeClass(this.ui.loginContainer, 'hidden');
-        this.stateManager.set('currentView', 'login', true); 
+        this.stateManager.set('currentView', 'login', true); // Silent update for internal view tracking
         if(this.ui.apiKeyInput) this.ui.apiKeyInput.focus();
     }
 
     _showChatView() {
         if(this.ui.loginContainer) this.utils.addClass(this.ui.loginContainer, 'hidden');
         if(this.ui.chatContainer) this.utils.removeClass(this.ui.chatContainer, 'hidden');
-        this.stateManager.set('currentView', 'chat', true); 
-        if(this.chatMessages) this.chatMessages.scrollToBottom(true);
+        this.stateManager.set('currentView', 'chat', true); // Silent update
+        if(this.chatMessages) this.chatMessages.scrollToBottom(true); // Force scroll when view becomes active
         if(this.ui.chatInput) this.ui.chatInput.focus();
 
         if(!this.chatViewShownBefore) {
-            this.eventEmitter.emit('chatViewReady'); 
+            this.eventEmitter.emit('chatViewReady'); // For character intros, etc.
             this.chatViewShownBefore = true;
         }
     }
@@ -465,13 +493,13 @@ class App {
             content: messageText,
             timestamp: Date.now()
         };
-        this.stateManager.addMessageToHistory(userMessage); 
+        this.stateManager.addMessageToHistory(userMessage); // This triggers chatHistory save and UI update
 
-        this.stateManager.set('userInput', '');
+        this.stateManager.set('userInput', ''); // Clear state
         if(this.ui.chatInput) {
-            this.ui.chatInput.value = '';
-            this.ui.chatInput.style.height = 'auto'; 
-            this.ui.chatInput.focus();
+            this.ui.chatInput.value = ''; // Clear UI
+            this.ui.chatInput.style.height = 'auto'; // Reset height
+            this.ui.chatInput.focus(); // Keep focus on input
         }
 
         this._showTypingIndicator(true);
@@ -497,7 +525,7 @@ class App {
         if (typeof apiResponse === 'string') content = apiResponse;
         else if (apiResponse && typeof apiResponse.content === 'string') {
             content = apiResponse.content;
-            if (apiResponse.character) character = apiResponse.character; 
+            if (apiResponse.character) character = apiResponse.character; // API might suggest a character override
         } else {
             content = "Sorry, I received an unexpected response from the AI.";
              console.warn("Unexpected API response format in _processAssistantResponse:", apiResponse);
@@ -510,7 +538,7 @@ class App {
             timestamp: Date.now(),
             character: character
         };
-        this.stateManager.addMessageToHistory(assistantMessage);
+        this.stateManager.addMessageToHistory(assistantMessage); // Triggers UI update via subscription
 
         if (this.stateManager.get('userPreferences.voiceOutputEnabled') && this.voiceSynthesis) {
             this.voiceSynthesis.speak(assistantMessage.content, assistantMessage.character);
@@ -523,22 +551,22 @@ class App {
         const errorMessage = (error && error.message) ? error.message : "An unknown API error occurred.";
         const errorResponseMessage = {
             id: `msg-error-${this.utils.generateId('')}`,
-            role: 'assistant', 
+            role: 'assistant', // Display as an assistant message for errors
             content: `⚠️ ${errorMessage}`,
             timestamp: Date.now(),
             isError: true
         };
-        this.stateManager.addMessageToHistory(errorResponseMessage);
-        this.eventEmitter.emit('errorDisplay', { message: errorMessage, type: 'api' });
+        this.stateManager.addMessageToHistory(errorResponseMessage); // Triggers UI update
+        this.eventEmitter.emit('errorDisplay', { message: errorMessage, type: 'api' }); // For global display
     }
 
     _showTypingIndicator(show) {
-        this.eventEmitter.emit('typingIndicator', { show }); 
+        this.eventEmitter.emit('typingIndicator', { show }); // ChatMessages listens to this
     }
 
     _handleInputKeyDown(event) {
         if(!event || !event.target) return;
-        this.stateManager.set('userInput', event.target.value, true);
+        this.stateManager.set('userInput', event.target.value, true); // Update state silently
 
         const sendOnEnter = this.stateManager.get('userPreferences.sendOnEnter');
         if (event.key === 'Enter' && sendOnEnter && !event.shiftKey) {
@@ -546,6 +574,7 @@ class App {
             this._handleSendMessage();
         }
         
+        // Auto-resize textarea
         event.target.style.height = 'auto';
         const maxHeightStyle = this.utils.getStyle(event.target, 'max-height');
         const maxHeight = maxHeightStyle && maxHeightStyle !== 'none' ? parseInt(maxHeightStyle, 10) : Infinity;
@@ -561,9 +590,10 @@ class App {
             this.ui.chatInput.style.height = 'auto'; 
             this.ui.chatInput.focus();
         }
-        this._toggleEmptyState(true);
+        this._toggleEmptyState(true); // Show empty state
         if (this.soundEffects) this.soundEffects.playSoundEffect('newChat');
-        this.eventEmitter.emit('newChatStarted');
+        this.eventEmitter.emit('newChatStarted'); // Other modules can listen
+         // Potentially reset/update current chat title in header
         if(this.ui.chatHeader) {
             const chatTitleEl = this.utils.$('.chat-title', this.ui.chatHeader);
             if(chatTitleEl) chatTitleEl.textContent = 'New Chat';
@@ -581,11 +611,12 @@ class App {
         if(apiKeySettingEl) apiKeySettingEl.value = apiKey || '';
         
         const modelSelectEl = this.utils.$('#modelSelection', this.ui.settingsForm);
-        if(modelSelectEl) modelSelectEl.value = currentApiModel || 'claude-3-haiku-20240307';
+        if(modelSelectEl) modelSelectEl.value = currentApiModel || 'claude-3-haiku-20240307'; // Default fallback
 
+        // Helper to set checkbox state
         const setCheckbox = (id, value) => {
             const el = this.utils.$(`#${id}`, this.ui.settingsForm);
-            if(el) el.checked = !!value;
+            if(el) el.checked = !!value; // Ensure boolean
         };
 
         setCheckbox('autoScroll', prefs.autoScroll);
@@ -596,9 +627,10 @@ class App {
         setCheckbox('soundEffectsEnabled', prefs.soundEffectsEnabled);
         setCheckbox('reduceMotion', prefs.reduceMotion);
 
+
         const themeSelect = this.utils.$('#themeSelectorSetting', this.ui.settingsForm);
         if (themeSelect && this.themeManager) {
-            themeSelect.innerHTML = ''; 
+            themeSelect.innerHTML = ''; // Clear old options
             this.themeManager.getAvailableThemes().forEach(theme => {
                 const option = this.utils.createElement('option', { value: theme.key }, theme.name);
                 themeSelect.appendChild(option);
@@ -610,7 +642,7 @@ class App {
             characterVoiceSelect.innerHTML = '';
             const defaultOpt = this.utils.createElement('option', { value: 'default'}, 'Default Voice');
             characterVoiceSelect.appendChild(defaultOpt);
-            const characters = this.characterManager.getAvailableCharacters();
+            const characters = this.characterManager.getAvailableCharacters(); // Expects { key: {name, theme} }
             for (const key in characters) {
                 const option = this.utils.createElement('option', { value: key }, characters[key].name);
                 characterVoiceSelect.appendChild(option);
@@ -630,7 +662,7 @@ class App {
                 this.stateManager.setApiKey(newApiKey);
             } else {
                 const apiKeySettingEl = this.utils.$('#apiKeySetting', this.ui.settingsForm);
-                if(apiKeySettingEl && this.utils) this.utils.shake(apiKeySettingEl);
+                if(apiKeySettingEl && this.utils && typeof this.utils.shake === 'function') this.utils.shake(apiKeySettingEl);
                 this.eventEmitter.emit('notificationDisplay', {message: 'Invalid API key format.', type: 'error'});
                 return;
             }
@@ -642,8 +674,8 @@ class App {
         }
 
         ['autoScroll', 'sendOnEnter', 'markdownRendering', 'voiceInputEnabled', 'voiceOutputEnabled', 'soundEffectsEnabled', 'reduceMotion'].forEach(key => {
-             const el = this.utils.$(`#${key}`, this.ui.settingsForm);
-             this.stateManager.setUserPreference(key, el ? el.checked : formData.has(key));
+             const el = this.utils.$(`#${key}`, this.ui.settingsForm); // Check element exists
+             this.stateManager.setUserPreference(key, el ? el.checked : formData.has(key)); // Use el.checked if it's a checkbox
         });
         this.stateManager.setUserPreference('voiceCharacter', formData.get('characterVoiceSelector') || 'default');
 
@@ -651,6 +683,8 @@ class App {
         if (newModel) {
             const currentProvider = this.stateManager.get('currentApiProvider');
             this.stateManager.set(`modelPreferences.${currentProvider}.model`, newModel);
+            // Optionally save modelPreferences if they should persist
+            // this.stateManager.saveState([`modelPreferences.${currentProvider}.model`]); // More granular save
         }
 
         if (this.soundEffects) this.soundEffects.playSoundEffect('settingsSaved');
@@ -661,9 +695,10 @@ class App {
     _handlePreferenceChange(event) {
         if(!event || !event.target) return;
         const target = event.target;
-        let prefKey = target.name || target.id; 
+        let prefKey = target.name || target.id; // Prefer name, fallback to id
         const value = target.type === 'checkbox' ? target.checked : target.value;
 
+        // "Instant apply" preferences
         if (['reduceMotion', 'soundEffectsEnabled'].includes(prefKey)) { 
             this.stateManager.setUserPreference(prefKey, value);
         } else if (prefKey === 'voiceInputEnabled' && this.voiceRecognition) {
@@ -673,10 +708,12 @@ class App {
             this.stateManager.setUserPreference(prefKey, value);
             if (!value && this.voiceSynthesis.isSpeaking()) this.voiceSynthesis.cancel();
         } else if (['autoScroll', 'sendOnEnter', 'markdownRendering'].includes(prefKey)) {
+             // These are typically applied on next action, but can be set in state immediately
              this.stateManager.setUserPreference(prefKey, value);
         } else if (prefKey === 'characterVoiceSelector') {
             this.stateManager.setUserPreference('voiceCharacter', value);
         }
+        // Theme and API key changes are handled on "Save"
     }
 
     _handleGlobalKeyDown(event) {
@@ -684,11 +721,13 @@ class App {
             if (this.stateManager.get('isSettingsModalOpen')) {
                 this.stateManager.setModalOpen('isSettingsModalOpen', false);
             }
+            // Add other global escape handlers here if needed (e.g., close sidebar if in mobile overlay mode)
         }
     }
 
     _handleResize() {
         this.eventEmitter.emit('appResized', { width: window.innerWidth, height: window.innerHeight });
+        // Add any specific resize logic here if needed, e.g., for sidebar breakpoin
     }
 
     _handleVisibilityChange() {
@@ -702,39 +741,73 @@ class App {
     }
 
     _showLoadingScreen() {
+        console.log("DEBUG App: _showLoadingScreen called.");
         if (this.ui.loadingOverlay) {
             this.utils.removeClass(this.ui.loadingOverlay, 'hidden');
-            this.utils.fadeIn(this.ui.loadingOverlay, 100);
+            this.utils.fadeIn(this.ui.loadingOverlay, 100); // Use a short duration
         }
         document.body.classList.add('app-loading');
     }
 
     _hideLoadingScreen() {
-        if (this.ui.loadingOverlay) this.utils.fadeOut(this.ui.loadingOverlay, 500);
+        console.log("DEBUG App: _hideLoadingScreen called.");
+        if (this.ui.loadingOverlay) {
+            console.log("DEBUG App: Fading out loadingOverlay.");
+            this.utils.fadeOut(this.ui.loadingOverlay, 500)
+                .then(() => {
+                    console.log("DEBUG App: loadingOverlay fadeOut completed.");
+                })
+                .catch(err => {
+                     console.error("DEBUG App: Error during loadingOverlay fadeOut:", err);
+                });
+        } else {
+            console.warn("DEBUG App: loadingOverlay UI element not found in _hideLoadingScreen.");
+        }
         document.body.classList.remove('app-loading');
+        console.log("DEBUG App: Removed 'app-loading' from body.");
     }
 
     _toggleModal(modalElement, show) {
         const overlay = modalElement && modalElement.classList.contains('modal-overlay') ? modalElement : (modalElement ? modalElement.closest('.modal-overlay') : null);
-        if (!overlay) return;
+        if (!overlay) {
+            console.warn("Modal overlay not found for element:", modalElement);
+            return;
+        }
         
         const transitionDurationStyle = this.utils.getStyle(overlay, 'transition-duration');
-        const transitionDuration = transitionDurationStyle ? parseFloat(transitionDurationStyle.replace('s','')) * 1000 : 300;
+        // Ensure transitionDuration is a number, fallback if style is not found or invalid
+        let transitionDuration = 300; // Default duration
+        if (transitionDurationStyle) {
+            try {
+                transitionDuration = parseFloat(transitionDurationStyle.replace('s','')) * 1000;
+                if (isNaN(transitionDuration)) transitionDuration = 300;
+            } catch (e) {
+                console.warn("Could not parse transition-duration for modal, using default.", e);
+                transitionDuration = 300;
+            }
+        }
 
 
         if (show) {
             this.utils.removeClass(overlay, 'hidden');
-            this.utils.requestFrame(() => { 
+            this.utils.requestFrame(() => { // Ensure display:block is applied before adding .active for transition
                 this.utils.addClass(overlay, 'active');
+                // Focus first focusable element in modal (accessibility)
                 const firstFocusable = this.utils.$$('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])', modalElement || overlay)
                                            .find(el => !el.disabled && el.offsetWidth > 0 && el.offsetHeight > 0 && window.getComputedStyle(el).visibility !== 'hidden');
-                if (firstFocusable) firstFocusable.focus();
+                if (firstFocusable) {
+                    try { firstFocusable.focus(); } catch (e) { console.warn("Error focusing modal element:", e); }
+                }
             });
         } else {
             this.utils.removeClass(overlay, 'active');
+            // Listen for transition end to add 'hidden' for accessibility
+            // Or use a timeout as a fallback.
             setTimeout(() => {
-                 if (!this.utils.hasClass(overlay, 'active')) this.utils.addClass(overlay, 'hidden');
-            }, transitionDuration + 50);
+                 if (!this.utils.hasClass(overlay, 'active')) { // Double check it wasn't re-opened
+                    this.utils.addClass(overlay, 'hidden');
+                 }
+            }, transitionDuration + 50); // Add a small buffer
         }
     }
     
@@ -742,7 +815,7 @@ class App {
         if (!this.ui.emptyStateContainer) return;
         if (show) {
             this.utils.removeClass(this.ui.emptyStateContainer, 'hidden');
-            this.utils.addClass(this.ui.emptyStateContainer, 'animate-in');
+            this.utils.addClass(this.ui.emptyStateContainer, 'animate-in'); // CSS should handle this animation
         } else {
             this.utils.addClass(this.ui.emptyStateContainer, 'hidden');
             this.utils.removeClass(this.ui.emptyStateContainer, 'animate-in');
@@ -752,11 +825,13 @@ class App {
     _displayError({ message, type = 'general' }) {
         console.error(`App Error (${type}):`, message);
         this.stateManager.set('lastError', { message, type, timestamp: Date.now() });
+        // TODO: Replace with a proper UI notification system (toast, inline error message)
         if(typeof alert === 'function') alert(`Error: ${message}`); 
     }
 
     _displayNotification({ message, type = 'info', duration = 3000}) {
         console.log(`Notification (${type}): ${message}`);
+        // TODO: Replace with a proper UI notification system
         if(type !== 'error' && typeof alert === 'function') alert(`Info: ${message}`);
     }
 
@@ -769,7 +844,8 @@ class App {
         if(this.voiceSynthesis) this.voiceSynthesis.destroy();
         if(this.themeManager) this.themeManager.destroy();
         if(this.audioWorker) this.audioWorker.terminate();
-        
+        // TODO: Destroy other managers and remove event listeners from eventEmitter as needed
+
         this.stateManager.enableDebugging(false);
         this.isInitialized = false;
     }
@@ -812,12 +888,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     const parklandApp = new App();
-    window.parklandApp = parklandApp; 
+    window.parklandApp = parklandApp; // Make app instance globally available for debugging or specific integrations
     parklandApp.init().catch(err => {
         console.error("Fatal error during app initialization sequence:", err.message, err.stack);
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
             loadingOverlay.innerHTML = `<div class="loading-text" style="color:red; font-size:16px; padding:20px; text-align:left; white-space:pre-wrap;">Critical Error Initializing Application. Details in console. <br/>Error: ${err.message || String(err)} <br/>Please refresh.</div>`;
+            // Ensure loading overlay is visible if an error occurs during init
             if(loadingOverlay.classList.contains('hidden')) loadingOverlay.classList.remove('hidden');
             loadingOverlay.style.opacity = '1'; loadingOverlay.style.visibility = 'visible';
         }
