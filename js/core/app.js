@@ -66,20 +66,35 @@ class App {
         this._selectUIElements();
 
         // Initialize Feature Modules in correct order
-        if (typeof MarkdownProcessor === 'undefined') { console.error("MarkdownProcessor class is undefined! Ensure markdown.js is loaded before app.js."); return Promise.reject("MarkdownProcessor missing"); }
-        this.markdownProcessor = new MarkdownProcessor(this.utils); // Pass utils for polling
-        await this.markdownProcessor.init(); // Wait for markdown-it and DOMPurify
+        if (typeof MarkdownProcessor === 'undefined') { 
+            const msg = "MarkdownProcessor class is undefined! Ensure markdown.js is loaded before app.js.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
+        this.markdownProcessor = new MarkdownProcessor(this.utils); // Pass utils
+        await this.markdownProcessor.init(); // *** MODIFICATION: Wait for markdown-it and DOMPurify ***
 
-        if (typeof ClaudeAPIService === 'undefined') { console.error("ClaudeAPIService class is undefined! Ensure claude.js is loaded."); return Promise.reject("ClaudeAPIService missing"); }
+        if (typeof ClaudeAPIService === 'undefined') { 
+            const msg = "ClaudeAPIService class is undefined! Ensure claude.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.apiService = new ClaudeAPIService(this.stateManager, this.utils);
 
-        if (typeof ChatMessages === 'undefined') { console.error("ChatMessages class is undefined! Ensure messages.js is loaded."); return Promise.reject("ChatMessages missing"); }
+        if (typeof ChatMessages === 'undefined') { 
+            const msg = "ChatMessages class is undefined! Ensure messages.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.chatMessages = new ChatMessages(this.ui.chatMessagesContainer, this.utils, this.markdownProcessor, this.stateManager);
 
-        if (typeof ChatHistory === 'undefined') { console.error("ChatHistory class is undefined! Ensure history.js is loaded."); return Promise.reject("ChatHistory missing"); }
+        if (typeof ChatHistory === 'undefined') { 
+            const msg = "ChatHistory class is undefined! Ensure history.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.chatHistory = new ChatHistory(this.ui.chatHistoryContainer, this.utils, this.eventEmitter, this.stateManager);
 
-        if (typeof VoiceRecognition === 'undefined') { console.error("VoiceRecognition class is undefined! Ensure recognition.js is loaded."); return Promise.reject("VoiceRecognition missing"); }
+        if (typeof VoiceRecognition === 'undefined') { 
+            const msg = "VoiceRecognition class is undefined! Ensure recognition.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.voiceRecognition = new VoiceRecognition(this.stateManager, this.eventEmitter, this.utils, this.ui.micBtn);
         if (this.ui.micBtn && !this.voiceRecognition.isSupported()) {
             this.ui.micBtn.disabled = true;
@@ -87,20 +102,35 @@ class App {
             this.utils.addClass(this.ui.micBtn, 'btn-disabled');
         }
 
-        if (typeof VoiceSynthesis === 'undefined') { console.error("VoiceSynthesis class is undefined! Ensure synthesis.js is loaded."); return Promise.reject("VoiceSynthesis missing"); }
+        if (typeof VoiceSynthesis === 'undefined') { 
+            const msg = "VoiceSynthesis class is undefined! Ensure synthesis.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.voiceSynthesis = new VoiceSynthesis(this.stateManager, this.eventEmitter, this.utils);
         this.voiceSynthesis.init(); 
 
-        if (typeof ThemePersistence === 'undefined') { console.error("ThemePersistence class is undefined! Ensure persistence.js is loaded."); return Promise.reject("ThemePersistence missing"); }
+        if (typeof ThemePersistence === 'undefined') { 
+            const msg = "ThemePersistence class is undefined! Ensure persistence.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.themePersistence = new ThemePersistence(this.stateManager);
 
-        if (typeof ThemeTransition === 'undefined') { console.error("ThemeTransition class is undefined! Ensure themes/transitions.js is loaded."); return Promise.reject("ThemeTransition missing"); }
+        if (typeof ThemeTransition === 'undefined') { 
+            const msg = "ThemeTransition class is undefined! Ensure themes/transitions.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.themeTransition = new ThemeTransition(this.utils, this.stateManager);
 
-        if (typeof CharacterManager === 'undefined') { console.error("CharacterManager class is undefined! Ensure voice/characters.js is loaded."); return Promise.reject("CharacterManager missing"); }
+        if (typeof CharacterManager === 'undefined') { 
+            const msg = "CharacterManager class is undefined! Ensure voice/characters.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.characterManager = new CharacterManager(this.stateManager, this.eventEmitter, this.utils, null);
 
-        if (typeof ThemeManager === 'undefined') { console.error("ThemeManager class is undefined! Ensure themes/manager.js is loaded."); return Promise.reject("ThemeManager missing"); }
+        if (typeof ThemeManager === 'undefined') { 
+            const msg = "ThemeManager class is undefined! Ensure themes/manager.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
         this.themeManager = new ThemeManager(
             this.stateManager, this.utils, this.eventEmitter,
             this.themePersistence, this.themeTransition, this.characterManager
@@ -182,16 +212,24 @@ class App {
         this.ui.micBtn = this.utils.$('#micBtn');
         this.ui.chatMessagesContainer = this.utils.$('.messages-container .messages-inner', this.ui.chatContainer);
         this.ui.chatHistoryContainer = this.utils.$('.sidebar-content .chat-history-list', this.ui.sidebar);
-        // Scope UI element selection to their parent containers where appropriate
+        
         const sidebarHeader = this.utils.$('.sidebar-header', this.ui.sidebar);
         if(sidebarHeader) {
             this.ui.newChatBtn = this.utils.$('#newChatBtn', sidebarHeader);
             this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle', sidebarHeader);
+        } else {
+            // Fallback if sidebar structure is flatter
+            this.ui.newChatBtn = this.utils.$('#newChatBtn');
+            this.ui.sidebarToggleBtn = this.utils.$('#sidebarToggle');
         }
+
         const sidebarFooter = this.utils.$('.sidebar-footer', this.ui.sidebar);
         if(sidebarFooter) {
             this.ui.settingsBtn = this.utils.$('#settingsBtn', sidebarFooter);
+        } else {
+            this.ui.settingsBtn = this.utils.$('#settingsBtn');
         }
+
         this.ui.settingsModal = this.utils.$('#appSettingsModal');
         if(this.ui.settingsModal){
             this.ui.settingsForm = this.utils.$('#settingsForm', this.ui.settingsModal); 
@@ -334,12 +372,12 @@ class App {
                 this.ui.micBtn.classList.toggle('active', newValue); 
                 this.ui.micBtn.classList.toggle('listening', newValue); 
                 this.ui.micBtn.setAttribute('aria-pressed', newValue.toString());
-                const iconSvg = this.utils.$('svg', this.ui.micBtn);
-                if (iconSvg) {
+                const iconContainer = this.utils.$('.icon', this.ui.micBtn); // Assuming icon is wrapped
+                if (iconContainer) {
                     if (newValue) { 
-                        iconSvg.innerHTML = '<path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path>';
+                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"></path></svg>'; // Stop icon
                     } else { 
-                        iconSvg.innerHTML = '<path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path>';
+                        iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"></path></svg>'; // Mic icon
                     }
                 }
             }
@@ -546,7 +584,6 @@ class App {
         const modelSelectEl = this.utils.$('#modelSelection', this.ui.settingsForm);
         if(modelSelectEl) modelSelectEl.value = currentApiModel || 'claude-3-haiku-20240307';
 
-        // Helper to set checkbox state
         const setCheckbox = (id, value) => {
             const el = this.utils.$(`#${id}`, this.ui.settingsForm);
             if(el) el.checked = !!value;
@@ -628,8 +665,18 @@ class App {
         let prefKey = target.name || target.id; 
         const value = target.type === 'checkbox' ? target.checked : target.value;
 
-        if (['reduceMotion', 'soundEffectsEnabled'].includes(prefKey)) { // Only "instant apply" for these
+        if (['reduceMotion', 'soundEffectsEnabled'].includes(prefKey)) { 
             this.stateManager.setUserPreference(prefKey, value);
+        } else if (prefKey === 'voiceInputEnabled' && this.voiceRecognition) {
+            this.stateManager.setUserPreference(prefKey, value);
+            if (!value && this.voiceRecognition.isListening()) this.voiceRecognition.stopListening();
+        } else if (prefKey === 'voiceOutputEnabled' && this.voiceSynthesis) {
+            this.stateManager.setUserPreference(prefKey, value);
+            if (!value && this.voiceSynthesis.isSpeaking()) this.voiceSynthesis.cancel();
+        } else if (['autoScroll', 'sendOnEnter', 'markdownRendering'].includes(prefKey)) {
+             this.stateManager.setUserPreference(prefKey, value);
+        } else if (prefKey === 'characterVoiceSelector') {
+            this.stateManager.setUserPreference('voiceCharacter', value);
         }
     }
 
@@ -675,7 +722,6 @@ class App {
         const transitionDurationStyle = this.utils.getStyle(overlay, 'transition-duration');
         const transitionDuration = transitionDurationStyle ? parseFloat(transitionDurationStyle.replace('s','')) * 1000 : 300;
 
-
         if (show) {
             this.utils.removeClass(overlay, 'hidden');
             this.utils.requestFrame(() => { 
@@ -706,12 +752,12 @@ class App {
     _displayError({ message, type = 'general' }) {
         console.error(`App Error (${type}):`, message);
         this.stateManager.set('lastError', { message, type, timestamp: Date.now() });
-        alert(`Error: ${message}`); 
+        if(typeof alert === 'function') alert(`Error: ${message}`); 
     }
 
     _displayNotification({ message, type = 'info', duration = 3000}) {
         console.log(`Notification (${type}): ${message}`);
-        if(type !== 'error' && typeof alert === 'function') alert(`Info: ${message}`); // Avoid alert for errors if _displayError also alerts
+        if(type !== 'error' && typeof alert === 'function') alert(`Info: ${message}`);
     }
 
     destroy() {
