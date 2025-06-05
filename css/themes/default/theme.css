@@ -9,24 +9,21 @@
   /* Default theme largely uses the root variables from css/core/variables.css */
   /* This section is for any minor tweaks specific ONLY to the default theme, if necessary. */
 
-  /* Example: If default theme had a slightly different primary shade from the :root definition */
-  /* --primary: #6A5ACD; */ /* Example: SlateBlue, but we use the root one */
-
   /* Specific component variable overrides for default theme if needed */
   --loading-logo-color-default: var(--primary);
   --loading-progress-bg-default: var(--primary-gradient);
-  --loading-text-color-default: var(--primary-lighter); /* Or var(--text-inverse) if on dark bg */
+  --loading-text-color-default: var(--primary-lighter);
 
   /* Glassmorphism for default theme - subtle */
   --glass-backdrop-default: blur(10px) saturate(150%) brightness(0.98);
-  --glass-border-default: rgba(var(--black-rgb), 0.08);
-  --glass-bg-default: rgba(var(--white-rgb), 0.85);
+  --glass-border-default: rgba(var(--black-rgb, 0,0,0), 0.08); /* Using black for border on light glass */
+  --glass-bg-default: rgba(var(--white-rgb, 255,255,255), 0.85);
 }
 
 /* Ensure body uses default theme variables correctly if they were overridden above */
 [data-theme="default"] body {
-  background-color: var(--bg-primary); /* Should be white from :root */
-  color: var(--text-primary);       /* Should be dark from :root */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-family-default);
 }
 
@@ -37,12 +34,12 @@
 
 [data-theme="default"] #loadingOverlay {
   background: linear-gradient(135deg, var(--gray-950) 0%, var(--gray-900) 25%, var(--gray-800) 50%, var(--gray-900) 75%, var(--gray-950) 100%);
-  background-size: 400% 400%; /* For animation if defined */
+  background-size: 400% 400%;
   /* animation: loadingBackgroundShiftDefault 10s ease-in-out infinite; -> Defined in default/animations.css */
 }
 
 [data-theme="default"] .loading-logo {
-  color: var(--loading-logo-color-default); /* Uses --primary by default */
+  color: var(--loading-logo-color-default);
   text-shadow:
     0 0 8px var(--primary-glow-soft),
     0 0 15px var(--primary-glow-medium),
@@ -51,19 +48,19 @@
 }
 
 [data-theme="default"] .progress-bar {
-  background: var(--loading-progress-bg-default); /* Uses --primary-gradient */
+  background: var(--loading-progress-bg-default);
   box-shadow: 0 0 8px var(--primary-glow-soft), inset 0 1px 0 rgba(var(--white-rgb), 0.15);
   /* animation-name: progressBarShineOpus; -> From default/animations.css */
 }
 
 [data-theme="default"] .loading-text {
-  color: var(--loading-text-color-default); /* Uses --primary-lighter */
+  color: var(--loading-text-color-default);
   text-shadow: 0 0 5px var(--primary-glow-soft);
   /* animation-name: fadeInTextLoadingEnhancedOpus; -> From default/animations.css */
 }
 
 [data-theme="default"] .loading-tip {
-  color: rgba(var(--white-rgb), 0.7); /* Light text on dark loading screen */
+  color: rgba(var(--white-rgb), 0.7);
   /* animation-name: fadeInTipLoadingOpus; -> From default/animations.css */
 }
 
@@ -75,41 +72,41 @@
 [data-theme="default"] .brand-icon {
   background: var(--primary-gradient);
   box-shadow: var(--shadow-md), 0 0 10px var(--primary-glow-soft);
-  border: 1px solid rgba(var(--white-rgb), 0.15); /* Subtle border for the icon */
+  border: 1px solid rgba(var(--white-rgb), 0.15);
   color: var(--text-inverse);
   font-weight: var(--font-weight-bold);
   text-align: center;
-  /* Size is controlled in components/sidebar.css for the small icon, and here for login */
 }
 
 [data-theme="default"] .brand-icon svg use {
-    fill: var(--text-inverse); /* Ensure SVG inside uses correct color */
+    fill: var(--text-inverse);
 }
 
+[data-theme="default"] .brand-icon:hover {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: var(--shadow-lg), 0 0 20px var(--primary-glow-medium);
+}
 
 [data-theme="default"] .brand-name {
-  font-weight: var(--font-weight-bold); /* Was extrabold, softened slightly */
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   letter-spacing: -0.01em;
-  /* Using solid color for default theme's brand name for clarity */
 }
 
 /* Login screen specific branding */
 [data-theme="default"] .login-brand-icon {
-  font-size: 3rem;
+  font-size: 3rem; /* Larger for login screen */
   width: 60px;
   height: 60px;
   line-height: 60px;
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-md);
-  /* animation: loginLogoHover 0.5s var(--ease-out) forwards paused; -> from default/animations.css */
 }
-/* [data-theme="default"] .login-brand-icon:hover { animation-play-state: running; } */
 
 [data-theme="default"] .login-title {
   font-size: var(--font-size-3xl);
   color: var(--text-primary);
-  font-weight: var(--font-weight-bold); /* Was black, softened */
+  font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-xs);
 }
 [data-theme="default"] .login-subtitle {
@@ -131,8 +128,6 @@
 
 [data-theme="default"] .chat-area {
   background-color: var(--bg-secondary); /* Light gray for chat area backdrop */
-  /* Subtle gradient or texture could be added for depth if desired, but keep it professional */
-  /* Example: background-image: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary)); */
 }
 
 /* Message Bubbles */
@@ -165,9 +160,8 @@
 
 [data-theme="default"] .btn-primary {
   background: var(--primary-gradient);
-  border: 1px solid var(--primary-dark); /* Defined border for primary */
+  border: 1px solid transparent; /* Cleaner look for default */
   box-shadow: var(--shadow-md);
-  /* Ripple base is in buttons.css, default theme uses light ripple */
 }
 [data-theme="default"] .btn-primary::before { /* Ripple color */
   background: radial-gradient(circle, rgba(var(--white-rgb), 0.3) 0%, rgba(var(--white-rgb), 0) 70%);
@@ -175,19 +169,19 @@
 
 [data-theme="default"] .btn-primary:hover {
   background: var(--primary-gradient-hover);
-  box-shadow: var(--shadow-lg), 0 0 8px var(--primary-glow-soft); /* Subtle glow on hover */
+  box-shadow: var(--shadow-lg), 0 0 8px var(--primary-glow-soft);
 }
 
 [data-theme="default"] .btn-secondary {
   background: var(--bg-elevated);
   border-color: var(--border);
-  color: var(--text-secondary); /* Ensure text color is set */
+  color: var(--text-secondary);
   box-shadow: var(--shadow-sm);
 }
 [data-theme="default"] .btn-secondary:hover {
   background: var(--bg-secondary);
   border-color: var(--border-dark);
-  color: var(--primary); /* Color change on hover */
+  color: var(--primary);
 }
 
 /* ===========================================
@@ -206,14 +200,14 @@
 [data-theme="default"] .form-textarea:focus,
 [data-theme="default"] .form-select:focus {
   border-color: var(--border-input-focus); /* Uses --primary */
-  box-shadow: var(--shadow-inner), 0 0 0 3px var(--primary-glow-soft); /* Focus glow */
+  box-shadow: var(--shadow-inner), 0 0 0 3px var(--primary-glow-soft);
 }
 
 [data-theme="default"] .input-wrapper { /* Chat input wrapper */
   background-color: var(--bg-elevated);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
-  border-radius: var(--radius-lg); /* Consistent with buttons/inputs */
+  border-radius: var(--radius-lg);
 }
 [data-theme="default"] .input-wrapper:focus-within {
   border-color: var(--primary);
@@ -261,7 +255,7 @@
 [data-theme="default"] .modal {
   background-color: var(--bg-elevated);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-2xl); /* More prominent shadow for modals */
+  box-shadow: var(--shadow-2xl); /* Prominent shadow for modals */
 }
 
 [data-theme="default"] .modal-header {
@@ -277,7 +271,7 @@
 /* ===========================================
    SETTINGS DROPDOWN - DEFAULT THEME
    =========================================== */
-[data-theme="default"] .settings-dropdown { /* Assuming this class is used from HTML */
+[data-theme="default"] .settings-dropdown {
   background-color: var(--bg-elevated);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-xl);
@@ -291,6 +285,7 @@
 [data-theme="default"] .settings-item[aria-checked="true"] {
   background-color: var(--primary);
   color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
 }
 
 
@@ -342,30 +337,30 @@
 /* ===========================================
    SCROLLBAR - DEFAULT THEME (uses :root defaults if not overridden)
    =========================================== */
-/*
-[data-theme="default"] ::-webkit-scrollbar-thumb {
-  background-color: var(--gray-400);
-  border-color: var(--bg-secondary);
-}
-[data-theme="default"] ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--gray-500);
-}
-[data-theme="default"] ::-webkit-scrollbar-track {
-  background-color: var(--bg-secondary);
-}
-html[data-theme="default"] {
-  scrollbar-color: var(--gray-400) var(--bg-secondary);
-}
-*/
+
+/* Styles for scrollbar are defined in core/reset.css using variables;
+   Default theme inherits those. No specific overrides here unless desired. */
+
 
 /* ===========================================
-   PERFORMANCE OPTIMIZATIONS - DEFAULT THEME
+   ACCESSIBILITY & PERFORMANCE - DEFAULT THEME
    =========================================== */
+@media (prefers-contrast: high) {
+  [data-theme="default"] {
+    /* High contrast overrides for default theme if needed,
+       otherwise uses :root high contrast settings from variables.css */
+  }
+}
+
+/* ===========================================
+   PERFORMANCE OPTIMIZATIONS
+   =========================================== */
+
 [data-theme="default"] .message,
 [data-theme="default"] .chat-history-item,
 [data-theme="default"] .suggestion-card,
 [data-theme="default"] .btn {
-  will-change: transform, box-shadow, background-color, opacity;
+  will-change: transform, box-shadow;
   /* transform: translateZ(0); // Use .gpu-accelerate utility class if needed */
 }
 
