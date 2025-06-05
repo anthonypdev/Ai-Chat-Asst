@@ -7,7 +7,7 @@
 /* ===================================================================
    LOADING SCREEN ANIMATIONS
    =================================================================== */
-@keyframes loadingBackgroundShiftDefault { /* Added Default suffix for clarity */
+@keyframes loadingBackgroundShiftDefault {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
@@ -62,6 +62,22 @@
     }
 }
 
+/* Apply loading animations (referenced in default/theme.css or main.css for #loadingOverlay) */
+/*
+[data-theme="default"] .loading-logo {
+  animation-name: pulseLogoLoadingEnhancedOpus;
+}
+[data-theme="default"] .loading-text {
+  animation-name: fadeInTextLoadingEnhancedOpus;
+}
+[data-theme="default"] .progress-bar {
+  animation-name: progressBarShineOpus;
+}
+[data-theme="default"] .loading-tip {
+  animation-name: fadeInTipLoadingOpus;
+}
+*/
+
 /* ===================================================================
    GLOBAL ENTRANCE & UI ELEMENT ANIMATIONS
    =================================================================== */
@@ -108,7 +124,7 @@
    BUTTON ANIMATIONS
    =================================================================== */
 @keyframes buttonHoverPulseOpus { /* For subtle hover interaction */
-    0%, 100% { transform: scale(1.02) translateY(-1px); }
+    0%, 100% { transform: scale(1.02) translateY(-1px); } /* Matches initial hover state */
     50% { transform: scale(1.04) translateY(-2px); }
 }
 
@@ -172,7 +188,7 @@
 
 @keyframes voiceIndicatorAppearOpus {
     from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.92); }
-    to { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1); } /* Adjusted Y for better placement */
+    to { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1); }
 }
 
 /* ===================================================================
@@ -185,14 +201,14 @@
 
 @keyframes errorShakeOpus {
   0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); } /* Increased intensity */
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
   20%, 40%, 60%, 80% { transform: translateX(6px); }
 }
 
 /* ===================================================================
    SETTINGS DROPDOWN ANIMATIONS
    =================================================================== */
-@keyframes dropdownSlideDownOpus { /* Renamed for clarity */
+@keyframes dropdownSlideDownOpus {
     from { opacity: 0; transform: translateY(-15px) scaleY(0.9); }
     to { opacity: 1; transform: translateY(0) scaleY(1); }
 }
@@ -200,7 +216,7 @@
 /* ===================================================================
    BRAND ICON & SUGGESTION CARD ANIMATIONS
    =================================================================== */
-@keyframes brandIconIdleDefault { /* Default theme specific idle */
+@keyframes brandIconIdleDefault {
     0%, 100% { transform: scale(1) rotate(0deg) translateY(0); filter: brightness(1); }
     25% { transform: scale(1.03) rotate(1deg) translateY(-1px); filter: brightness(1.05); }
     50% { transform: scale(1) rotate(0deg) translateY(0); filter: brightness(1); }
@@ -221,7 +237,7 @@
     100% { opacity: 1; transform: scale(1) translateY(0) rotateX(0deg); }
 }
 
-@keyframes loginLogoHoverDefault { /* Default theme specific hover */
+@keyframes loginLogoHoverDefault {
     0% { transform: scale(1) rotate(0deg) translateY(0); }
     50% { transform: scale(1.2) rotate(-8deg) translateY(-4px); }
     100% { transform: scale(1.15) rotate(-6deg) translateY(-2px); }
@@ -271,21 +287,21 @@
 }
 
 /* General animation application classes (to be added/removed by JS) */
-.animate-fade-in-default {
+.animate-fade-in {
   animation: fadeInElementGenericOpus 0.6s var(--ease-out) forwards;
   opacity: 0; /* Start hidden */
 }
 
-.animate-slide-in-left-default {
+.animate-slide-in-left {
   animation: sidebarItemAppearOpus 0.45s var(--ease-out) forwards;
   opacity: 0;
 }
 
-.animate-pop-in-default {
+.animate-pop-in {
    animation: popInLoginCardOpusEnhanced 0.8s var(--ease-back-out) forwards;
    opacity: 0;
 }
 
-.animate-shake-default {
+.animate-shake {
     animation: errorShakeOpus 0.55s var(--ease-in-out);
 }
