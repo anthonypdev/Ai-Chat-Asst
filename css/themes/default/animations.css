@@ -7,32 +7,37 @@
 /* ===================================================================
    LOADING SCREEN ANIMATIONS
    =================================================================== */
+@keyframes loadingBackgroundShiftDefault { /* Added Default suffix for clarity */
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @keyframes pulseLogoLoadingEnhancedOpus {
     0%, 100% {
-        transform: scale(0.95) rotate(-3deg) translateY(3px);
+        transform: scale(0.95) rotate(-2deg) translateY(2px);
         opacity: 0.9;
-        filter: blur(0.5px) brightness(0.95);
+        filter: blur(0.8px) brightness(0.9);
     }
     33% {
-        transform: scale(1.15) rotate(1deg) translateY(-8px);
+        transform: scale(1.15) rotate(1deg) translateY(-7px);
         opacity: 1;
-        filter: blur(0px) brightness(1.1);
+        filter: blur(0px) brightness(1.15);
         text-shadow:
-            0 0 15px var(--primary-glow-soft),
-            0 0 30px var(--primary-glow-medium),
-            0 0 50px var(--primary-glow-strong);
+            0 0 10px var(--primary-glow-soft),
+            0 0 25px var(--primary-glow-medium),
+            0 0 45px var(--primary-glow-strong);
     }
     66% {
-        transform: scale(1.05) rotate(-1deg) translateY(-3px);
+        transform: scale(1.05) rotate(-1deg) translateY(-2px);
         opacity: 0.95;
-        filter: blur(0.2px) brightness(1.05);
+        filter: blur(0.3px) brightness(1.05);
     }
 }
 
 @keyframes fadeInTextLoadingEnhancedOpus {
     from {
         opacity: 0;
-        transform: translateY(20px) scale(0.97);
+        transform: translateY(20px) scale(0.96);
     }
     to {
         opacity: 1;
@@ -41,36 +46,21 @@
 }
 
 @keyframes progressBarShineOpus {
-    0% { filter: brightness(1) contrast(1); }
-    50% { filter: brightness(1.25) contrast(1.1) hue-rotate(15deg); }
-    100% { filter: brightness(1) contrast(1); }
+    0% { filter: brightness(1) saturate(1); }
+    50% { filter: brightness(1.2) saturate(1.1) hue-rotate(5deg); }
+    100% { filter: brightness(1) saturate(1); }
 }
 
 @keyframes fadeInTipLoadingOpus {
     from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(12px) scale(0.98);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
-
-/* Apply loading animations */
-[data-theme="default"] .loading-logo {
-  animation: pulseLogoLoadingEnhancedOpus 3.8s infinite var(--ease-in-out);
-}
-[data-theme="default"] .loading-text {
-  animation: fadeInTextLoadingEnhancedOpus 1.5s var(--ease-out) 0.1s forwards;
-}
-[data-theme="default"] .progress-bar {
-  animation: progressBarShineOpus 2.2s infinite linear;
-}
-[data-theme="default"] .loading-tip {
-  animation: fadeInTipLoadingOpus 1.5s var(--ease-out) 0.5s forwards;
-}
-
 
 /* ===================================================================
    GLOBAL ENTRANCE & UI ELEMENT ANIMATIONS
@@ -78,7 +68,7 @@
 @keyframes fadeInViewContainerOpus { /* For main views like chatContainer, loginContainer */
     from {
         opacity: 0;
-        transform: scale(0.98) translateY(15px);
+        transform: scale(0.97) translateY(12px);
     }
     to {
         opacity: 1;
@@ -87,120 +77,67 @@
 }
 
 @keyframes fadeInElementGenericOpus { /* General purpose fade-in */
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes emptyStateAppearOpus {
-    from {
-        opacity: 0;
-        transform: scale(0.92) translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.92) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 /* ===================================================================
    MESSAGE ANIMATIONS
    =================================================================== */
 @keyframes messageAppearOpus {
-    0% {
-        opacity: 0;
-        transform: translateY(12px) scale(0.97);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0px) scale(1);
-    }
+    0% { opacity: 0; transform: translateY(12px) scale(0.97); }
+    100% { opacity: 1; transform: translateY(0px) scale(1); }
 }
 
-@keyframes typingAvatarBounceEnhancedOpus { /* Renamed to avoid conflict if base-theme also has one */
-    0%, 100% {
-        transform: translateY(0) scale(1);
-        opacity: 0.85;
-    }
-    50% {
-        transform: translateY(-4px) scale(1.08);
-        opacity: 1;
-    }
+@keyframes typingAvatarBounceEnhancedOpus {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.85; }
+    50% { transform: translateY(-4px) scale(1.08); opacity: 1; }
 }
 
 @keyframes typingDotBounceOpus {
-    0%, 60%, 100% {
-        transform: translateY(0) scale(1);
-        opacity: 0.6;
-    }
-    30% {
-        transform: translateY(-6px) scale(1.2);
-        opacity: 1;
-    }
+    0%, 60%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+    30% { transform: translateY(-5px) scale(1.15); opacity: 1; }
 }
-
-/* Apply message animations */
-[data-theme="default"] .message.animate-in { /* Add .animate-in class with JS for new messages */
-  animation: messageAppearOpus 0.5s var(--ease-out) forwards;
-}
-[data-theme="default"] .message.assistant.typing-indicator-wrapper .message-avatar {
-  animation: typingAvatarBounceEnhancedOpus 1.4s var(--ease-in-out) infinite 0.15s;
-}
-[data-theme="default"] .typing-dot {
-  animation: typingDotBounceOpus 1.6s infinite var(--ease-in-out);
-}
-
 
 /* ===================================================================
    BUTTON ANIMATIONS
    =================================================================== */
-@keyframes buttonHoverPulseOpus {
-    0% { transform: scale(1.02) translateY(-2px); } /* Start from hover state */
-    50% { transform: scale(1.04) translateY(-3px); }
-    100% { transform: scale(1.02) translateY(-2px); }
+@keyframes buttonHoverPulseOpus { /* For subtle hover interaction */
+    0%, 100% { transform: scale(1.02) translateY(-1px); }
+    50% { transform: scale(1.04) translateY(-2px); }
 }
 
-@keyframes buttonActivePressOpus {
-    to { transform: scale(0.97) translateY(1px); }
+@keyframes buttonActivePressOpus { /* For click feedback */
+    to { transform: scale(0.96) translateY(1px); }
 }
 
-@keyframes buttonRippleOpus {
+@keyframes buttonRippleOpus { /* Material-like ripple for primary buttons */
     0% { transform: translate(-50%, -50%) scale(0); opacity: 0.35; }
-    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
 }
 
-/* Note: Apply these via JS or :hover/:active states in buttons.css or theme.css */
+@keyframes buttonShimmerOpus { /* For a subtle shine effect on buttons */
+    0% { background-position: -150% center; }
+    100% { background-position: 150% center; }
+}
+
 
 /* ===================================================================
    MODAL ANIMATIONS
    =================================================================== */
 @keyframes modalZoomInOpus {
-    from {
-        opacity: 0;
-        transform: scale(0.8) translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.85) translateY(30px) rotateX(-10deg); }
+    to { opacity: 1; transform: scale(1) translateY(0) rotateX(0deg); }
 }
 
 @keyframes modalBackdropFadeInOpus {
     from { opacity: 0; backdrop-filter: blur(0px) saturate(100%) brightness(1); }
-    to { opacity: 1; backdrop-filter: var(--glass-backdrop); } /* Uses variable from theme */
-}
-
-/* Apply modal animations */
-[data-theme="default"] .modal-overlay.active {
-  animation: modalBackdropFadeInOpus 0.4s var(--ease-out) forwards;
-}
-[data-theme="default"] .modal-overlay.active .modal {
-  animation: modalZoomInOpus 0.4s var(--ease-back-out) 0.1s forwards; /* Delay modal slightly after backdrop */
+    to { opacity: 1; backdrop-filter: var(--glass-backdrop-default); }
 }
 
 /* ===================================================================
@@ -216,82 +153,139 @@
 }
 
 @keyframes sidebarItemAppearOpus {
-    from { opacity: 0; transform: translateX(-15px); }
+    from { opacity: 0; transform: translateX(-12px); }
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* Apply sidebar animations (JS will toggle .open/.collapsed) */
-[data-theme="default"] .sidebar.open-animating {
-    animation: sidebarSlideInFromLeftOpus var(--transition-medium) var(--ease-out) forwards;
+/* ===================================================================
+   VOICE INDICATOR ANIMATIONS
+   =================================================================== */
+@keyframes voiceWaveOpusEnhanced {
+    0%, 100% { height: 6px; opacity: 0.4; background-color: var(--primary-light); }
+    50% { height: 26px; opacity: 1; background-color: var(--primary); }
 }
-[data-theme="default"] .sidebar.close-animating {
-    animation: sidebarSlideOutToLeftOpus var(--transition-medium) var(--ease-in) forwards;
+
+@keyframes micPulseRecordingOpus {
+    0%, 100% { transform: scale(1); opacity: 0.9; filter: drop-shadow(0 0 3px var(--primary-glow-soft)); }
+    50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 8px var(--primary-glow-medium)); }
 }
-[data-theme="default"] .sidebar.open .chat-history-item {
-    /* Staggered animation for items can be applied by JS adding a class or using :nth-child delays */
+
+@keyframes voiceIndicatorAppearOpus {
+    from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.92); }
+    to { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1); } /* Adjusted Y for better placement */
 }
 
 /* ===================================================================
-   OTHER UI ELEMENT ANIMATIONS
+   FORM ELEMENT ANIMATIONS
    =================================================================== */
-
 @keyframes inputFocusGlowOpus {
-    0% { box-shadow: var(--shadow-inner), 0 0 0 0px var(--primary-glow-soft); }
-    100% { box-shadow: var(--shadow-inner), 0 0 0 4px var(--primary-glow-soft); }
+    from { box-shadow: var(--shadow-inner), 0 0 0 0px var(--primary-glow-soft); }
+    to { box-shadow: var(--shadow-inner), 0 0 0 4px var(--primary-glow-soft); }
 }
 
 @keyframes errorShakeOpus {
   0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); } /* Increased intensity */
+  20%, 40%, 60%, 80% { transform: translateX(6px); }
 }
 
-@keyframes copySuccessFeedbackOpus {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
+/* ===================================================================
+   SETTINGS DROPDOWN ANIMATIONS
+   =================================================================== */
+@keyframes dropdownSlideDownOpus { /* Renamed for clarity */
+    from { opacity: 0; transform: translateY(-15px) scaleY(0.9); }
+    to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+/* ===================================================================
+   BRAND ICON & SUGGESTION CARD ANIMATIONS
+   =================================================================== */
+@keyframes brandIconIdleDefault { /* Default theme specific idle */
+    0%, 100% { transform: scale(1) rotate(0deg) translateY(0); filter: brightness(1); }
+    25% { transform: scale(1.03) rotate(1deg) translateY(-1px); filter: brightness(1.05); }
+    50% { transform: scale(1) rotate(0deg) translateY(0); filter: brightness(1); }
+    75% { transform: scale(1.03) rotate(-1deg) translateY(-1px); filter: brightness(1.05); }
+}
+
+@keyframes suggestionCardHoverOpus {
+    from { transform: translateY(0) scale(1); box-shadow: var(--shadow-md); }
+    to { transform: translateY(-5px) scale(1.02); box-shadow: var(--shadow-xl), 0 0 12px var(--primary-glow-soft); }
+}
+
+/* ===================================================================
+   LOGIN CARD ANIMATIONS
+   =================================================================== */
+@keyframes popInLoginCardOpusEnhanced {
+    0% { opacity: 0; transform: scale(0.75) translateY(40px) rotateX(-8deg); }
+    70% { opacity: 1; transform: scale(1.03) translateY(-8px) rotateX(3deg); }
+    100% { opacity: 1; transform: scale(1) translateY(0) rotateX(0deg); }
+}
+
+@keyframes loginLogoHoverDefault { /* Default theme specific hover */
+    0% { transform: scale(1) rotate(0deg) translateY(0); }
+    50% { transform: scale(1.2) rotate(-8deg) translateY(-4px); }
+    100% { transform: scale(1.15) rotate(-6deg) translateY(-2px); }
+}
+
+/* ===================================================================
+   NOTIFICATION ANIMATIONS
+   =================================================================== */
+@keyframes notificationSlideInRightOpus {
+    from { transform: translateX(110%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes notificationFadeOutOpus {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(110%); }
+}
+
+/* ===================================================================
+   COPY FEEDBACK ANIMATION
+   =================================================================== */
+@keyframes copySuccessOpus {
+    0% { transform: scale(1); color: var(--text-muted); }
+    50% { transform: scale(1.25); color: var(--success); }
+    100% { transform: scale(1); color: var(--success); }
 }
 
 /* ===================================================================
    PERFORMANCE & ACCESSIBILITY
    =================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  /* Disable animations for users who prefer reduced motion */
   *, *::before, *::after {
-    animation-delay: -1ms !important; /* Effectively disables animations */
-    animation-duration: 1ms !important; /* Effectively disables animations */
-    animation-iteration-count: 1 !important; /* Play only once */
-    background-attachment: initial !important; /* Fix background images */
-    scroll-behavior: auto !important; /* Disable smooth scrolling */
-    transition-duration: 0s !important; /* Disable transitions */
-    transition-delay: 0s !important; /* Disable transition delays */
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
   }
 }
 
-/* GPU Acceleration hints (apply these classes with JS or directly in HTML) */
-.gpu-accelerate-animation {
-  will-change: transform, opacity; /* Common animated properties */
-  transform: translateZ(0); /* Promote to own layer */
+/* Utility class for GPU acceleration hint if needed on specific elements */
+.gpu-accelerate-default-anim {
+  will-change: transform, opacity;
+  transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000px; /* Necessary for some 3D transform effects to be hardware accelerated */
 }
 
-/* Animation application classes (to be added by JS or directly) */
-.animate-fade-in {
-  animation: fadeInElementGenericOpus 0.5s var(--ease-out) forwards;
+/* General animation application classes (to be added/removed by JS) */
+.animate-fade-in-default {
+  animation: fadeInElementGenericOpus 0.6s var(--ease-out) forwards;
   opacity: 0; /* Start hidden */
 }
 
-.animate-slide-in-left { /* Example for sidebar items */
-  animation: sidebarItemAppearOpus 0.4s var(--ease-out) forwards;
+.animate-slide-in-left-default {
+  animation: sidebarItemAppearOpus 0.45s var(--ease-out) forwards;
   opacity: 0;
 }
 
-.animate-pop-in { /* Example for modals or cards */
-   animation: modalZoomInOpus 0.4s var(--ease-back-out) forwards; /* Using modal animation as example */
+.animate-pop-in-default {
+   animation: popInLoginCardOpusEnhanced 0.8s var(--ease-back-out) forwards;
    opacity: 0;
 }
 
-.animate-shake {
-    animation: errorShakeOpus 0.5s var(--ease-in-out);
+.animate-shake-default {
+    animation: errorShakeOpus 0.55s var(--ease-in-out);
 }
