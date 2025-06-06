@@ -49,11 +49,8 @@ class ChatSearchManager {
             messageLength: 'all' // 'all', 'short', 'medium', 'long'
         };
         
-        // UI elements
-        this.searchUI = null;
-        this.searchInput = null;
-        this.searchContainer = null;
-        this.resultsContainer = null;
+        // UI elements are cached here
+        this.ui = {};
         
         // Debounced search function
         this.debouncedSearch = this.utils.debounce(this._performSearch.bind(this), this.config.searchDebounceDelay);
@@ -73,11 +70,11 @@ class ChatSearchManager {
     }
     
     /**
-     * Creates search UI elements
+     * Creates search UI elements and caches them.
      * @private
      */
     _createSearchUI() {
-        this.searchContainer = this.utils.createElement('div', {
+        this.ui.searchContainer = this.utils.createElement('div', {
             className: 'chat-search-container hidden',
             innerHTML: `
                 <div class="search-header">
@@ -208,84 +205,98 @@ class ChatSearchManager {
         // Find chat container and insert search UI
         const chatContainer = this.utils.$('.chat-container, .messages-container');
         if (chatContainer) {
-            chatContainer.insertBefore(this.searchContainer, chatContainer.firstChild);
+            chatContainer.insertBefore(this.ui.searchContainer, chatContainer.firstChild);
+        } else {
+            console.error("Chat container not found. Search UI could not be initialized.");
+            return;
         }
         
-        // Cache UI elements
-        this.searchInput = this.searchContainer.querySelector('.search-input');
-        this.resultsContainer = this.searchContainer.querySelector('.results-list');
-        this.resultsCount = this.searchContainer.querySelector('.search-results-count');
+        // Cache all UI elements
+        this.ui.searchInput = this.ui.searchContainer.querySelector('.search-input');
+        this.ui.resultsContainer = this.ui.searchContainer.querySelector('.results-list');
+        this.ui.resultsCount = this.ui.searchContainer.querySelector('.search-results-count');
+        this.ui.prevBtn = this.ui.searchContainer.querySelector('.search-prev-btn');
+        this.ui.nextBtn = this.ui.searchContainer.querySelector('.search-next-btn');
+        this.ui.clearBtn = this.ui.searchContainer.querySelector('.search-clear-btn');
+        this.ui.optionsBtn = this.ui.searchContainer.querySelector('.search-options-btn');
+        this.ui.filtersPanel = this.ui.searchContainer.querySelector('.search-filters');
+        this.ui.optionsPanel = this.ui.searchContainer.querySelector('.search-options');
+        this.ui.dateFilter = this.ui.searchContainer.querySelector('.date-filter');
+        this.ui.customDateRange = this.ui.searchContainer.querySelector('.custom-date-range');
+        this.ui.filterSelects = this.ui.searchContainer.querySelectorAll('.filter-select, .filter-input, .filter-attachments, .filter-errors');
+        this.ui.optionCheckboxes = this.ui.searchContainer.querySelectorAll('.option-checkbox input');
         
         this._populateCharacterFilter();
     }
     
     /**
-     * Sets up event listeners
+     * Sets up event listeners safely.
      * @private
      */
     _setupEventListeners() {
         // Search input events
-        this.searchInput.addEventListener('input', (e) => {
-            this.currentQuery = e.target.value;
-            if (this.currentQuery.length >= this.config.minQueryLength) {
-                this.debouncedSearch();
-            } else {
-                this._clearSearch();
-            }
-        });
-        
-        this.searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (e.shiftKey) {
-                    this.navigateToPrevious();
+        if (this.ui.searchInput) {
+            this.ui.searchInput.addEventListener('input', (e) => {
+                this.currentQuery = e.target.value;
+                if (this.currentQuery.length >= this.config.minQueryLength) {
+                    this.debouncedSearch();
                 } else {
-                    this.navigateToNext();
+                    this._clearSearch();
                 }
-            } else if (e.key === 'Escape') {
-                this.closeSearch();
-            }
-        });
+            });
+            
+            this.ui.searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        this.navigateToPrevious();
+                    } else {
+                        this.navigateToNext();
+                    }
+                } else if (e.key === 'Escape') {
+                    this.closeSearch();
+                }
+            });
+        }
         
         // Navigation buttons
-        const prevBtn = this.searchContainer.querySelector('.search-prev-btn');
-        const nextBtn = this.searchContainer.querySelector('.search-next-btn');
-        const clearBtn = this.searchContainer.querySelector('.search-clear-btn');
-        const optionsBtn = this.searchContainer.querySelector('.search-options-btn');
-        
-        prevBtn.addEventListener('click', () => this.navigateToPrevious());
-        nextBtn.addEventListener('click', () => this.navigateToNext());
-        clearBtn.addEventListener('click', () => this._clearSearch());
-        optionsBtn.addEventListener('click', () => this._toggleOptions());
+        if(this.ui.prevBtn) this.ui.prevBtn.addEventListener('click', () => this.navigateToPrevious());
+        if(this.ui.nextBtn) this.ui.nextBtn.addEventListener('click', () => this.navigateToNext());
+        if(this.ui.clearBtn) this.ui.clearBtn.addEventListener('click', () => this._clearSearch());
+        if(this.ui.optionsBtn) this.ui.optionsBtn.addEventListener('click', () => this._toggleOptions());
         
         // Filter events
-        this.searchContainer.querySelectorAll('.filter-select, .filter-input, .filter-attachments, .filter-errors').forEach(element => {
-            element.addEventListener('change', () => {
-                this._updateFilters();
-                this._applyFilters();
+        if (this.ui.filterSelects) {
+            this.ui.filterSelects.forEach(element => {
+                element.addEventListener('change', () => {
+                    this._updateFilters();
+                    this._applyFilters();
+                });
             });
-        });
+        }
         
         // Search options events
-        this.searchContainer.querySelectorAll('.option-checkbox input').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                this._updateSearchOptions();
-                if (this.currentQuery.length >= this.config.minQueryLength) {
-                    this._performSearch();
-                }
+        if (this.ui.optionCheckboxes) {
+            this.ui.optionCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    this._updateSearchOptions();
+                    if (this.currentQuery.length >= this.config.minQueryLength) {
+                        this._performSearch();
+                    }
+                });
             });
-        });
+        }
         
         // Custom date range toggle
-        const dateFilter = this.searchContainer.querySelector('.date-filter');
-        const customDateRange = this.searchContainer.querySelector('.custom-date-range');
-        dateFilter.addEventListener('change', (e) => {
-            if (e.target.value === 'custom') {
-                this.utils.removeClass(customDateRange, 'hidden');
-            } else {
-                this.utils.addClass(customDateRange, 'hidden');
-            }
-        });
+        if (this.ui.dateFilter && this.ui.customDateRange) {
+            this.ui.dateFilter.addEventListener('change', (e) => {
+                if (e.target.value === 'custom') {
+                    this.utils.removeClass(this.ui.customDateRange, 'hidden');
+                } else {
+                    this.utils.addClass(this.ui.customDateRange, 'hidden');
+                }
+            });
+        }
         
         // Global keyboard shortcuts
         this.eventEmitter.on('keydown:global', this._handleGlobalKeyDown.bind(this));
@@ -308,15 +319,15 @@ class ChatSearchManager {
      * @private
      */
     _populateCharacterFilter() {
-        const characterFilter = this.searchContainer.querySelector('.character-filter');
+        const characterFilter = this.ui.searchContainer?.querySelector('.character-filter');
         if (!characterFilter) return;
         
-        // Clear existing options except "All Characters"
         const allOption = characterFilter.querySelector('option[value="all"]');
         characterFilter.innerHTML = '';
-        characterFilter.appendChild(allOption);
+        if (allOption) {
+            characterFilter.appendChild(allOption);
+        }
         
-        // Add characters from character manager
         if (window.parklandApp?.characterManager) {
             const characters = window.parklandApp.characterManager.getAvailableCharacters();
             Object.entries(characters).forEach(([key, character]) => {
@@ -333,13 +344,13 @@ class ChatSearchManager {
      * Opens search interface
      */
     openSearch() {
+        if (!this.ui.searchContainer) return;
         this.isSearchActive = true;
-        this.utils.removeClass(this.searchContainer, 'hidden');
-        this.searchInput.focus();
-        
-        // Add search mode class to body for styling
+        this.utils.removeClass(this.ui.searchContainer, 'hidden');
+        if (this.ui.searchInput) {
+            this.ui.searchInput.focus();
+        }
         document.body.classList.add('search-mode');
-        
         this.eventEmitter.emit('search:opened');
     }
     
@@ -347,14 +358,12 @@ class ChatSearchManager {
      * Closes search interface
      */
     closeSearch() {
+        if (!this.ui.searchContainer) return;
         this.isSearchActive = false;
-        this.utils.addClass(this.searchContainer, 'hidden');
+        this.utils.addClass(this.ui.searchContainer, 'hidden');
         this._clearHighlights();
         this._clearSearch();
-        
-        // Remove search mode class
         document.body.classList.remove('search-mode');
-        
         this.eventEmitter.emit('search:closed');
     }
     
@@ -390,17 +399,9 @@ class ChatSearchManager {
             results: this.filteredResults.length
         });
     }
-    
-    /**
-     * Searches messages for query
-     * @param {Array} messages - Messages to search
-     * @param {string} query - Search query
-     * @returns {Array} Search results
-     * @private
-     */
+
     _searchMessages(messages, query) {
         const results = [];
-        
         messages.forEach((message, index) => {
             const matches = this._findMatches(message, query);
             if (matches.length > 0) {
@@ -412,60 +413,31 @@ class ChatSearchManager {
                 });
             }
         });
-        
-        // Sort by relevance score (highest first)
         return results.sort((a, b) => b.score - a.score);
     }
-    
-    /**
-     * Finds matches in a message
-     * @param {Object} message - Message object
-     * @param {string} query - Search query
-     * @returns {Array} Array of matches
-     * @private
-     */
+
     _findMatches(message, query) {
         const matches = [];
         const searchFields = ['content'];
-        
         if (this.config.searchInMetadata) {
             searchFields.push('character', 'role');
         }
-        
         searchFields.forEach(field => {
             const text = message[field] || '';
-            const fieldMatches = this._findMatchesInText(text, query, field);
-            matches.push(...fieldMatches);
+            matches.push(...this._findMatchesInText(text, query, field));
         });
-        
         return matches;
     }
-    
-    /**
-     * Finds matches in text
-     * @param {string} text - Text to search
-     * @param {string} query - Search query
-     * @param {string} field - Field name
-     * @returns {Array} Array of matches
-     * @private
-     */
+
     _findMatchesInText(text, query, field) {
         if (!text) return [];
-        
-        let searchText = text;
-        let searchQuery = query;
-        
-        if (!this.config.caseSensitive) {
-            searchText = text.toLowerCase();
-            searchQuery = query.toLowerCase();
-        }
-        
+        let searchText = this.config.caseSensitive ? text : text.toLowerCase();
+        let searchQuery = this.config.caseSensitive ? query : query.toLowerCase();
         const matches = [];
-        
+
         if (this.config.useRegex) {
             try {
-                const flags = this.config.caseSensitive ? 'g' : 'gi';
-                const regex = new RegExp(searchQuery, flags);
+                const regex = new RegExp(searchQuery, this.config.caseSensitive ? 'g' : 'gi');
                 let match;
                 while ((match = regex.exec(text)) !== null) {
                     matches.push({
@@ -477,25 +449,18 @@ class ChatSearchManager {
                     });
                     if (!regex.global) break;
                 }
-            } catch (error) {
-                console.warn('Invalid regex pattern:', error);
+            } catch (e) {
+                console.warn("Invalid regex", e);
                 return [];
             }
         } else if (this.config.wholeWordsOnly) {
             const wordRegex = new RegExp(`\\b${this._escapeRegex(searchQuery)}\\b`, this.config.caseSensitive ? 'g' : 'gi');
             let match;
             while ((match = wordRegex.exec(text)) !== null) {
-                matches.push({
-                    field,
-                    start: match.index,
-                    end: match.index + match[0].length,
-                    text: match[0],
-                    context: this._getContext(text, match.index, match[0].length)
-                });
+                matches.push({ field, start: match.index, end: match.index + match[0].length, text: match[0], context: this._getContext(text, match.index, match[0].length) });
             }
         } else {
-            let startIndex = 0;
-            let index;
+            let startIndex = 0, index;
             while ((index = searchText.indexOf(searchQuery, startIndex)) !== -1) {
                 matches.push({
                     field,
@@ -507,163 +472,70 @@ class ChatSearchManager {
                 startIndex = index + 1;
             }
         }
-        
         return matches;
     }
-    
-    /**
-     * Gets context around a match
-     * @param {string} text - Full text
-     * @param {number} start - Match start index
-     * @param {number} length - Match length
-     * @returns {string} Context string
-     * @private
-     */
+
     _getContext(text, start, length) {
         const contextLength = 50;
         const beforeStart = Math.max(0, start - contextLength);
         const afterEnd = Math.min(text.length, start + length + contextLength);
-        
         let context = text.substring(beforeStart, afterEnd);
-        
         if (beforeStart > 0) context = '...' + context;
         if (afterEnd < text.length) context = context + '...';
-        
         return context;
     }
-    
-    /**
-     * Calculates relevance score for a search result
-     * @param {Object} message - Message object
-     * @param {Array} matches - Array of matches
-     * @returns {number} Relevance score
-     * @private
-     */
+
     _calculateRelevanceScore(message, matches) {
         let score = 0;
-        
         matches.forEach(match => {
-            // Base score for any match
             score += 10;
-            
-            // Bonus for content matches vs metadata
-            if (match.field === 'content') {
-                score += 20;
-            }
-            
-            // Bonus for exact case matches
-            if (this.config.caseSensitive && match.text === this.currentQuery) {
-                score += 15;
-            }
-            
-            // Bonus for matches at beginning of field
-            if (match.start === 0) {
-                score += 5;
-            }
+            if (match.field === 'content') score += 20;
+            if (this.config.caseSensitive && match.text === this.currentQuery) score += 15;
+            if (match.start === 0) score += 5;
         });
-        
-        // Recency bonus (more recent messages score higher)
         const messageAge = Date.now() - (message.timestamp || 0);
-        const dayInMs = 24 * 60 * 60 * 1000;
-        const recencyBonus = Math.max(0, 10 - (messageAge / dayInMs));
+        const recencyBonus = Math.max(0, 10 - (messageAge / (24 * 60 * 60 * 1000)));
         score += recencyBonus;
-        
         return score;
     }
-    
-    /**
-     * Applies filters to search results
-     * @private
-     */
+
     _applyFilters() {
         this.filteredResults = this.searchResults.filter(result => {
             const message = result.message;
-            
-            // Role filter
-            if (this.filters.role !== 'all' && message.role !== this.filters.role) {
-                return false;
-            }
-            
-            // Character filter
-            if (this.filters.character !== 'all' && message.character !== this.filters.character) {
-                return false;
-            }
-            
-            // Date filter
-            if (!this._passesDateFilter(message)) {
-                return false;
-            }
-            
-            // Attachments filter
-            if (this.filters.hasAttachments && !message.attachments?.length) {
-                return false;
-            }
-            
-            // Error filter
-            if (this.filters.hasErrors && !message.isError) {
-                return false;
-            }
-            
-            // Message length filter
-            if (!this._passesLengthFilter(message)) {
-                return false;
-            }
-            
+            if (this.filters.role !== 'all' && message.role !== this.filters.role) return false;
+            if (this.filters.character !== 'all' && message.character !== this.filters.character) return false;
+            if (!this._passesDateFilter(message)) return false;
+            if (this.filters.hasAttachments && !message.attachments?.length) return false;
+            if (this.filters.hasErrors && !message.isError) return false;
+            if (!this._passesLengthFilter(message)) return false;
             return true;
         });
-        
         this.currentResultIndex = this.filteredResults.length > 0 ? 0 : -1;
     }
-    
-    /**
-     * Checks if message passes date filter
-     * @param {Object} message - Message object
-     * @returns {boolean} Whether message passes filter
-     * @private
-     */
+
     _passesDateFilter(message) {
         if (this.filters.dateRange === 'all') return true;
-        
         const messageDate = new Date(message.timestamp || 0);
         const now = new Date();
-        
         switch (this.filters.dateRange) {
             case 'today':
                 return messageDate.toDateString() === now.toDateString();
-            
             case 'week':
-                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                return messageDate >= weekAgo;
-            
+                return messageDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             case 'month':
-                const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-                return messageDate >= monthAgo;
-            
+                return messageDate >= new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
             case 'custom':
-                if (this.filters.customDateStart && messageDate < new Date(this.filters.customDateStart)) {
-                    return false;
-                }
-                if (this.filters.customDateEnd && messageDate > new Date(this.filters.customDateEnd)) {
-                    return false;
-                }
+                if (this.filters.customDateStart && messageDate < new Date(this.filters.customDateStart)) return false;
+                if (this.filters.customDateEnd && messageDate > new Date(this.filters.customDateEnd)) return false;
                 return true;
-            
             default:
                 return true;
         }
     }
-    
-    /**
-     * Checks if message passes length filter
-     * @param {Object} message - Message object
-     * @returns {boolean} Whether message passes filter
-     * @private
-     */
+
     _passesLengthFilter(message) {
         if (this.filters.messageLength === 'all') return true;
-        
         const length = (message.content || '').length;
-        
         switch (this.filters.messageLength) {
             case 'short':
                 return length < 100;
@@ -675,40 +547,22 @@ class ChatSearchManager {
                 return true;
         }
     }
-    
-    /**
-     * Updates UI with search results
-     * @private
-     */
+
     _updateUI() {
-        // Update results count
-        this.resultsCount.textContent = `${this.filteredResults.length} result${this.filteredResults.length !== 1 ? 's' : ''}`;
-        
-        // Update navigation buttons
-        const prevBtn = this.searchContainer.querySelector('.search-prev-btn');
-        const nextBtn = this.searchContainer.querySelector('.search-next-btn');
-        
+        if (!this.ui.resultsCount || !this.ui.prevBtn || !this.ui.nextBtn) return;
+        this.ui.resultsCount.textContent = `${this.filteredResults.length} result${this.filteredResults.length !== 1 ? 's' : ''}`;
         const hasResults = this.filteredResults.length > 0;
-        prevBtn.disabled = !hasResults;
-        nextBtn.disabled = !hasResults;
-        
-        // Clear previous highlights
+        this.ui.prevBtn.disabled = !hasResults;
+        this.ui.nextBtn.disabled = !hasResults;
         this._clearHighlights();
-        
-        // Highlight current result
         if (this.currentResultIndex >= 0 && this.currentResultIndex < this.filteredResults.length) {
-            this._highlightResult(this.filteredResults[this.currentResultIndex]);
-            this._scrollToResult(this.filteredResults[this.currentResultIndex]);
+            const result = this.filteredResults[this.currentResultIndex];
+            this._highlightResult(result);
+            this._scrollToResult(result);
         }
-        
-        // Highlight all matches
         this._highlightAllMatches();
     }
-    
-    /**
-     * Highlights all search matches in visible messages
-     * @private
-     */
+
     _highlightAllMatches() {
         this.filteredResults.forEach(result => {
             const messageElement = this._findMessageElement(result.message);
@@ -717,300 +571,173 @@ class ChatSearchManager {
             }
         });
     }
-    
-    /**
-     * Highlights matches in a specific element
-     * @param {HTMLElement} element - Element to highlight in
-     * @param {Array} matches - Array of matches
-     * @private
-     */
+
     _highlightMatchesInElement(element, matches) {
         const contentElement = element.querySelector('.message-content');
         if (!contentElement) return;
-        
         matches.forEach(match => {
             if (match.field === 'content') {
                 this._highlightTextInElement(contentElement, match.text);
             }
         });
     }
-    
-    /**
-     * Highlights text in element
-     * @param {HTMLElement} element - Element to highlight in
-     * @param {string} text - Text to highlight
-     * @private
-     */
+
     _highlightTextInElement(element, text) {
-        const walker = document.createTreeWalker(
-            element,
-            NodeFilter.SHOW_TEXT,
-            null,
-            false
-        );
-        
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
         const textNodes = [];
         let node;
         while (node = walker.nextNode()) {
             textNodes.push(node);
         }
-        
         textNodes.forEach(textNode => {
             const content = textNode.textContent;
             const searchText = this.config.caseSensitive ? content : content.toLowerCase();
             const searchQuery = this.config.caseSensitive ? text : text.toLowerCase();
-            
             let index = searchText.indexOf(searchQuery);
             if (index !== -1) {
-                const before = content.substring(0, index);
-                const match = content.substring(index, index + text.length);
-                const after = content.substring(index + text.length);
-                
                 const fragment = document.createDocumentFragment();
-                
-                if (before) {
-                    fragment.appendChild(document.createTextNode(before));
-                }
-                
+                const before = content.substring(0, index);
+                if (before) fragment.appendChild(document.createTextNode(before));
                 const highlight = this.utils.createElement('mark', {
                     className: this.config.highlightClassName,
-                    textContent: match
+                    textContent: content.substring(index, index + text.length)
                 });
                 fragment.appendChild(highlight);
-                
-                if (after) {
-                    fragment.appendChild(document.createTextNode(after));
+                const after = content.substring(index + text.length);
+                if (after) fragment.appendChild(document.createTextNode(after));
+                if (textNode.parentNode) {
+                   textNode.parentNode.replaceChild(fragment, textNode);
                 }
-                
-                textNode.parentNode.replaceChild(fragment, textNode);
             }
         });
     }
-    
-    /**
-     * Highlights specific search result
-     * @param {Object} result - Search result
-     * @private
-     */
+
     _highlightResult(result) {
         const messageElement = this._findMessageElement(result.message);
         if (messageElement) {
             messageElement.classList.add('search-result-active');
-            
-            // Find and highlight the active match
             const highlights = messageElement.querySelectorAll(`.${this.config.highlightClassName}`);
             if (highlights.length > 0) {
                 highlights[0].classList.add(this.config.activeHighlightClassName);
             }
         }
     }
-    
-    /**
-     * Scrolls to search result
-     * @param {Object} result - Search result
-     * @private
-     */
+
     _scrollToResult(result) {
         const messageElement = this._findMessageElement(result.message);
         if (messageElement) {
-            messageElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
-    
-    /**
-     * Finds message element in DOM
-     * @param {Object} message - Message object
-     * @returns {HTMLElement|null} Message element
-     * @private
-     */
+
     _findMessageElement(message) {
         return this.utils.$(`[data-message-id="${message.id}"]`);
     }
-    
-    /**
-     * Clears all search highlights
-     * @private
-     */
+
     _clearHighlights() {
-        // Remove highlight classes from messages
-        this.utils.$$('.search-result-active').forEach(element => {
-            element.classList.remove('search-result-active');
-        });
-        
-        // Remove highlight marks
+        this.utils.$$('.search-result-active').forEach(el => el.classList.remove('search-result-active'));
         this.utils.$$(`.${this.config.highlightClassName}`).forEach(mark => {
             const parent = mark.parentNode;
-            parent.replaceChild(document.createTextNode(mark.textContent), mark);
-            parent.normalize();
+            if (parent) {
+                parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                parent.normalize();
+            }
         });
     }
-    
-    /**
-     * Navigates to next search result
-     */
+
     navigateToNext() {
         if (this.filteredResults.length === 0) return;
-        
         this.currentResultIndex = (this.currentResultIndex + 1) % this.filteredResults.length;
         this._updateUI();
     }
-    
-    /**
-     * Navigates to previous search result
-     */
+
     navigateToPrevious() {
         if (this.filteredResults.length === 0) return;
-        
-        this.currentResultIndex = this.currentResultIndex <= 0 ? 
-            this.filteredResults.length - 1 : 
-            this.currentResultIndex - 1;
+        this.currentResultIndex = (this.currentResultIndex - 1 + this.filteredResults.length) % this.filteredResults.length;
         this._updateUI();
     }
-    
-    /**
-     * Clears search
-     * @private
-     */
+
     _clearSearch() {
         this.currentQuery = '';
         this.searchResults = [];
         this.filteredResults = [];
         this.currentResultIndex = -1;
-        
-        if (this.searchInput) {
-            this.searchInput.value = '';
+        if (this.ui.searchInput) {
+            this.ui.searchInput.value = '';
         }
-        
         this._clearHighlights();
         this._updateUI();
     }
-    
-    /**
-     * Updates filters from UI
-     * @private
-     */
+
     _updateFilters() {
-        const container = this.searchContainer;
-        
-        this.filters.role = container.querySelector('.role-filter').value;
-        this.filters.character = container.querySelector('.character-filter').value;
-        this.filters.dateRange = container.querySelector('.date-filter').value;
-        this.filters.hasAttachments = container.querySelector('.filter-attachments').checked;
-        this.filters.hasErrors = container.querySelector('.filter-errors').checked;
-        this.filters.messageLength = container.querySelector('.length-filter').value;
-        
+        const c = this.ui.searchContainer;
+        if (!c) return;
+        this.filters.role = c.querySelector('.role-filter')?.value || 'all';
+        this.filters.character = c.querySelector('.character-filter')?.value || 'all';
+        this.filters.dateRange = c.querySelector('.date-filter')?.value || 'all';
+        this.filters.hasAttachments = c.querySelector('.filter-attachments')?.checked || false;
+        this.filters.hasErrors = c.querySelector('.filter-errors')?.checked || false;
+        this.filters.messageLength = c.querySelector('.length-filter')?.value || 'all';
         if (this.filters.dateRange === 'custom') {
-            this.filters.customDateStart = container.querySelector('.date-start').value;
-            this.filters.customDateEnd = container.querySelector('.date-end').value;
+            this.filters.customDateStart = c.querySelector('.date-start')?.value;
+            this.filters.customDateEnd = c.querySelector('.date-end')?.value;
         }
     }
-    
-    /**
-     * Updates search options from UI
-     * @private
-     */
+
     _updateSearchOptions() {
-        const container = this.searchContainer;
-        
-        this.config.caseSensitive = container.querySelector('.option-case-sensitive').checked;
-        this.config.wholeWordsOnly = container.querySelector('.option-whole-words').checked;
-        this.config.useRegex = container.querySelector('.option-regex').checked;
-        this.config.searchInMetadata = container.querySelector('.option-metadata').checked;
+        const c = this.ui.searchContainer;
+        if (!c) return;
+        this.config.caseSensitive = c.querySelector('.option-case-sensitive')?.checked || false;
+        this.config.wholeWordsOnly = c.querySelector('.option-whole-words')?.checked || false;
+        this.config.useRegex = c.querySelector('.option-regex')?.checked || false;
+        this.config.searchInMetadata = c.querySelector('.option-metadata')?.checked || false;
     }
-    
-    /**
-     * Toggles search options panel
-     * @private
-     */
+
     _toggleOptions() {
-        const filtersPanel = this.searchContainer.querySelector('.search-filters');
-        const optionsPanel = this.searchContainer.querySelector('.search-options');
-        
-        this.utils.toggleClass(filtersPanel, 'hidden');
-        this.utils.toggleClass(optionsPanel, 'hidden');
+        if (this.ui.filtersPanel) this.utils.toggleClass(this.ui.filtersPanel, 'hidden');
+        if (this.ui.optionsPanel) this.utils.toggleClass(this.ui.optionsPanel, 'hidden');
     }
-    
-    /**
-     * Handles global keyboard shortcuts
-     * @param {KeyboardEvent} event - Keyboard event
-     * @private
-     */
+
     _handleGlobalKeyDown(event) {
-        // Ctrl+F or Cmd+F to open search
         if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
             event.preventDefault();
             this.openSearch();
         }
-        
-        // Escape to close search
         if (event.key === 'Escape' && this.isSearchActive) {
             event.preventDefault();
             this.closeSearch();
         }
     }
-    
-    /**
-     * Adds query to search history
-     * @param {string} query - Search query
-     * @private
-     */
+
     _addToSearchHistory(query) {
         if (!query || this.searchHistory.includes(query)) return;
-        
         this.searchHistory.unshift(query);
-        
-        if (this.searchHistory.length > this.config.maxSearchHistory) {
-            this.searchHistory = this.searchHistory.slice(0, this.config.maxSearchHistory);
-        }
-        
+        if (this.searchHistory.length > this.config.maxSearchHistory) this.searchHistory.pop();
         this._saveSearchHistory();
     }
-    
-    /**
-     * Loads search history from storage
-     * @private
-     */
+
     _loadSearchHistory() {
         try {
             const saved = localStorage.getItem('parkland_search_history');
-            if (saved) {
-                this.searchHistory = JSON.parse(saved);
-            }
-        } catch (error) {
-            console.warn('Failed to load search history:', error);
+            if (saved) this.searchHistory = JSON.parse(saved);
+        } catch (e) {
+            console.warn("Failed to load search history", e);
             this.searchHistory = [];
         }
     }
-    
-    /**
-     * Saves search history to storage
-     * @private
-     */
+
     _saveSearchHistory() {
         try {
             localStorage.setItem('parkland_search_history', JSON.stringify(this.searchHistory));
-        } catch (error) {
-            console.warn('Failed to save search history:', error);
+        } catch (e) {
+            console.warn("Failed to save search history", e);
         }
     }
-    
-    /**
-     * Escapes regex special characters
-     * @param {string} string - String to escape
-     * @returns {string} Escaped string
-     * @private
-     */
+
     _escapeRegex(string) {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
-    
-    /**
-     * Gets search statistics
-     * @returns {Object} Search statistics
-     */
+
     getSearchStats() {
         return {
             isActive: this.isSearchActive,
@@ -1021,53 +748,39 @@ class ChatSearchManager {
             historyCount: this.searchHistory.length
         };
     }
-    
-    /**
-     * Exports search results
-     * @param {string} format - Export format (json, csv)
-     * @returns {string} Exported data
-     */
+
     exportResults(format = 'json') {
-        const results = this.filteredResults.map(result => ({
-            messageId: result.message.id,
-            role: result.message.role,
-            content: result.message.content,
-            character: result.message.character,
-            timestamp: result.message.timestamp,
-            matches: result.matches,
-            score: result.score
+        const results = this.filteredResults.map(r => ({
+            messageId: r.message.id,
+            role: r.message.role,
+            content: r.message.content,
+            character: r.message.character,
+            timestamp: r.message.timestamp,
+            matches: r.matches,
+            score: r.score
         }));
-        
         if (format === 'csv') {
             const headers = ['Message ID', 'Role', 'Content', 'Character', 'Timestamp', 'Score'];
-            const rows = results.map(result => [
-                result.messageId,
-                result.role,
-                `"${result.content.replace(/"/g, '""')}"`,
-                result.character || '',
-                new Date(result.timestamp).toISOString(),
-                result.score
+            const rows = results.map(r => [
+                r.messageId,
+                r.role,
+                `"${(r.content || '').replace(/"/g, '""')}"`,
+                r.character || '',
+                new Date(r.timestamp).toISOString(),
+                r.score
             ]);
-            
             return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
         }
-        
         return JSON.stringify(results, null, 2);
     }
-    
-    /**
-     * Destroys search manager
-     */
+
     destroy() {
         this._clearHighlights();
         this._saveSearchHistory();
-        
-        if (this.searchContainer && this.searchContainer.parentNode) {
-            this.searchContainer.parentNode.removeChild(this.searchContainer);
+        if (this.ui.searchContainer?.parentNode) {
+            this.ui.searchContainer.parentNode.removeChild(this.ui.searchContainer);
         }
-        
         document.body.classList.remove('search-mode');
-        
         console.log('🔍 ChatSearchManager destroyed.');
     }
 }
