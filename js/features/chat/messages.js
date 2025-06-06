@@ -103,6 +103,7 @@ class ChatMessages {
         const messageDiv = this.utils.createElement('div', {
             className: `message ${messageRole}`,
             id: uniqueId,
+            'data-message-id': message.id,
             role: 'log', // ARIA role for chat messages
             'aria-live': messageRole === 'assistant' ? 'polite' : 'off',
             'aria-atomic': 'false' // Content may change, but usually whole new message

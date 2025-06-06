@@ -31,6 +31,8 @@
 @import url('components/modals.css');    /* Styles for modal dialogs and overlays */
 @import url('components/messages.css');  /* Styles for chat messages, user/assistant bubbles, typing indicator */
 @import url('components/sidebar.css');   /* Styles for the main application sidebar and navigation */
+@import url('components/typing-indicator.css'); /* Styles for real-time typing indicators and message status */
+@import url('components/search.css');    /* Styles for chat search and filtering interface */
 
 /* ==========================================================================
    THEME SYSTEM IMPORTS - Base and Default (Always loaded)

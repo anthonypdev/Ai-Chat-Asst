@@ -1,0 +1,311 @@
+/**
+ * Parkland AI - Opus Magnum Edition
+ * Typing Indicator Styles
+ *
+ * Provides styling for real-time typing indicators and message status displays.
+ */
+
+/* Typing Indicator Container */
+.typing-indicator {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    margin: 10px 0;
+    pointer-events: none;
+}
+
+.typing-indicator.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.typing-indicator.hidden {
+    display: none;
+}
+
+/* Typing Container Layout */
+.typing-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--message-bg-assistant, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    max-width: 400px;
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* Character Avatar */
+.typing-avatar {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.typing-character-icon {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--character-bg, rgba(255, 255, 255, 0.1));
+    border: 1px solid var(--character-border, rgba(255, 255, 255, 0.2));
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Typing Content */
+.typing-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.typing-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+}
+
+.typing-label {
+    font-weight: 500;
+    color: var(--text-primary, #ffffff);
+}
+
+/* Typing Dots Animation */
+.typing-dots {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.typing-dots .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary-color, #00d4ff);
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+    display: inline-block;
+}
+
+.typing-dots .dot.active {
+    opacity: 1;
+    animation: dotBounce 0.6s ease-in-out;
+}
+
+/* Progress Bar */
+.typing-progress {
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, 
+        var(--primary-color, #00d4ff), 
+        var(--secondary-color, #ff6b35)
+    );
+    width: 0%;
+    border-radius: 1px;
+    transition: width 0.3s ease;
+}
+
+/* Typing Actions */
+.typing-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.typing-cancel {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.typing-cancel:hover {
+    opacity: 1;
+}
+
+/* Message Status Indicators */
+.message-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.status-icon.sending {
+    color: var(--warning-color, #ffa500);
+    animation: spin 1s linear infinite;
+}
+
+.status-icon.sent {
+    color: var(--success-color, #00ff88);
+}
+
+.status-icon.delivered {
+    color: var(--success-color, #00ff88);
+}
+
+.status-icon.read {
+    color: var(--info-color, #00d4ff);
+}
+
+.status-icon.error {
+    color: var(--error-color, #ff4757);
+}
+
+/* Message Error State */
+.message-error {
+    border-left: 3px solid var(--error-color, #ff4757);
+    background: rgba(255, 71, 87, 0.1);
+}
+
+.retry-button {
+    margin-left: 8px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+@keyframes dotBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Theme-specific styles */
+.typing-indicator[data-theme="jaws"] .typing-container {
+    background: rgba(0, 47, 75, 0.8);
+    border-color: rgba(0, 119, 190, 0.3);
+}
+
+.typing-indicator[data-theme="jaws"] .typing-character-icon {
+    background: rgba(0, 119, 190, 0.2);
+    border-color: rgba(0, 119, 190, 0.4);
+}
+
+.typing-indicator[data-theme="jurassic"] .typing-container {
+    background: rgba(34, 42, 21, 0.8);
+    border-color: rgba(139, 179, 63, 0.3);
+}
+
+.typing-indicator[data-theme="jurassic"] .typing-character-icon {
+    background: rgba(139, 179, 63, 0.2);
+    border-color: rgba(139, 179, 63, 0.4);
+}
+
+.typing-indicator[data-theme="default"] .typing-container {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .typing-container {
+        padding: 10px 12px;
+        gap: 10px;
+        max-width: 100%;
+        margin: 0 10px;
+    }
+    
+    .typing-character-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+    
+    .typing-text {
+        font-size: 13px;
+    }
+}
+
+/* Accessibility */
+.typing-indicator:focus-within {
+    outline: 2px solid var(--focus-color, #00d4ff);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .typing-indicator,
+    .typing-character-icon,
+    .typing-dots .dot,
+    .progress-bar {
+        animation: none;
+        transition: none;
+    }
+    
+    .typing-dots .dot.active {
+        opacity: 1;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .typing-container {
+        border-width: 2px;
+        background: rgba(0, 0, 0, 0.9);
+    }
+    
+    .typing-character-icon {
+        border-width: 2px;
+    }
+    
+    .status-icon {
+        font-weight: bold;
+    }
+}
+
+/* Print styles */
+@media print {
+    .typing-indicator {
+        display: none;
+    }
+}

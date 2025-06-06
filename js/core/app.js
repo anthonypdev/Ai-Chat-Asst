@@ -40,6 +40,8 @@ class App {
         this.markdownProcessor = null;
         this.soundEffects = null;
         this.audioWorker = null;
+        this.typingIndicator = null;
+        this.searchManager = null;
 
         this.ui = {}; // To store DOM element references
         this.isInitialized = false;
@@ -116,6 +118,18 @@ class App {
         }
         this.voiceSynthesis = new VoiceSynthesis(this.stateManager, this.eventEmitter, this.utils);
         this.voiceSynthesis.init(); 
+
+        if (typeof TypingIndicatorManager === 'undefined') { 
+            const msg = "TypingIndicatorManager class is undefined! Ensure typing-indicator.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
+        this.typingIndicator = new TypingIndicatorManager(this.utils, this.stateManager, this.eventEmitter);
+
+        if (typeof ChatSearchManager === 'undefined') { 
+            const msg = "ChatSearchManager class is undefined! Ensure search-manager.js is loaded.";
+            console.error(msg); return Promise.reject(new Error(msg)); 
+        }
+        this.searchManager = new ChatSearchManager(this.utils, this.stateManager, this.eventEmitter);
 
         if (typeof ThemePersistence === 'undefined') { 
             const msg = "ThemePersistence class is undefined! Ensure persistence.js is loaded.";
@@ -220,6 +234,7 @@ class App {
         this.ui.chatInput = this.utils.$('#chatInput');
         this.ui.sendBtn = this.utils.$('#sendBtn');
         this.ui.micBtn = this.utils.$('#micBtn');
+        this.ui.searchBtn = this.utils.$('#searchBtn');
         this.ui.chatMessagesContainer = this.utils.$('.messages-container .messages-inner', this.ui.chatContainer);
         this.ui.chatHistoryContainer = this.utils.$('.sidebar-content .chat-history-list', this.ui.sidebar);
         
@@ -272,6 +287,12 @@ class App {
         }
 
         if(this.ui.newChatBtn) this.ui.newChatBtn.addEventListener('click', this._handleNewChat.bind(this));
+
+        if(this.ui.searchBtn) this.ui.searchBtn.addEventListener('click', () => {
+            if (this.searchManager) {
+                this.searchManager.toggleSearch();
+            }
+        });
 
         if (this.ui.settingsBtn) {
             this.ui.settingsBtn.addEventListener('click', () => this.stateManager.setModalOpen('isSettingsModalOpen', true));
@@ -493,6 +514,10 @@ class App {
             content: messageText,
             timestamp: Date.now()
         };
+        
+        // Emit message sending event for typing indicator
+        this.eventEmitter.emit('message:sending', { messageId: userMessage.id, content: messageText });
+        
         this.stateManager.addMessageToHistory(userMessage); // This triggers chatHistory save and UI update
 
         this.stateManager.set('userInput', ''); // Clear state
@@ -502,23 +527,28 @@ class App {
             this.ui.chatInput.focus(); // Keep focus on input
         }
 
-        this._showTypingIndicator(true);
+        // Emit message sent event for typing indicator
+        this.eventEmitter.emit('message:sent', { messageId: userMessage.id });
+        
+        // Start API request with typing indicator
+        this.eventEmitter.emit('api:requestStart', { 
+            messageId: userMessage.id,
+            estimatedDuration: 5000 
+        });
 
         if (!this.apiService) {
-            this._handleApiError({message: "API Service not available."});
-            this._showTypingIndicator(false);
+            this._handleApiError({message: "API Service not available.", messageId: userMessage.id});
             return;
         }
         
         const historyForApi = this.utils.deepClone(this.stateManager.get('chatHistory'));
 
         this.apiService.sendMessage(messageText, historyForApi)
-            .then(response => this._processAssistantResponse(response))
-            .catch(error => this._handleApiError(error))
-            .finally(() => this._showTypingIndicator(false));
+            .then(response => this._processAssistantResponse(response, userMessage.id))
+            .catch(error => this._handleApiError(error, userMessage.id));
     }
     
-    _processAssistantResponse(apiResponse) {
+    _processAssistantResponse(apiResponse, requestMessageId) {
         let content = '';
         let character = this.stateManager.get('activeCharacter');
 
@@ -538,6 +568,21 @@ class App {
             timestamp: Date.now(),
             character: character
         };
+        
+        // Emit API completion event
+        this.eventEmitter.emit('api:requestComplete', { 
+            messageId: assistantMessage.id,
+            requestMessageId: requestMessageId,
+            response: apiResponse 
+        });
+        
+        // Emit message received event
+        this.eventEmitter.emit('message:received', { 
+            messageId: assistantMessage.id,
+            content: content,
+            usage: apiResponse?.usage 
+        });
+        
         this.stateManager.addMessageToHistory(assistantMessage); // Triggers UI update via subscription
 
         if (this.stateManager.get('userPreferences.voiceOutputEnabled') && this.voiceSynthesis) {
@@ -546,9 +591,25 @@ class App {
         if (this.soundEffects) this.soundEffects.playSoundEffect('messageReceived');
     }
 
-    _handleApiError(error) {
+    _handleApiError(error, messageId = null) {
         console.error("API Error in App:", error);
         const errorMessage = (error && error.message) ? error.message : "An unknown API error occurred.";
+        
+        // Emit API error event for typing indicator
+        this.eventEmitter.emit('api:requestError', { 
+            error: errorMessage,
+            messageId: messageId,
+            retryable: error?.retryable || false
+        });
+        
+        // Emit message error event
+        if (messageId) {
+            this.eventEmitter.emit('message:error', { 
+                messageId: messageId,
+                error: errorMessage 
+            });
+        }
+        
         const errorResponseMessage = {
             id: `msg-error-${this.utils.generateId('')}`,
             role: 'assistant', // Display as an assistant message for errors
@@ -560,9 +621,6 @@ class App {
         this.eventEmitter.emit('errorDisplay', { message: errorMessage, type: 'api' }); // For global display
     }
 
-    _showTypingIndicator(show) {
-        this.eventEmitter.emit('typingIndicator', { show }); // ChatMessages listens to this
-    }
 
     _handleInputKeyDown(event) {
         if(!event || !event.target) return;
@@ -717,6 +775,9 @@ class App {
     }
 
     _handleGlobalKeyDown(event) {
+        // Emit global keydown event for other managers to handle
+        this.eventEmitter.emit('keydown:global', event);
+        
         if (event.key === 'Escape') {
             if (this.stateManager.get('isSettingsModalOpen')) {
                 this.stateManager.setModalOpen('isSettingsModalOpen', false);
@@ -842,6 +903,8 @@ class App {
 
         if(this.voiceRecognition) this.voiceRecognition.destroy();
         if(this.voiceSynthesis) this.voiceSynthesis.destroy();
+        if(this.typingIndicator) this.typingIndicator.destroy();
+        if(this.searchManager) this.searchManager.destroy();
         if(this.themeManager) this.themeManager.destroy();
         if(this.audioWorker) this.audioWorker.terminate();
         // TODO: Destroy other managers and remove event listeners from eventEmitter as needed
