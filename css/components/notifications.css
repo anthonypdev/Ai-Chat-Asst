@@ -1,0 +1,427 @@
+/* ==========================================================================
+   NOTIFICATION SYSTEM STYLES
+   Comprehensive styling for the notification system including toasts,
+   animations, and accessibility features.
+   ========================================================================== */
+
+/* ==========================================================================
+   NOTIFICATION CONTAINER
+   ========================================================================== */
+
+.notification-container {
+  position: fixed;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  z-index: var(--z-notification, 1000);
+  max-width: min(400px, calc(100vw - 2 * var(--space-lg)));
+  pointer-events: none;
+  
+  /* Ensure notifications are above other elements */
+  isolation: isolate;
+}
+
+/* Mobile responsive positioning */
+@media (max-width: 768px) {
+  .notification-container {
+    top: var(--space-md);
+    right: var(--space-md);
+    left: var(--space-md);
+    max-width: none;
+  }
+}
+
+/* ==========================================================================
+   NOTIFICATION BASE STYLES
+   ========================================================================== */
+
+.notification {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+  
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  
+  pointer-events: auto;
+  cursor: default;
+  
+  /* Animation setup */
+  opacity: 0;
+  transform: translateX(100%) scale(0.95);
+  transition: all var(--duration-normal) var(--ease-out);
+  
+  /* Backdrop blur for modern browsers */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.notification.notification-visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.notification.notification-dismissing {
+  opacity: 0;
+  transform: translateX(100%) scale(0.9);
+  transition: all var(--duration-fast) var(--ease-in);
+}
+
+/* ==========================================================================
+   NOTIFICATION TYPES
+   ========================================================================== */
+
+.notification-info {
+  border-left: 4px solid var(--info);
+  background: var(--info-bg, rgba(59, 130, 246, 0.1));
+}
+
+.notification-success {
+  border-left: 4px solid var(--success);
+  background: var(--success-bg, rgba(34, 197, 94, 0.1));
+}
+
+.notification-warning {
+  border-left: 4px solid var(--warning);
+  background: var(--warning-bg, rgba(251, 191, 36, 0.1));
+}
+
+.notification-error {
+  border-left: 4px solid var(--error);
+  background: var(--error-bg, rgba(239, 68, 68, 0.1));
+}
+
+/* ==========================================================================
+   NOTIFICATION PRIORITIES
+   ========================================================================== */
+
+.notification-critical {
+  border: 2px solid var(--error);
+  box-shadow: var(--shadow-xl), 0 0 0 4px rgba(239, 68, 68, 0.2);
+  background: var(--error-bg, rgba(239, 68, 68, 0.15));
+  
+  /* Subtle pulse animation for critical notifications */
+  animation: notification-pulse 2s ease-in-out infinite;
+}
+
+@keyframes notification-pulse {
+  0%, 100% {
+    box-shadow: var(--shadow-xl), 0 0 0 4px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: var(--shadow-xl), 0 0 0 8px rgba(239, 68, 68, 0.1);
+  }
+}
+
+.notification-high {
+  border-width: 2px;
+  box-shadow: var(--shadow-xl);
+}
+
+.notification-low {
+  opacity: 0.9;
+  box-shadow: var(--shadow-md);
+}
+
+/* ==========================================================================
+   NOTIFICATION COMPONENTS
+   ========================================================================== */
+
+.notification-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-top: 2px; /* Align with text baseline */
+}
+
+.notification-content {
+  flex-grow: 1;
+  min-width: 0; /* Allow text to truncate */
+}
+
+.notification-message {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.notification-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+.notification-action,
+.notification-retry {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.notification-action:hover,
+.notification-retry:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.notification-action:active,
+.notification-retry:active {
+  transform: translateY(0);
+}
+
+/* Special styling for undo button */
+.btn-undo {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-contrast);
+}
+
+.btn-undo:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.notification-close {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  
+  color: var(--text-tertiary);
+  cursor: pointer;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.notification-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.notification-close:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================================================
+   NOTIFICATION PROGRESS BAR
+   ========================================================================== */
+
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  
+  background: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    var(--primary-light, var(--primary)) 100%
+  );
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  
+  transform-origin: left center;
+  animation: notification-progress linear forwards;
+}
+
+@keyframes notification-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & MOTION PREFERENCES
+   ========================================================================== */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .notification {
+    transition: opacity var(--duration-fast) ease;
+    transform: none;
+  }
+  
+  .notification.notification-visible {
+    transform: none;
+  }
+  
+  .notification.notification-dismissing {
+    transform: none;
+  }
+  
+  .notification-critical {
+    animation: none;
+    box-shadow: var(--shadow-xl), 0 0 0 4px rgba(239, 68, 68, 0.3);
+  }
+  
+  .notification-progress {
+    animation: notification-progress-reduced linear forwards;
+  }
+  
+  @keyframes notification-progress-reduced {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .notification {
+    border-width: 2px;
+    border-color: var(--text-primary);
+  }
+  
+  .notification-info { border-left-color: #0066cc; }
+  .notification-success { border-left-color: #006600; }
+  .notification-warning { border-left-color: #cc6600; }
+  .notification-error { border-left-color: #cc0000; }
+}
+
+/* Focus management for keyboard navigation */
+.notification:focus-within .notification-action,
+.notification:focus-within .notification-retry,
+.notification:focus-within .notification-close {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   THEMES SUPPORT
+   ========================================================================== */
+
+/* Default theme overrides (if needed) */
+[data-theme="default"] .notification {
+  /* Default theme specific styles */
+}
+
+/* Jaws theme */
+[data-theme="jaws"] .notification {
+  background: rgba(20, 50, 80, 0.95);
+  border-color: rgba(100, 150, 200, 0.3);
+  color: #e6f2ff;
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="jaws"] .notification-info {
+  border-left-color: #4da6ff;
+  background: rgba(20, 50, 80, 0.95);
+}
+
+[data-theme="jaws"] .notification-success {
+  border-left-color: #00cc88;
+  background: rgba(0, 50, 40, 0.95);
+}
+
+[data-theme="jaws"] .notification-warning {
+  border-left-color: #ffaa00;
+  background: rgba(60, 40, 0, 0.95);
+}
+
+[data-theme="jaws"] .notification-error {
+  border-left-color: #ff4444;
+  background: rgba(60, 20, 20, 0.95);
+}
+
+/* Jurassic theme */
+[data-theme="jurassic"] .notification {
+  background: rgba(40, 30, 20, 0.95);
+  border-color: rgba(120, 80, 40, 0.4);
+  color: #f4e4c1;
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="jurassic"] .notification-info {
+  border-left-color: #8b7355;
+  background: rgba(40, 35, 25, 0.95);
+}
+
+[data-theme="jurassic"] .notification-success {
+  border-left-color: #9acd32;
+  background: rgba(30, 40, 20, 0.95);
+}
+
+[data-theme="jurassic"] .notification-warning {
+  border-left-color: #daa520;
+  background: rgba(50, 40, 15, 0.95);
+}
+
+[data-theme="jurassic"] .notification-error {
+  border-left-color: #cd5c5c;
+  background: rgba(50, 25, 25, 0.95);
+}
+
+/* ==========================================================================
+   MOBILE OPTIMIZATIONS
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .notification {
+    padding: var(--space-sm);
+    font-size: var(--font-size-xs);
+  }
+  
+  .notification-actions {
+    flex-direction: column;
+  }
+  
+  .notification-action,
+  .notification-retry {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .notification-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 14px;
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+  .notification-container {
+    display: none;
+  }
+}

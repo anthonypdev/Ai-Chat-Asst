@@ -7,17 +7,44 @@
  */
 
 class ClaudeAPIService {
-    constructor(stateManager, utils) {
+    constructor(stateManager, utils, retryManager = null, notificationSystem = null) {
         if (!stateManager || !utils) {
             throw new Error("ClaudeAPIService requires StateManager and Utils instances.");
         }
         this.stateManager = stateManager;
         this.utils = utils;
+        this.retryManager = retryManager;
+        this.notificationSystem = notificationSystem;
         this.apiEndpoint = 'https://api.anthropic.com/v1/messages'; // Standard Claude Messages API endpoint
         this.apiVersion = '2023-06-01';
+        
+        // Request tracking
+        this.requestHistory = [];
+        this.maxHistorySize = 50;
+        this.activeRequests = new Map();
+        
+        // Rate limiting
+        this.rateLimiter = {
+            tokens: 100,
+            maxTokens: 100,
+            refillRate: 10, // tokens per second
+            lastRefill: Date.now()
+        };
+        
+        // Response streaming support
+        this.streamingSupported = true;
+        
+        // Initialize circuit breaker if retry manager is available
+        if (this.retryManager) {
+            this.retryManager.createCircuitBreaker('claude-api', {
+                failureThreshold: 3,
+                successThreshold: 2,
+                timeout: 30000 // 30 seconds
+            });
+        }
 
         if (this.stateManager.get('debugMode')) {
-            console.log('ClaudeAPIService initialized.');
+            console.log('🤖 ClaudeAPIService initialized with advanced features.');
         }
     }
 
@@ -162,20 +189,42 @@ class ClaudeAPIService {
     }
 
     /**
-     * Sends a message to the Claude API.
+     * Sends a message to the Claude API with advanced retry and streaming support.
      * @param {string} messageContent - The content of the user's message.
      * @param {Array<Object>} [chatHistory=[]] - The existing chat history.
+     * @param {Object} [options={}] - Additional options (streaming, temperature, etc.)
      * @returns {Promise<Object>} A promise that resolves with the assistant's response object.
      */
-    async sendMessage(messageContent, chatHistory = []) {
+    async sendMessage(messageContent, chatHistory = [], options = {}) {
         if (!messageContent.trim()) {
-            return Promise.reject(new Error("Message content cannot be empty."));
+            const error = new Error("Message content cannot be empty.");
+            this._recordRequest(null, messageContent, false, error);
+            return Promise.reject(error);
         }
 
         const apiKey = this.stateManager.get('apiKey');
         if (!this.validateApiKey(apiKey)) {
-             this.stateManager.set('lastError', { message: 'Invalid or missing Claude API Key.', type: 'config' });
-            return Promise.reject(new Error("Invalid or missing Claude API Key. Please check settings."));
+            const error = new Error("Invalid or missing Claude API Key. Please check settings.");
+            this.stateManager.set('lastError', { message: error.message, type: 'config' });
+            if (this.notificationSystem) {
+                this.notificationSystem.showError('Invalid API key. Please check your settings.', {
+                    actions: [{
+                        text: 'Open Settings',
+                        action: () => this.stateManager.setModalOpen('isSettingsModalOpen', true)
+                    }]
+                });
+            }
+            this._recordRequest(null, messageContent, false, error);
+            return Promise.reject(error);
+        }
+        
+        // Check rate limiting
+        if (!this._checkRateLimit()) {
+            const error = new Error('Rate limit exceeded. Please wait before sending another message.');
+            if (this.notificationSystem) {
+                this.notificationSystem.showWarning('Rate limit exceeded. Please wait a moment.');
+            }
+            return Promise.reject(error);
         }
 
         const headers = this._getApiHeaders();
