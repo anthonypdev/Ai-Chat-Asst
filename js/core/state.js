@@ -192,7 +192,6 @@ class StateManager {
         } catch (error) {
             console.error('Error loading initial state:', error);
         }
-        this.set('isLoading', true, true); // Explicitly set isLoading to true before overriding
         console.log('👑 StateManager initialized and initial state loaded. Debug mode:', this.get('debugMode'));
     }
 
