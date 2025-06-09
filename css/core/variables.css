@@ -433,4 +433,5 @@
     --shadow-lg: none !important; --shadow-xl: none !important; --shadow-2xl: none !important;
     --shadow-inner: none !important;
   }
+  /* Theme-specific high contrast overrides might be needed in theme.css if system colors aren't thematic enough */
 }

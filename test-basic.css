@@ -1,0 +1,26 @@
+/* Basic test CSS */
+body {
+    background-color: lightblue;
+    font-family: Arial, sans-serif;
+    color: red;
+    margin: 20px;
+}
+
+.test {
+    background: yellow;
+    padding: 20px;
+    border: 2px solid blue;
+    margin: 10px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.btn {
+    background: green;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+}
