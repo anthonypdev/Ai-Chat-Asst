@@ -16,8 +16,8 @@
 
   /* Glassmorphism for default theme - subtle */
   --glass-backdrop-default: blur(10px) saturate(150%) brightness(0.98);
-  --glass-border-default: rgba(var(--black-rgb, 0,0,0), 0.08); /* Using black for border on light glass */
-  --glass-bg-default: rgba(var(--white-rgb, 255,255,255), 0.85);
+  --glass-border-default: rgba(var(--black-rgb), 0.08); /* Using black for border on light glass */
+  --glass-bg-default: rgba(var(--white-rgb), 0.85);
 }
 
 /* Ensure body uses default theme variables correctly if they were overridden above */

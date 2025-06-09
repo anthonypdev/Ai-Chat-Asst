@@ -32,9 +32,9 @@
   border-radius: 8px 8px 4px 4px;
   border: 2px solid var(--gray-800);
   box-shadow:
-    inset 0 2px 4px rgba(var(--white-rgb, 255, 255, 255), 0.1), /* Assuming white-rgb is defined */
-    inset 0 -2px 4px rgba(var(--black-rgb, 0, 0, 0), 0.3),    /* Assuming black-rgb is defined */
-    0 8px 25px rgba(var(--black-rgb, 0, 0, 0), 0.5),
+    inset 0 2px 4px rgba(var(--white-rgb), 0.1), /* Assuming white-rgb is defined */
+    inset 0 -2px 4px rgba(var(--black-rgb), 0.3),    /* Assuming black-rgb is defined */
+    0 8px 25px rgba(var(--black-rgb), 0.5),
     0 0 15px rgba(var(--primary-rgb), 0.2);
   transform-style: preserve-3d;
   transition: all 0.3s var(--ease-out);
@@ -44,9 +44,9 @@
 .walkie-talkie:hover {
   transform: translateY(-2px) scale(1.02) translateZ(0);
   box-shadow:
-    inset 0 2px 4px rgba(var(--white-rgb, 255, 255, 255), 0.15),
-    inset 0 -2px 4px rgba(var(--black-rgb, 0, 0, 0), 0.4),
-    0 12px 35px rgba(var(--black-rgb, 0, 0, 0), 0.6),
+    inset 0 2px 4px rgba(var(--white-rgb), 0.15),
+    inset 0 -2px 4px rgba(var(--black-rgb), 0.4),
+    0 12px 35px rgba(var(--black-rgb), 0.6),
     0 0 20px rgba(var(--primary-rgb), 0.3);
 }
 

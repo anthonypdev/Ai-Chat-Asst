@@ -66,6 +66,7 @@
     "vite-plugin-pwa": "^0.16.0"
   },
   "dependencies": {
+    "axios": "^1.9.0",
     "fuse.js": "^6.6.2",
     "jspdf": "^2.5.1",
     "lodash-es": "^4.17.21",
@@ -73,7 +74,9 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ],
     "collectCoverageFrom": [
       "js/**/*.js",
       "!js/**/*.test.js",
@@ -81,8 +84,15 @@
       "!workers/**/*.js"
     ],
     "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "lcov", "html"],
-    "moduleFileExtensions": ["js", "json"],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
     "testMatch": [
       "<rootDir>/tests/**/*.test.js",
       "<rootDir>/js/**/*.test.js"
