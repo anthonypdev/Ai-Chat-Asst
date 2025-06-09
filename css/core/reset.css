@@ -1,419 +1,259 @@
 /* ==========================================================================
-   CSS VARIABLES - PARKLAND AI OPUS MAGNUM EDITION
-   Design Token System for Premium Multi-Theme Experience
+   CSS RESET & NORMALIZATION - PARKLAND AI OPUS MAGNUM EDITION
+   Modern Browser Reset with Sensible Defaults
    ========================================================================== */
 
-:root {
-  /* ==========================================================================
-     CORE DESIGN TOKENS - Universal Foundation
-     ========================================================================== */
+/* ==========================================================================
+   DOCUMENT & VIEWPORT SETUP
+   ========================================================================== */
 
-  /* Color Primitives */
-  --white: #FFFFFF;
-  --black: #000000;
-  --transparent: transparent;
+/* Use border-box by default, everywhere */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-  /* Gray Scale - Neutral Palette (Refined for modern, clean look) */
-  --gray-50: #F9FAFB;  /* Softer off-white */
-  --gray-100: #F3F4F6; /* Lightest gray */
-  --gray-200: #E5E7EB; /* Light gray */
-  --gray-300: #D1D5DB; /* Medium-light gray */
-  --gray-400: #9CA3AF; /* Medium gray (good for muted text) */
-  --gray-500: #6B7280; /* Dark-medium gray (good for secondary text) */
-  --gray-600: #4B5563; /* Dark gray */
-  --gray-700: #374151; /* Darker gray */
-  --gray-800: #1F2937; /* Very dark gray */
-  --gray-900: #111827; /* Near black */
-  --gray-950: #030712; /* Deepest, almost black */
-
-  /* RGB versions for opacity usage */
-  --gray-900-rgb: 17, 24, 39;
-  --gray-800-rgb: 31, 41, 55;
-
-
-  /* ==========================================================================
-     TYPOGRAPHY SYSTEM - SYSTEM FONTS ONLY (as per mandate)
-     ========================================================================== */
-
-  /* System Font Stacks - Prioritizing modern system UI fonts */
-  --font-family-system-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-family-system-serif: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, Cambria, "Times New Roman", Times, serif; /* More classic serif stack */
-  --font-family-system-monospace: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* Developer-friendly monospaced fonts */
-
-  /* Base Font Families (using system stacks) */
-  --font-family-default: var(--font-family-system-sans-serif);
-  --font-family-mono: var(--font-family-system-monospace);
-  --font-family-heading: var(--font-family-system-sans-serif); /* Default heading, can be overridden by themes or specific elements */
-
-  /* Font Scale - Harmonious & Fluid Typography (using clamp for responsiveness) */
-  --font-size-xs: clamp(0.75rem, 0.8vw + 0.1rem, 0.875rem);   /* Approx 12px-14px */
-  --font-size-sm: clamp(0.875rem, 1vw + 0.1rem, 1rem);      /* Approx 14px-16px */
-  --font-size-base: clamp(1rem, 1.2vw + 0.1rem, 1.125rem);  /* Approx 16px-18px (base) */
-  --font-size-lg: clamp(1.125rem, 1.4vw + 0.1rem, 1.25rem); /* Approx 18px-20px */
-  --font-size-xl: clamp(1.25rem, 1.6vw + 0.1rem, 1.5rem);   /* Approx 20px-24px */
-  --font-size-2xl: clamp(1.5rem, 2vw + 0.1rem, 1.875rem);  /* Approx 24px-30px */
-  --font-size-3xl: clamp(1.875rem, 2.5vw + 0.1rem, 2.25rem);/* Approx 30px-36px */
-  --font-size-4xl: clamp(2.25rem, 3vw + 0.1rem, 3rem);     /* Approx 36px-48px */
-  --font-size-5xl: clamp(3rem, 4vw + 0.1rem, 3.75rem);     /* Approx 48px-60px */
-  --font-size-6xl: clamp(3.75rem, 5vw + 0.1rem, 4.5rem);   /* Approx 60px-72px */
-
-  /* Line Heights - For readability and rhythm */
-  --line-height-none: 1;
-  --line-height-tight: 1.25;
-  --line-height-snug: 1.375;
-  --line-height-normal: 1.5;      /* Good for body text */
-  --line-height-relaxed: 1.625;   /* Slightly more spacious */
-  --line-height-loose: 2;
-
-  /* Font Weights (standard numeric values) */
-  --font-weight-thin: 100;
-  --font-weight-extralight: 200;
-  --font-weight-light: 300;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-  --font-weight-black: 900;
-
-  /* Letter Spacing - For headings and special text treatments */
-  --letter-spacing-tighter: -0.05em;
-  --letter-spacing-tight: -0.025em;
-  --letter-spacing-normal: 0em;
-  --letter-spacing-wide: 0.025em;
-  --letter-spacing-wider: 0.05em;
-  --letter-spacing-widest: 0.1em;
-
-  /* ==========================================================================
-     SPACING SYSTEM - Consistent Rhythmic Scale (Based on 4px grid, 1rem = 16px base)
-     ========================================================================== */
-  --space-unit: 4px; /* Base unit for scaling */
-
-  --space-0: 0;                            /* 0px */
-  --space-px: 1px;                         /* 1px */
-  --space-0-5: calc(0.5 * var(--space-unit));  /* 2px */
-  --space-1: calc(1 * var(--space-unit));    /* 4px */
-  --space-1-5: calc(1.5 * var(--space-unit));  /* 6px */
-  --space-2: calc(2 * var(--space-unit));    /* 8px */
-  --space-2-5: calc(2.5 * var(--space-unit));  /* 10px */
-  --space-3: calc(3 * var(--space-unit));    /* 12px */
-  --space-3-5: calc(3.5 * var(--space-unit));  /* 14px */
-  --space-4: calc(4 * var(--space-unit));    /* 16px (1rem default) */
-  --space-5: calc(5 * var(--space-unit));    /* 20px */
-  --space-6: calc(6 * var(--space-unit));    /* 24px */
-  --space-7: calc(7 * var(--space-unit));    /* 28px */
-  --space-8: calc(8 * var(--space-unit));    /* 32px */
-  --space-9: calc(9 * var(--space-unit));    /* 36px */
-  --space-10: calc(10 * var(--space-unit));   /* 40px */
-  --space-11: calc(11 * var(--space-unit));   /* 44px */
-  --space-12: calc(12 * var(--space-unit));   /* 48px */
-  --space-14: calc(14 * var(--space-unit));   /* 56px */
-  --space-16: calc(16 * var(--space-unit));   /* 64px */
-  --space-20: calc(20 * var(--space-unit));   /* 80px */
-  --space-24: calc(24 * var(--space-unit));   /* 96px */
-
-  /* Semantic Spacing Aliases (based on the 8-point grid system common in UI design) */
-  --space-xxs: var(--space-1);  /* 4px */
-  --space-xs: var(--space-2);   /* 8px */
-  --space-sm: var(--space-3);   /* 12px */
-  --space-md: var(--space-4);   /* 16px */
-  --space-lg: var(--space-6);   /* 24px */
-  --space-xl: var(--space-8);   /* 32px */
-  --space-2xl: var(--space-10); /* 40px */
-  --space-3xl: var(--space-12); /* 48px */
-  --space-4xl: var(--space-16); /* 64px */
-
-
-  /* ==========================================================================
-     DEFAULT THEME - Modern, Professional, Tech-Forward AI Interface
-     ========================================================================== */
-
-  /* Primary Color System - Sophisticated & Approachable Tech Blue/Purple */
-  --primary: #6A5ACD; /* SlateBlue */
-  --primary-rgb: 106, 90, 205;
-  --primary-dark: #483D8B; /* DarkSlateBlue */
-  --primary-darker: #3B3070; /* Even darker for depth */
-  --primary-darker-rgb: 59, 48, 112;
-  --primary-light: #9370DB; /* MediumPurple */
-  --primary-lighter: #B0A4E0; /* Lighter purple */
-  --primary-lighter-rgb: 176, 164, 224;
-
-  /* Accent Colors - Energetic & Contrasting */
-  --accent: #FF69B4; /* HotPink - for vibrant accents */
-  --accent-rgb: 255, 105, 180;
-  --accent-light: #FF85C1;
-  --accent-dark: #DB7093; /* PaleVioletRed */
-
-  /* Semantic Colors - Clear Visual Cues */
-  --success: #32CD32;  /* LimeGreen */
-  --success-rgb: 50, 205, 50;
-  --warning: #FFD700;  /* Gold */
-  --warning-rgb: 255, 215, 0;
-  --error: #DC143C;    /* Crimson */
-  --error-rgb: 220, 20, 60;
-  --info: #1E90FF;     /* DodgerBlue */
-  --info-rgb: 30, 144, 255;
-
-  /* Background System - Clean & Layered */
-  --bg-primary: var(--white);
-  --bg-primary-rgb: 255, 255, 255;
-  --bg-secondary: var(--gray-50);
-  --bg-secondary-rgb: 249, 250, 251;
-  --bg-tertiary: var(--gray-100);
-  --bg-tertiary-rgb: 243, 244, 246;
-  --bg-elevated: var(--white);
-  --bg-elevated-rgb: 255, 255, 255;
-  --bg-overlay: rgba(var(--gray-900-rgb), 0.85); /* Darker overlay */
-  --bg-backdrop: rgba(var(--gray-800-rgb), 0.6); /* More blur, less opacity */
-
-  /* Text Color System - High Readability */
-  --text-primary: var(--gray-900);
-  --text-primary-rgb: 17, 24, 39;
-  --text-secondary: var(--gray-700);
-  --text-tertiary: var(--gray-500);
-  --text-muted: var(--gray-400);
-  --text-inverse: var(--white);
-  --text-link: var(--primary);
-  --text-link-hover: var(--primary-dark);
-
-  /* Border System - Subtle & Defining */
-  --border: var(--gray-300);
-  --border-rgb: 209, 213, 219;
-  --border-light: var(--gray-200);
-  --border-dark: var(--gray-400);
-  --border-input: var(--gray-300);
-  --border-input-focus: var(--primary);
-
-  /* ==========================================================================
-     SHADOW SYSTEM - Depth & Elevation (Modern, subtle shadows)
-     ========================================================================== */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -4px rgba(0, 0, 0, 0.09);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-  --shadow-none: none;
-
-  /* Themed Glow Effects (for primary interactive elements) */
-  --primary-glow-soft: rgba(var(--primary-rgb), 0.15);
-  --primary-glow-medium: rgba(var(--primary-rgb), 0.3);
-  --primary-glow-strong: rgba(var(--primary-rgb), 0.45);
-
-  /* ==========================================================================
-     BORDER RADIUS SYSTEM - Consistent Curvature
-     ========================================================================== */
-  --radius-none: 0px;
-  --radius-sm: 0.25rem;  /* 4px */
-  --radius-md: 0.375rem; /* 6px (default) */
-  --radius-lg: 0.5rem;   /* 8px */
-  --radius-xl: 0.75rem;  /* 12px */
-  --radius-2xl: 1rem;    /* 16px */
-  --radius-3xl: 1.5rem;  /* 24px */
-  --radius-full: 9999px; /* For pills, circles */
-
-  /* ==========================================================================
-     ANIMATION & TRANSITION SYSTEM - Smooth & Performant
-     ========================================================================== */
-
-  /* Easing Functions - Based on common web standards */
-  --ease-linear: cubic-bezier(0, 0, 1, 1);
-  --ease-in: cubic-bezier(0.42, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.58, 1);
-  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* More pronounced bounce */
-  --ease-back-in: cubic-bezier(0.36, 0, 0.66, -0.56);
-  --ease-back-out: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-back-in-out: cubic-bezier(0.68, -0.6, 0.32, 1.6);
-
-
-  /* Duration Scale - Standardized timing */
-  --duration-shortest: 75ms;
-  --duration-short: 100ms;
-  --duration-base: 150ms;
-  --duration-long: 200ms;
-  --duration-longer: 300ms;
-  --duration-longest: 500ms;
-
-  /* Semantic Durations - For common UI transitions */
-  --transition-fast: var(--duration-base);
-  --transition-medium: var(--duration-longer);
-  --transition-slow: var(--duration-longest);
-
-  /* ==========================================================================
-     Z-INDEX SYSTEM - Layering Stack
-     ========================================================================== */
-  --z-hide: -1;
-  --z-base: 0;
-  --z-docked: 10;
-  --z-dropdown: 1000;
-  --z-sticky: 1020;
-  --z-banner: 1030;
-  --z-overlay-backdrop: 1040; /* Changed name for clarity */
-  --z-modal: 1050;
-  --z-popover: 1060;
-  --z-tooltip: 1070;
-  --z-toast: 1080;
-  --z-loading-overlay: 2000;
-  --z-animation-overlay: 2100; /* For full-screen theme transitions */
-  --z-maximum: 2147483647;
-
-  /* ==========================================================================
-     BREAKPOINTS - Responsive Design System
-     ========================================================================== */
-  --breakpoint-xs: 480px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
-
-  /* ==========================================================================
-     GRADIENTS - Color Transitions
-     ========================================================================== */
-  --gradient-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-  --gradient-primary-hover: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(var(--white-rgb, 255,255,255), 0.15) 0%, rgba(var(--white-rgb, 255,255,255), 0.05) 100%);
-  --gradient-dark-subtle: linear-gradient(180deg, rgba(var(--gray-900-rgb), 0.08) 0%, transparent 70%);
-
-  /* ==========================================================================
-     COMPONENT-SPECIFIC VARIABLES (Can be overridden by themes)
-     ========================================================================== */
-  --loading-progress-height: 12px;
-  --sidebar-width: 280px;
-  --sidebar-width-mobile: 260px;
-  --chat-input-min-height: 48px;
-  --chat-input-max-height: 180px; /* Increased slightly */
-  --message-avatar-size: 36px;
-  --button-height-md: 44px;
+/* Remove default margins and padding from all elements */
+* {
+  margin: 0;
+  padding: 0;
 }
 
 /* ==========================================================================
-   JAWS THEME - Deep Ocean Terror (Overrides for :root variables)
+   ROOT & DOCUMENT SETUP
    ========================================================================== */
-[data-theme="jaws"] {
-  --primary: #0D47A1; /* Deep Blue */
-  --primary-rgb: 13, 71, 161;
-  --primary-dark: #002171;
-  --primary-darker: #00154F;
-  --primary-darker-rgb: 0, 21, 79;
-  --primary-light: #5472D3;
-  --primary-lighter: #8E99F3;
-  --primary-lighter-rgb: 142, 153, 243;
 
-  --accent: #D32F2F; /* Blood Red */
-  --accent-rgb: 211, 47, 47;
-  --accent-light: #FF6659;
-  --accent-dark: #9A0007;
+html {
+  /* Prevent adjustments of font size after orientation changes in iOS */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* Better font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Smooth scrolling for anchor links */
+  scroll-behavior: smooth;
+  
+  /* Set base font size (1rem = 16px by default) */
+  font-size: 100%;
+  
+  /* Improve text rendering */
+  text-rendering: optimizeLegibility;
+}
 
-  --bg-primary: #010D1A;
-  --bg-primary-rgb: 1, 13, 26;
-  --bg-secondary: #021A30;
-  --bg-tertiary: #032644;
-  --bg-elevated: #053057;
-  --bg-elevated-rgb: 5, 48, 87;
-  --bg-overlay: rgba(var(--black-rgb, 0,0,0), 0.9);
-  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
-
-  --text-primary: #E0F7FA; /* Light Cyan */
-  --text-secondary: #B2EBF2;
-  --text-tertiary: #80DEEA;
-  --text-muted: #4DD0E1;
-  --text-inverse: var(--white);
-
-  --border: var(--primary-dark);
-  --border-light: var(--primary);
-  --border-dark: #000A14; /* Very dark for contrast */
-
-  --font-family-heading: 'Nosifer', 'Creepster', var(--font-family-system-sans-serif); /* Themed heading */
-  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Nautical/typewriter body */
-
-  --shadow-lg: 0 8px 18px rgba(0,0,0,0.7), 0 0 15px rgba(var(--accent-rgb),0.4);
-  --shadow-xl: 0 12px 25px rgba(0,0,0,0.8), 0 0 20px rgba(var(--accent-rgb),0.5);
-  --primary-glow-soft: rgba(var(--primary-lighter-rgb), 0.2);
-  --primary-glow-medium: rgba(var(--primary-lighter-rgb), 0.4);
-  --primary-glow-strong: rgba(var(--primary-lighter-rgb), 0.6);
+body {
+  /* Remove default body margin */
+  margin: 0;
+  
+  /* Set default line-height for better readability */
+  line-height: 1.5;
+  
+  /* Enable font kerning */
+  font-kerning: normal;
+  
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  
+  /* Default text color and background */
+  color: var(--text-primary, #111827);
+  background-color: var(--bg-primary, #ffffff);
+  
+  /* Default font family */
+  font-family: var(--font-family-default, system-ui, -apple-system, sans-serif);
 }
 
 /* ==========================================================================
-   JURASSIC PARK THEME - Ancient Amber & Untamed Jungle
+   TYPOGRAPHY RESET
    ========================================================================== */
-[data-theme="jurassic"] {
-  --primary: #F5A623; /* Amber/Orange */
-  --primary-rgb: 245, 166, 35;
-  --primary-dark: #D4890A;
-  --primary-darker: #A96600;
-  --primary-darker-rgb: 169, 102, 0;
-  --primary-light: #FFC55C;
-  --primary-lighter: #FFE0A3;
-  --primary-lighter-rgb: 255, 224, 163;
 
-  --accent: #4A783A; /* Deep Jungle Green */
-  --accent-rgb: 74, 120, 58;
-  --accent-light: #7DB866;
-  --accent-dark: #2D571E;
-
-  --bg-primary: #1A140D; /* Darkest Brown */
-  --bg-primary-rgb: 26, 20, 13;
-  --bg-secondary: #2C241B;
-  --bg-tertiary: #3E352A;
-  --bg-elevated: #251F16;
-  --bg-elevated-rgb: 37, 31, 22;
-  --bg-overlay: rgba(var(--black-rgb,0,0,0), 0.9);
-  --bg-backdrop: rgba(var(--bg-primary-rgb), 0.8);
-
-  --text-primary: #EDE7D9; /* Fossil/Bone White */
-  --text-secondary: #D4CBAF;
-  --text-tertiary: #B0A085;
-  --text-muted: #8C7F69;
-  --text-inverse: var(--gray-950); /* Dark text on amber */
-
-  --border: var(--primary-darker);
-  --border-light: var(--primary-dark);
-  --border-dark: #5C4033; /* Dark Brown */
-
-  --font-family-heading: 'Rye', 'Metal Mania', var(--font-family-system-serif); /* Themed heading */
-  --font-family-default: 'Special Elite', var(--font-family-system-monospace); /* Typewriter/field notes body */
-
-  --shadow-lg: 0 8px 16px rgba(0,0,0,0.6), 0 0 12px rgba(var(--primary-darker-rgb),0.5);
-  --shadow-xl: 0 15px 30px rgba(0,0,0,0.7), 0 0 18px rgba(var(--primary-darker-rgb),0.6);
-  --primary-glow-soft: rgba(var(--primary-rgb), 0.25);
-  --primary-glow-medium: rgba(var(--primary-rgb), 0.4);
-  --primary-glow-strong: rgba(var(--primary-rgb), 0.6);
+/* Remove default margins from typography elements */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: inherit;
+  font-size: inherit;
 }
 
+p, blockquote, dl, dd, ol, ul, figure, hr, fieldset, legend {
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove list styles on ul, ol elements with a list role */
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+}
 
 /* ==========================================================================
-   ACCESSIBILITY & REDUCED MOTION (Global, overrides :root if necessary)
+   MEDIA ELEMENTS
+   ========================================================================== */
+
+/* Make images and media responsive by default */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Remove built-in form typography styles */
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+/* ==========================================================================
+   FORM ELEMENTS RESET
+   ========================================================================== */
+
+/* Remove default button styles */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Remove default input styles */
+input, textarea, select {
+  border: none;
+  background: none;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Reset fieldset */
+fieldset {
+  border: none;
+  min-width: 0;
+}
+
+/* Reset legend */
+legend {
+  display: block;
+  width: 100%;
+}
+
+/* ==========================================================================
+   TABLE RESET
+   ========================================================================== */
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+th, td {
+  padding: 0;
+  text-align: left;
+}
+
+/* ==========================================================================
+   LINK RESET
+   ========================================================================== */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & INTERACTION
+   ========================================================================== */
+
+/* Improve focus visibility */
+:focus-visible {
+  outline: 2px solid var(--primary, #7A77FF);
+  outline-offset: 2px;
+}
+
+/* Remove outline for non-keyboard focus */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure interactive elements have minimum touch target size */
+button, input, select, textarea, [role="button"], [role="link"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ==========================================================================
+   PRINT RESET
+   ========================================================================== */
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+  
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+  
+  pre {
+    white-space: pre-wrap !important;
+  }
+  
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+  
+  thead {
+    display: table-header-group;
+  }
+  
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+  
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  :root { /* Apply to all themes when reduced motion is preferred */
-    --transition-fast: 0ms !important;
-    --transition-medium: 0ms !important;
-    --transition-slow: 0ms !important;
-    --theme-transition-duration: 0ms !important;
-    --character-transition-speed: 0ms !important;
-    /* Keep other animation durations for critical feedback if absolutely necessary,
-       or set them to very short (e.g., 50ms) instead of 0ms.
-       For Opus Magnum, assume JS will also respect this for JS-driven animations. */
+  html {
+    scroll-behavior: auto;
   }
-}
-
-/* High Contrast Mode Defaults (System high contrast can be very different) */
-@media (prefers-contrast: more) {
-  :root {
-    --primary: ButtonText; /* Use system colors */
-    --accent: LinkText;
-    --bg-primary: Canvas;
-    --text-primary: CanvasText;
-    --border: GrayText;
-    --shadow-xs: none !important; --shadow-sm: none !important; --shadow-md: none !important;
-    --shadow-lg: none !important; --shadow-xl: none !important; --shadow-2xl: none !important;
-    --shadow-inner: none !important;
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  /* Theme-specific high contrast overrides might be needed in theme.css if system colors aren't thematic enough */
 }
