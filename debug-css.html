@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Debug</title>
+    <style>
+        /* Inline test styles */
+        .debug-test { 
+            background: lime; 
+            padding: 10px; 
+            margin: 10px;
+            border: 2px solid red;
+        }
+        .hidden-test { display: none; }
+    </style>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <h1>CSS Debug Test</h1>
+    
+    <div class="debug-test">
+        <p><strong>Inline CSS Test</strong> - This should have lime background and red border</p>
+    </div>
+    
+    <div class="debug-test hidden">
+        <p><strong>Hidden Class Test</strong> - This should be hidden if main.css loads (.hidden class)</p>
+    </div>
+    
+    <div id="css-variables-test" style="color: var(--primary, purple);">
+        <p><strong>CSS Variables Test</strong> - This should be blue/purple if variables load, purple if they don't</p>
+    </div>
+    
+    <button class="btn btn-primary">Button Test</button>
+    
+    <script>
+        // Debug CSS loading
+        setTimeout(() => {
+            const testDiv = document.getElementById('css-variables-test');
+            const computedColor = getComputedStyle(testDiv).color;
+            const primaryVar = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+            
+            console.log('CSS Variable --primary:', primaryVar);
+            console.log('Computed color:', computedColor);
+            console.log('Body background:', getComputedStyle(document.body).backgroundColor);
+            
+            // Test if .hidden class works
+            const hiddenTest = document.querySelector('.debug-test.hidden');
+            const hiddenDisplay = getComputedStyle(hiddenTest).display;
+            console.log('Hidden element display:', hiddenDisplay);
+            
+            // Report results
+            const report = document.createElement('div');
+            report.style.cssText = 'position:fixed; top:10px; right:10px; background:white; border:2px solid black; padding:10px; z-index:9999; font-family:monospace; font-size:12px;';
+            report.innerHTML = `
+                <strong>CSS Debug Report:</strong><br>
+                --primary variable: ${primaryVar || 'NOT LOADED'}<br>
+                .hidden works: ${hiddenDisplay === 'none' ? 'YES' : 'NO'}<br>
+                Body background: ${getComputedStyle(document.body).backgroundColor}<br>
+                Status: ${primaryVar ? 'CSS LOADED' : 'CSS FAILED'}
+            `;
+            document.body.appendChild(report);
+        }, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Only Test - Parkland AI</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body data-theme="default">
+    <!-- This test shows the main app content WITHOUT the loading screen -->
+    <!-- and WITHOUT any JavaScript, to test if CSS works -->
+    
+    <div id="appContainer" class="app-container sidebar-open">
+        <div id="chatContainer" class="chat-container">
+            <aside class="sidebar open" id="appSidebar">
+                <div class="sidebar-header">
+                    <button class="btn btn-icon btn-ghost">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="brand">
+                        <div class="brand-icon">[PA]</div>
+                        <span class="brand-name">Parkland AI</span>
+                    </div>
+                    <button class="btn btn-primary new-chat-btn">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                            </svg>
+                        </span>
+                        <span class="btn-text">New Chat</span>
+                    </button>
+                </div>
+                <div class="sidebar-content">
+                    <nav class="chat-history-nav">
+                        <ul class="chat-history-list">
+                            <li><a href="#">Previous Chat 1</a></li>
+                            <li><a href="#">Previous Chat 2</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <main class="chat-area">
+                <header class="chat-header">
+                    <div class="chat-title">CSS Test Chat</div>
+                </header>
+                <div class="messages-container">
+                    <div class="messages-inner">
+                        <div class="message">
+                            <div class="message-wrapper">
+                                <div class="message-content">
+                                    <p>This is a test message. If you can see this styled properly with the sidebar, buttons, and layout, then CSS is working!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="input-area">
+                    <form class="chat-input-form">
+                        <textarea class="form-input chat-input" placeholder="Test message input..."></textarea>
+                        <button type="submit" class="btn btn-primary btn-icon">
+                            <span class="icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </form>
+                </footer>
+            </main>
+        </div>
+    </div>
+    
+    <div style="position: fixed; top: 10px; right: 10px; background: yellow; padding: 10px; border: 2px solid red; z-index: 9999;">
+        <strong>CSS Test</strong><br>
+        If this layout looks good, CSS works!<br>
+        If everything is unstyled, CSS is broken.
+    </div>
+</body>
+</html>

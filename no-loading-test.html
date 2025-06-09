@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Loading Test</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body data-theme="default">
+    <!-- Loading overlay is HIDDEN by default -->
+    <div id="loadingOverlay" class="hidden">
+        <div class="loading-logo-container">
+             <div class="loading-logo">[PA]</div>
+        </div>
+        <div class="loading-text">This should be hidden</div>
+    </div>
+
+    <!-- App container is VISIBLE by default -->
+    <div id="appContainer" class="app-container sidebar-open">
+        <!-- Login is VISIBLE (remove hidden class) -->
+        <div id="loginContainer" class="login-container">
+            <div class="login-card animate-in">
+                <div class="brand-icon login-brand-icon">[PA]</div>
+                <h1 class="login-title">Parkland AI</h1>
+                <p class="login-subtitle">Opus Magnum Edition</p>
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="apiKeyInput" class="form-label">Enter Your API Key</label>
+                        <input type="password" id="apiKeyInput" class="form-input" placeholder="sk-..." required>
+                        <small class="form-help">Your API key is stored locally.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Access Parkland AI</button>
+                </form>
+                <p class="login-footer-note">No API key? This is a conceptual application.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Debug info -->
+    <div style="position: fixed; bottom: 10px; right: 10px; background: white; border: 2px solid black; padding: 10px; z-index: 10000; font-family: monospace;">
+        <strong>Debug:</strong><br>
+        If you see the login form, CSS works!<br>
+        If you see unstyled content, CSS is broken.
+    </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Test</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        body { background: yellow; } /* This should be overridden if CSS loads */
+        .test { color: red; font-size: 24px; padding: 20px; border: 2px solid blue; }
+    </style>
+</head>
+<body data-theme="default">
+    <div class="test">
+        <h1>CSS Test</h1>
+        <p>If the background is yellow, CSS didn't load.</p>
+        <p>If the background is white/light and this text is styled, CSS loaded.</p>
+        <button class="btn btn-primary">Test Button</button>
+    </div>
+    
+    <div id="loadingOverlay" class="hidden">
+        <div class="loading-logo">[PA]</div>
+    </div>
+    
+    <script>
+        console.log('Computed styles for body:', getComputedStyle(document.body));
+        console.log('Body background:', getComputedStyle(document.body).backgroundColor);
+        console.log('CSS variables loaded:', getComputedStyle(document.documentElement).getPropertyValue('--primary'));
+    </script>
+</body>
+</html>
