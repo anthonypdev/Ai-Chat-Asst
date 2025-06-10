@@ -38,9 +38,6 @@ body {
   -webkit-hyphens: auto;
   -moz-hyphens: auto;
   hyphens: auto;
-
-  /* Optimize font loading behavior (though primarily for web fonts) */
-  font-display: swap;
 }
 
 /* ==========================================================================
@@ -274,19 +271,6 @@ a:focus-visible, .link:focus-visible { /* Modern focus styling */
   border-radius: var(--radius-sm);
 }
 
-/* External links icon (optional, can be themed) */
-/* Consider if this is wanted for all external links or specific ones */
-/*
-a[href^="http"]:not([href*="yourdomain.com"])::after,
-a[target="_blank"]::after {
-  content: ' ↗';
-  font-size: 0.85em;
-  opacity: 0.7;
-  margin-left: 0.15em;
-  display: inline-block;
-}
-*/
-
 /* ==========================================================================
    LISTS & STRUCTURED CONTENT
    ========================================================================== */
@@ -358,44 +342,35 @@ q::before { content: open-quote; }
 q::after { content: close-quote; }
 
 /* ==========================================================================
-   TYPOGRAPHIC UTILITY CLASSES (defined in utilities.css but listed here for context)
-   .font-thin, .font-bold, .text-lg, .text-center, .uppercase, .truncate, etc.
-   ========================================================================== */
-
-/* ==========================================================================
    THEME-SPECIFIC TYPOGRAPHY ADAPTATIONS (Using System Fonts)
-   These aim to evoke the *feel* of the original theme fonts using system stacks
-   and additional CSS properties like text-shadow, letter-spacing, etc.
-   Actual font-family assignments would happen in theme-specific CSS files (e.g., themes/jaws/theme.css).
-   This section provides a baseline for those theme files.
    ========================================================================== */
 
-/* JAWS THEME TYPOGRAPHY (Evoking Nosifer, Creepster, Bangers, Pirata One, Special Elite) */
+/* JAWS THEME TYPOGRAPHY */
 [data-theme="jaws"] {
-  --font-family-jaws-display1: var(--font-family-system-sans-serif); /* For Nosifer-like: bold, possibly condensed, heavily styled */
-  --font-family-jaws-display2: var(--font-family-system-sans-serif); /* For Creepster-like: irregular, hand-drawn feel */
-  --font-family-jaws-display3: var(--font-family-system-sans-serif); /* For Bangers-like: bold, comic/poster style */
-  --font-family-jaws-serif: var(--font-family-system-serif);         /* For Pirata One-like: old-style, slightly rugged serif */
-  --font-family-jaws-mono: var(--font-family-system-monospace);     /* For Special Elite-like: typewriter monospace */
+  --font-family-jaws-display1: var(--font-family-system-sans-serif);
+  --font-family-jaws-display2: var(--font-family-system-sans-serif);
+  --font-family-jaws-display3: var(--font-family-system-sans-serif);
+  --font-family-jaws-serif: var(--font-family-system-serif);
+  --font-family-jaws-mono: var(--font-family-system-monospace);
 }
 
-[data-theme="jaws"] body { font-family: var(--font-family-jaws-mono); } /* Default body text to typewriter style */
-[data-theme="jaws"] h1, [data-theme="jaws"] .h1 { font-family: var(--font-family-jaws-display1); /* Styled heavily in theme.css */ }
+[data-theme="jaws"] body { font-family: var(--font-family-jaws-mono); }
+[data-theme="jaws"] h1, [data-theme="jaws"] .h1 { font-family: var(--font-family-jaws-display1); }
 [data-theme="jaws"] h2, [data-theme="jaws"] .h2 { font-family: var(--font-family-jaws-display2); }
 [data-theme="jaws"] h3, [data-theme="jaws"] .h3 { font-family: var(--font-family-jaws-display3); }
 [data-theme="jaws"] .character-quint { font-family: var(--font-family-jaws-serif); }
 [data-theme="jaws"] code, [data-theme="jaws"] pre { font-family: var(--font-family-jaws-mono); }
 
-/* JURASSIC PARK THEME TYPOGRAPHY (Evoking Rye, Metal Mania, Ewert, Special Elite) */
+/* JURASSIC PARK THEME TYPOGRAPHY */
 [data-theme="jurassic"] {
-  --font-family-jurassic-display1: var(--font-family-system-serif); /* For Rye-like: Western, slab-serif feel */
-  --font-family-jurassic-display2: var(--font-family-system-sans-serif);/* For Metal Mania-like: heavy, distressed */
-  --font-family-jurassic-display3: var(--font-family-system-serif);/* For Ewert-like: decorative, slightly old-fashioned */
-  --font-family-jurassic-mono: var(--font-family-system-monospace);  /* For Special Elite-like: typewriter monospace */
+  --font-family-jurassic-display1: var(--font-family-system-serif);
+  --font-family-jurassic-display2: var(--font-family-system-sans-serif);
+  --font-family-jurassic-display3: var(--font-family-system-serif);
+  --font-family-jurassic-mono: var(--font-family-system-monospace);
 }
 
-[data-theme="jurassic"] body { font-family: var(--font-family-jurassic-mono); } /* Default body text to typewriter style */
-[data-theme="jurassic"] h1, [data-theme="jurassic"] .h1 { font-family: var(--font-family-jurassic-display1); /* Styled heavily in theme.css */ }
+[data-theme="jurassic"] body { font-family: var(--font-family-jurassic-mono); }
+[data-theme="jurassic"] h1, [data-theme="jurassic"] .h1 { font-family: var(--font-family-jurassic-display1); }
 [data-theme="jurassic"] h2, [data-theme="jurassic"] .h2 { font-family: var(--font-family-jurassic-display2); }
 [data-theme="jurassic"] h3, [data-theme="jurassic"] .h3 { font-family: var(--font-family-jurassic-display3); }
 [data-theme="jurassic"] code, [data-theme="jurassic"] pre { font-family: var(--font-family-jurassic-mono); }
@@ -404,14 +379,11 @@ q::after { content: close-quote; }
    RESPONSIVE TYPOGRAPHY ADJUSTMENTS
    ========================================================================== */
 
-/* Tablet adjustments - html font-size adjusted in variables.css typically, or directly */
 @media (max-width: var(--breakpoint-md)) {
   /* Slightly reduce heading sizes or margins if needed, relying on clamp() mostly */
 }
 
-/* Mobile adjustments */
 @media (max-width: var(--breakpoint-sm)) {
-  /* html { font-size: 14px; } // This base change is often better than individual element changes */
   /* Reduce heading sizes further if clamp() isn't enough for aesthetics */
 }
 
@@ -420,7 +392,7 @@ q::after { content: close-quote; }
    ========================================================================== */
 @media print {
   body {
-    font-family: var(--font-family-system-serif); /* Use a generic serif for print */
+    font-family: var(--font-family-system-serif);
     font-size: 12pt;
     line-height: 1.4;
     color: var(--black);
@@ -428,7 +400,7 @@ q::after { content: close-quote; }
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-family-system-sans-serif); /* Sans-serif for print headings */
+    font-family: var(--font-family-system-sans-serif);
     color: var(--black) !important;
     text-shadow: none !important;
     -webkit-text-stroke: none !important;
@@ -438,17 +410,17 @@ q::after { content: close-quote; }
   h3 { font-size: 14pt; margin-bottom: 10pt; }
 
   p { margin-bottom: 12pt; }
-  a { color: #0000EE; text-decoration: underline; } /* Standard blue for print links */
+  a { color: #0000EE; text-decoration: underline; }
   a[href]::after { content: " (" attr(href) ")"; font-size: 90%; }
-  a[href^="#"]::after, a[href^="javascript:"]::after { content: ""; } /* Don't show for internal/JS links */
+  a[href^="#"]::after, a[href^="javascript:"]::after { content: ""; }
 
   pre, code, kbd, samp {
     font-family: var(--font-family-system-monospace);
     font-size: 10pt;
-    background: var(--gray-100) !important; /* Light background for print */
+    background: var(--gray-100) !important;
     color: var(--black) !important;
     border: 1px solid var(--gray-300) !important;
-    white-space: pre-wrap !important; /* Ensure code wraps in print */
+    white-space: pre-wrap !important;
     word-wrap: break-word !important;
   }
 
