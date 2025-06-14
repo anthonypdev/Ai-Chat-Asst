@@ -6,12 +6,14 @@
  * This allows different parts of the application to communicate without direct dependencies.
  */
 
+/* global logger */
+
 class EventEmitter {
     constructor() {
         this.events = {}; // Stores event listeners: { eventName: [listener1, listener2, ...] }
         // Ensure this log happens to confirm constructor execution
         if (typeof console !== 'undefined') {
-            console.log('📢 EventEmitter initialized.');
+            logger.debug('📢 EventEmitter initialized.');
         }
     }
 
@@ -22,11 +24,11 @@ class EventEmitter {
      */
     on(eventName, listener) {
         if (typeof eventName !== 'string' || eventName.trim() === '') {
-            console.error('EventEmitter.on: eventName must be a non-empty string.', { eventName, listener });
+            logger.error('EventEmitter.on: eventName must be a non-empty string.', { eventName, listener });
             return;
         }
         if (typeof listener !== 'function') {
-            console.error(`EventEmitter.on: Listener for event "${eventName}" must be a function.`, { listener });
+            logger.error(`EventEmitter.on: Listener for event "${eventName}" must be a function.`, { listener });
             return;
         }
 
@@ -46,11 +48,11 @@ class EventEmitter {
      */
     off(eventName, listenerToRemove) {
         if (typeof eventName !== 'string' || eventName.trim() === '') {
-            console.error('EventEmitter.off: eventName must be a non-empty string.', { eventName, listenerToRemove });
+            logger.error('EventEmitter.off: eventName must be a non-empty string.', { eventName, listenerToRemove });
             return;
         }
         if (typeof listenerToRemove !== 'function') {
-            console.error(`EventEmitter.off: Listener for event "${eventName}" must be a function to remove.`, { listenerToRemove });
+            logger.error(`EventEmitter.off: Listener for event "${eventName}" must be a function to remove.`, { listenerToRemove });
             return;
         }
 
@@ -74,7 +76,7 @@ class EventEmitter {
      */
     emit(eventName, ...args) {
         if (typeof eventName !== 'string' || eventName.trim() === '') {
-            console.error('EventEmitter.emit: eventName must be a non-empty string.', { eventName, args });
+            logger.error('EventEmitter.emit: eventName must be a non-empty string.', { eventName, args });
             return;
         }
 
@@ -84,7 +86,7 @@ class EventEmitter {
                 try {
                     listener(...args);
                 } catch (error) {
-                    console.error(`Error in listener for event "${eventName}":`, error);
+                    logger.error(`Error in listener for event "${eventName}":`, error);
                     // Consider re-emitting as a specific 'emitter:error' event if robust error handling for listeners is needed
                     // this.emit('emitter:error', { sourceEvent: eventName, error: error, listener: listener.toString() });
                 }
@@ -94,7 +96,7 @@ class EventEmitter {
 
     once(eventName, listener) {
         if (typeof listener !== 'function') {
-            console.error(`EventEmitter.once: Listener for event "${eventName}" must be a function.`, { listener });
+            logger.error(`EventEmitter.once: Listener for event "${eventName}" must be a function.`, { listener });
             return;
         }
         const self = this; // Correctly capture 'this' context of the EventEmitter instance
@@ -120,7 +122,7 @@ class EventEmitter {
         } else if (eventName === undefined || eventName === null || eventName === '') { // Explicitly handle cases for removing all
             this.events = {};
         } else {
-            console.error('EventEmitter.removeAllListeners: Invalid eventName provided if attempting to remove specific listeners.');
+            logger.error('EventEmitter.removeAllListeners: Invalid eventName provided if attempting to remove specific listeners.');
         }
     }
 }
@@ -133,7 +135,7 @@ if (typeof window !== 'undefined') {
     window.AppEvents = appEventsInstance;
 } else {
     // Fallback for non-browser environments if this script were ever used there (unlikely for this project)
-    console.warn("EventEmitter: 'window' object not found. Global AppEvents instance may not be set.");
+    logger.warn("EventEmitter: 'window' object not found. Global AppEvents instance may not be set.");
 }
 
 // If this script (events.js) executes successfully, window.AppEvents should now be defined.

@@ -7,6 +7,8 @@
  * and serves as a blueprint for specific character implementations.
  */
 
+/* global logger */
+
 class BaseCharacter {
     /**
      * @param {string} key - Unique identifier for the character (e.g., 'quint', 'mr-dna').
@@ -71,7 +73,7 @@ class BaseCharacter {
         if (this.uiElementSelector) {
             this.uiElement = this.utils.$(this.uiElementSelector);
             if (!this.uiElement) {
-                console.warn(`BaseCharacter '${this.key}': UI element with selector "${this.uiElementSelector}" not found.`);
+                logger.warn(`BaseCharacter '${this.key}': UI element with selector "${this.uiElementSelector}" not found.`);
             } else {
                 // Ensure base styling for visibility control
                 this.utils.addClass(this.uiElement, 'character-base-ui');
@@ -79,7 +81,7 @@ class BaseCharacter {
             }
         }
         if (this.stateManager.get('debugMode')) {
-            console.log(`Character "${this.name}" (key: ${this.key}) initialized.`);
+            logger.character(`Character "${this.name}" (key: ${this.key}) initialized.`);
         }
     }
 
@@ -94,7 +96,7 @@ class BaseCharacter {
         this.startIdleAnimation();
         this.eventEmitter.emit('character:activated', { characterKey: this.key, character: this });
         if (this.stateManager.get('debugMode')) {
-            console.log(`Character "${this.name}" activated.`);
+            logger.character(`Character "${this.name}" activated.`);
         }
     }
 
@@ -108,7 +110,7 @@ class BaseCharacter {
         this.stopIdleAnimation();
         this.eventEmitter.emit('character:deactivated', { characterKey: this.key, character: this });
         if (this.stateManager.get('debugMode')) {
-            console.log(`Character "${this.name}" deactivated.`);
+            logger.character(`Character "${this.name}" deactivated.`);
         }
     }
 
@@ -145,7 +147,7 @@ class BaseCharacter {
      */
     speak(text, options = {}) {
         if (!text || typeof text !== 'string') {
-            console.warn(`Character "${this.name}": No text provided to speak.`);
+            logger.warn(`Character "${this.name}": No text provided to speak.`);
             return;
         }
         this.eventEmitter.emit('character:speakRequested', {
@@ -207,7 +209,7 @@ class BaseCharacter {
             }
         }
         if (this.stateManager.get('debugMode')) {
-            console.log(`Character "${this.name}" status updated to: ${status}`);
+            logger.character(`Character "${this.name}" status updated to: ${status}`);
         }
     }
 
@@ -258,7 +260,7 @@ class BaseCharacter {
      */
     interact() {
         if (this.stateManager.get('debugMode')) {
-            console.log(`Character "${this.name}" interacted with.`);
+            logger.character(`Character "${this.name}" interacted with.`);
         }
         this.eventEmitter.emit('character:interacted', { characterKey: this.key, character: this });
         // Could trigger a specific animation or sound effect
@@ -273,7 +275,7 @@ class BaseCharacter {
             // this.uiElement.parentNode.removeChild(this.uiElement); // Let ThemeManager/DOM manager handle removal
         }
         if (this.stateManager.get('debugMode')) {
-            console.log(`Character "${this.name}" destroyed.`);
+            logger.character(`Character "${this.name}" destroyed.`);
         }
     }
 }

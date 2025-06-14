@@ -27,11 +27,14 @@ const mockElement = {
 };
 
 // Mock document
+const mockQuerySelector = jest.fn(() => mockElement);
+const mockQuerySelectorAll = jest.fn(() => [mockElement]);
+
 global.document = {
   ...global.document,
   createElement: jest.fn(() => mockElement),
-  querySelector: jest.fn(() => mockElement),
-  querySelectorAll: jest.fn(() => [mockElement]),
+  querySelector: mockQuerySelector,
+  querySelectorAll: mockQuerySelectorAll,
   createDocumentFragment: jest.fn(() => mockElement),
   createTextNode: jest.fn(() => mockElement),
   head: mockElement,
@@ -42,6 +45,11 @@ describe('ParklandUtils', () => {
   let utils;
 
   beforeEach(() => {
+    // Clear mocks
+    jest.clearAllMocks();
+    mockQuerySelector.mockClear();
+    mockQuerySelectorAll.mockClear();
+    
     // Since we can't import the actual class due to browser globals,
     // we'll test the functionality by creating a mock implementation
     utils = {
@@ -54,7 +62,7 @@ describe('ParklandUtils', () => {
         if (useCache && this.cache.has(cacheKey)) {
           return this.cache.get(cacheKey);
         }
-        const element = context.querySelector(selector);
+        const element = mockQuerySelector(selector);
         if (useCache && element) {
           this.cache.set(cacheKey, element);
         }
@@ -62,7 +70,7 @@ describe('ParklandUtils', () => {
       },
 
       $$(selector, context = document) {
-        return Array.from(context.querySelectorAll(selector));
+        return Array.from(mockQuerySelectorAll(selector));
       },
 
       addClass(element, ...classNames) {
@@ -162,25 +170,25 @@ describe('ParklandUtils', () => {
   describe('DOM Utilities', () => {
     test('$ should query and cache elements', () => {
       const mockEl = { id: 'test' };
-      document.querySelector.mockReturnValue(mockEl);
+      mockQuerySelector.mockReturnValueOnce(mockEl);
 
       const result1 = utils.$('#test');
       const result2 = utils.$('#test'); // Should use cache
 
       expect(result1).toBe(mockEl);
       expect(result2).toBe(mockEl);
-      expect(document.querySelector).toHaveBeenCalledTimes(1);
+      expect(mockQuerySelector).toHaveBeenCalledTimes(1);
       expect(utils.cache.size).toBe(1);
     });
 
     test('$$ should return array of elements', () => {
       const mockElements = [{ id: 'test1' }, { id: 'test2' }];
-      document.querySelectorAll.mockReturnValue(mockElements);
+      mockQuerySelectorAll.mockReturnValueOnce(mockElements);
 
       const result = utils.$$('.test');
 
       expect(result).toEqual(mockElements);
-      expect(document.querySelectorAll).toHaveBeenCalledWith('.test');
+      expect(mockQuerySelectorAll).toHaveBeenCalledWith('.test');
     });
 
     test('addClass should add classes to element', () => {

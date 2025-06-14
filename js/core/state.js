@@ -6,6 +6,8 @@
  * Ensures data consistency and provides a centralized way to access and modify state.
  */
 
+/* global logger */
+
 class StateManager {
     constructor() {
         if (StateManager.instance) {
@@ -60,7 +62,7 @@ class StateManager {
 
     get(key) {
         if (typeof key !== 'string') {
-            console.error('StateManager.get: Key must be a string.');
+            logger.error('StateManager.get: Key must be a string.');
             return undefined;
         }
         if (!key.includes('.')) {
@@ -73,12 +75,12 @@ class StateManager {
 
     set(key, value, silent = false) {
         if (typeof key !== 'string') {
-            console.error('StateManager.set: Key must be a string.');
+            logger.error('StateManager.set: Key must be a string.');
             return;
         }
 
         if (key === 'isLoading' && typeof console !== 'undefined') {
-            console.log(`DEBUG StateManager.set: Attempting to set 'isLoading' to ${value}. Current value: ${this._state.isLoading}`);
+            logger.state(`DEBUG StateManager.set: Attempting to set 'isLoading' to ${value}. Current value: ${this._state.isLoading}`);
         }
 
         let changed = false;
@@ -100,21 +102,21 @@ class StateManager {
 
         if (changed && !silent) {
             if (key === 'isLoading' && typeof console !== 'undefined') {
-                console.log(`DEBUG StateManager.set: 'isLoading' changed. Emitting change:isLoading and change.`);
+                logger.state(`DEBUG StateManager.set: 'isLoading' changed. Emitting change:isLoading and change.`);
             }
             this.emit(`change:${key}`, { key, newValue: value, oldValue });
             this.emit('change', { key, newValue: value, oldValue }); 
             if (this.get('debugMode')) {
-                console.log(`%cSTATE CHANGE: ${key}`, 'color: #4CAF50; font-weight: bold;', { newValue: value, oldValue: oldValue });
+                logger.state(`%cSTATE CHANGE: ${key}`, 'color: #4CAF50; font-weight: bold;', { newValue: value, oldValue: oldValue });
             }
         } else if (!changed && key === 'isLoading' && typeof console !== 'undefined') {
-            console.log(`DEBUG StateManager.set: 'isLoading' value not changed. No event emitted.`);
+            logger.state(`DEBUG StateManager.set: 'isLoading' value not changed. No event emitted.`);
         }
     }
 
     subscribe(event, callback) {
         if (typeof callback !== 'function') {
-            console.error('StateManager.subscribe: Callback must be a function.');
+            logger.error('StateManager.subscribe: Callback must be a function.');
             return;
         }
         if (!this._events[event]) {
@@ -136,7 +138,7 @@ class StateManager {
                 try {
                     callback(data);
                 } catch (error) {
-                    console.error(`Error in StateManager event listener for "${event}":`, error);
+                    logger.error(`Error in StateManager event listener for "${event}":`, error);
                     this.set('lastError', {
                         message: `Event listener error for ${event}: ${error.message}`,
                         stack: error.stack,
@@ -189,14 +191,14 @@ class StateManager {
             }
 
         } catch (error) {
-            console.error('Error loading initial state:', error);
+            logger.error('Error loading initial state:', error);
         }
-        console.log('👑 StateManager initialized and initial state loaded. Debug mode:', this.get('debugMode'));
+        logger.state('👑 StateManager initialized and initial state loaded. Debug mode:', this.get('debugMode'));
     }
 
     saveState(keysToSave = ['currentTheme', 'userPreferences', 'apiKey', 'activeCharacter', 'activeSessionId']) {
         if (typeof localStorage === 'undefined') {
-            console.warn('LocalStorage is not available. State will not be persisted.');
+            logger.warn('LocalStorage is not available. State will not be persisted.');
             return;
         }
         try {
@@ -223,10 +225,10 @@ class StateManager {
             }
 
             if (this.get('debugMode')) {
-                console.log('%cSAVED STATE for keys:', 'color: #FF9800;', keysToSave);
+                logger.state('%cSAVED STATE for keys:', 'color: #FF9800;', keysToSave);
             }
         } catch (error) {
-            console.error('Error saving state:', error);
+            logger.error('Error saving state:', error);
         }
     }
 
@@ -237,12 +239,12 @@ class StateManager {
     updateUserInput(input) { this.set('userInput', input); }
     setLoading(isLoading) { this.set('isLoading', isLoading); } // This will now log internally too
     toggleSidebar(isOpen = null) { const current = this.get('isSidebarOpen'); this.set('isSidebarOpen', isOpen === null ? !current : isOpen); }
-    setModalOpen(modalName, isOpen) { if (Object.prototype.hasOwnProperty.call(this._state, modalName)) { this.set(modalName, isOpen); } else { console.warn(`Modal state key "${modalName}" not found.`); }}
+    setModalOpen(modalName, isOpen) { if (Object.prototype.hasOwnProperty.call(this._state, modalName)) { this.set(modalName, isOpen); } else { logger.warn(`Modal state key "${modalName}" not found.`); }}
     setApiKey(key) { const validatedKey = key ? key.trim() : null; this.set('apiKey', validatedKey); this.saveState(['apiKey']); if (validatedKey) { this.set('currentView', 'chat'); this.set('isLoginModalOpen', false); } else { this.set('currentView', 'login'); this.set('isLoginModalOpen', true); }}
     setUserPreference(key, value) { const fullKey = `userPreferences.${key}`; this.set(fullKey, value); this.saveState(['userPreferences']); }
     setActiveSessionId(sessionId) { this.set('activeSessionId', sessionId); this.saveState(['activeSessionId']);}
-    logState() { console.log('%cCURRENT STATE:', 'color: #2196F3; font-weight: bold;', JSON.parse(JSON.stringify(this._state))); }
-    enableDebugging(enable = true) { this.set('debugMode', enable, true); if (enable) { console.log('%cStateManager Debug Mode Enabled', 'color: orange; font-weight: bold;'); this.logState(); }}
+    logState() { logger.state('%cCURRENT STATE:', 'color: #2196F3; font-weight: bold;', JSON.parse(JSON.stringify(this._state))); }
+    enableDebugging(enable = true) { this.set('debugMode', enable, true); if (enable) { logger.state('%cStateManager Debug Mode Enabled', 'color: orange; font-weight: bold;'); this.logState(); }}
 }
 
 window.StateManager = StateManager;
