@@ -8,9 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "lint": "eslint js/**/*.js --fix",
     "format": "prettier --write .",
     "serve": "http-server -p 8080 -c-1",
@@ -71,35 +71,6 @@
     "jspdf": "^2.5.1",
     "lodash-es": "^4.17.21",
     "turndown": "^7.1.2"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/setup.js"
-    ],
-    "collectCoverageFrom": [
-      "js/**/*.js",
-      "!js/**/*.test.js",
-      "!js/**/*.spec.js",
-      "!workers/**/*.js"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "json"
-    ],
-    "testMatch": [
-      "<rootDir>/tests/**/*.test.js",
-      "<rootDir>/js/**/*.test.js"
-    ],
-    "transform": {
-      "^.+\\.js$": "babel-jest"
-    }
   },
   "prettier": {
     "semi": true,

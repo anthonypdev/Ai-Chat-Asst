@@ -226,3 +226,5 @@ class ThemeTransition {
 
 // If not using ES modules:
 // window.ThemeTransition = ThemeTransition;
+
+window.ThemeTransition = ThemeTransition;

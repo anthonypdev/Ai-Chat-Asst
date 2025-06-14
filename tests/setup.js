@@ -4,8 +4,10 @@
  */
 
 import '@testing-library/jest-dom';
+import { jest } from '@jest/globals';
 
 // Mock Web APIs that may not be available in JSDOM
+global.jest = jest;
 global.speechSynthesis = {
   speak: jest.fn(),
   cancel: jest.fn(),
@@ -230,7 +232,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  // Clean up any remaining timers
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
+  // Clean up any remaining timers if fake timers are in use
+  if (jest.isMockFunction(setTimeout)) {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  }
 });

@@ -247,11 +247,7 @@ class BaseCharacter {
             // Update backgroundPosition to show the current frame
             // This assumes a horizontal sprite sheet. Adjust if vertical or grid.
             // Example: if sprite sheet is arranged in columns, you'd also adjust backgroundPosition Y.
-            const xOffset = (this.currentFrame % (this.spriteSheetWidth / this.frameWidth)) * this.frameWidth;
-            const yOffset = Math.floor(this.currentFrame / (this.spriteSheetWidth / this.frameWidth)) * this.frameHeight;
-
-            // This needs `this.spriteSheetWidth` to be defined or calculated.
-            // For simple horizontal strip:
+            // For simple horizontal strip sprite sheet
             this.uiElement.style.backgroundPosition = `-${this.currentFrame * this.frameWidth}px 0px`;
 
         }, this.animationSpeed);
@@ -282,5 +278,5 @@ class BaseCharacter {
     }
 }
 
-// If not using ES modules:
-// window.BaseCharacter = BaseCharacter;
+// Make BaseCharacter available globally
+window.BaseCharacter = BaseCharacter;

@@ -318,3 +318,5 @@ class ClaudeAPIService {
 
 // If not using ES modules and need it globally, ensure it's available:
 // window.ClaudeAPIService = ClaudeAPIService;
+
+window.ClaudeAPIService = ClaudeAPIService;

@@ -286,3 +286,5 @@ class ThemeManager {
 
 // If not using ES modules:
 // window.ThemeManager = ThemeManager;
+
+window.ThemeManager = ThemeManager;

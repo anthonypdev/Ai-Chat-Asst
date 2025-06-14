@@ -103,3 +103,5 @@ class ThemePersistence {
 // e.g., in App.js:
 // this.themePersistence = new ThemePersistence(this.stateManager);
 // this.themeManager = new ThemeManager(this.stateManager, this.utils, this.eventEmitter, this.themePersistence, ...);
+
+window.ThemePersistence = ThemePersistence;

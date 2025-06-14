@@ -6,19 +6,21 @@
  * and handles the main application lifecycle.
  */
 
+/* global MarkdownProcessor, ClaudeAPIService, ChatMessages, ChatHistory, VoiceRecognition, VoiceSynthesis, TypingIndicatorManager, ChatSearchManager, ThemePersistence, ThemeTransition, CharacterManager, ThemeManager, StateManager, logger */
+
 class App {
     constructor() {
         // This initial check for core globals should pass now.
         if (typeof console !== 'undefined') {
-            console.log('App Constructor: Checking global singletons/classes...');
-            console.log('typeof window.UtilsInstance:', typeof window.UtilsInstance, '; Value:', window.UtilsInstance);
-            console.log('typeof window.StateManager (Class):', typeof window.StateManager, '; Value:', window.StateManager);
-            console.log('typeof window.AppEvents:', typeof window.AppEvents, '; Value:', window.AppEvents);
+            logger.app('App Constructor: Checking global singletons/classes...');
+            logger.app('typeof window.UtilsInstance:', typeof window.UtilsInstance, '; Value:', window.UtilsInstance);
+            logger.app('typeof window.StateManager (Class):', typeof window.StateManager, '; Value:', window.StateManager);
+            logger.app('typeof window.AppEvents:', typeof window.AppEvents, '; Value:', window.AppEvents);
         }
 
         if (!window.UtilsInstance || !window.StateManager || !window.AppEvents) {
             const criticalErrorMsg = "Critical Error: Core utility scripts (Utils, StateManager, AppEvents) not found. App cannot initialize.";
-            console.error(criticalErrorMsg); 
+            logger.error(criticalErrorMsg); 
             document.body.innerHTML = `<div style="color: red; font-family: sans-serif; padding: 20px;">${criticalErrorMsg} Please check console and script loading order in index.html.</div>`;
             throw new Error(criticalErrorMsg); 
         }
@@ -50,7 +52,7 @@ class App {
         this._handleVisibilityChange = this._handleVisibilityChange.bind(this); // Bind context for event listener
 
         if (this.stateManager && this.stateManager.get('debugMode')) {
-            console.log('App constructor: Debug mode is ON.');
+            logger.app('App constructor: Debug mode is ON.');
         }
     }
 
@@ -60,11 +62,11 @@ class App {
      */
     async init() {
         if (this.isInitialized) {
-            console.warn('App already initialized.');
+            logger.warn('App already initialized.');
             return;
         }
 
-        console.log('🚀 Parkland AI - Opus Magnum Edition: Initializing App...');
+        logger.app('🚀 Parkland AI - Opus Magnum Edition: Initializing App...');
         document.body.classList.add('app-loading');
         const loadingOverlayDirect = document.getElementById('loadingOverlay');
         if(loadingOverlayDirect && this.utils) { // Ensure utils is available
@@ -77,32 +79,32 @@ class App {
         // Initialize Feature Modules in correct order
         if (typeof MarkdownProcessor === 'undefined') { 
             const msg = "MarkdownProcessor class is undefined! Ensure markdown.js is loaded before app.js.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.markdownProcessor = new MarkdownProcessor(this.utils); 
         await this.markdownProcessor.init(); 
 
         if (typeof ClaudeAPIService === 'undefined') { 
             const msg = "ClaudeAPIService class is undefined! Ensure claude.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.apiService = new ClaudeAPIService(this.stateManager, this.utils);
 
         if (typeof ChatMessages === 'undefined') { 
             const msg = "ChatMessages class is undefined! Ensure messages.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.chatMessages = new ChatMessages(this.ui.chatMessagesContainer, this.utils, this.markdownProcessor, this.stateManager);
 
         if (typeof ChatHistory === 'undefined') { 
             const msg = "ChatHistory class is undefined! Ensure history.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.chatHistory = new ChatHistory(this.ui.chatHistoryContainer, this.utils, this.eventEmitter, this.stateManager);
 
         if (typeof VoiceRecognition === 'undefined') { 
             const msg = "VoiceRecognition class is undefined! Ensure recognition.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.voiceRecognition = new VoiceRecognition(this.stateManager, this.eventEmitter, this.utils, this.ui.micBtn);
         if (this.ui.micBtn && !this.voiceRecognition.isSupported()) {
@@ -114,44 +116,44 @@ class App {
 
         if (typeof VoiceSynthesis === 'undefined') { 
             const msg = "VoiceSynthesis class is undefined! Ensure synthesis.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.voiceSynthesis = new VoiceSynthesis(this.stateManager, this.eventEmitter, this.utils);
         this.voiceSynthesis.init(); 
 
         if (typeof TypingIndicatorManager === 'undefined') { 
             const msg = "TypingIndicatorManager class is undefined! Ensure typing-indicator.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.typingIndicator = new TypingIndicatorManager(this.utils, this.stateManager, this.eventEmitter);
 
         if (typeof ChatSearchManager === 'undefined') { 
             const msg = "ChatSearchManager class is undefined! Ensure search-manager.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.searchManager = new ChatSearchManager(this.utils, this.stateManager, this.eventEmitter);
 
         if (typeof ThemePersistence === 'undefined') { 
             const msg = "ThemePersistence class is undefined! Ensure persistence.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.themePersistence = new ThemePersistence(this.stateManager);
 
         if (typeof ThemeTransition === 'undefined') { 
             const msg = "ThemeTransition class is undefined! Ensure themes/transitions.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.themeTransition = new ThemeTransition(this.utils, this.stateManager);
 
         if (typeof CharacterManager === 'undefined') { 
             const msg = "CharacterManager class is undefined! Ensure voice/characters.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.characterManager = new CharacterManager(this.stateManager, this.eventEmitter, this.utils, null);
 
         if (typeof ThemeManager === 'undefined') { 
             const msg = "ThemeManager class is undefined! Ensure themes/manager.js is loaded.";
-            console.error(msg); return Promise.reject(new Error(msg)); 
+            logger.error(msg); return Promise.reject(new Error(msg)); 
         }
         this.themeManager = new ThemeManager(
             this.stateManager, this.utils, this.eventEmitter,
@@ -176,14 +178,14 @@ class App {
                     }
                 };
                 this.audioWorker.onmessage = (event) => {
-                    if (this.stateManager.get('debugMode')) console.log('Msg from AudioWorker:', event.data);
-                    if (event.data.type === 'SOUND_ERROR') console.error('AudioWorker Sound Error:', event.data.payload);
+                    if (this.stateManager.get('debugMode')) logger.app('Msg from AudioWorker:', event.data);
+                    if (event.data.type === 'SOUND_ERROR') logger.error('AudioWorker Sound Error:', event.data.payload);
                     else if (event.data.type === 'WORKER_READY' && this.soundEffects) {
                         this.soundEffects.preload(['uiClick', 'messageSent', 'messageReceived', 'error', 'appReady']);
                     }
                 };
                 this.audioWorker.onerror = (error) => {
-                    console.error("Error initializing AudioWorker:", error.message ? `${error.message} (at ${error.filename}:${error.lineno})` : error);
+                    logger.error("Error initializing AudioWorker:", error.message ? `${error.message} (at ${error.filename}:${error.lineno})` : error);
                     this.soundEffects = null;
                 };
                 window.soundEffects = this.soundEffects;
@@ -347,13 +349,13 @@ class App {
                 this.soundEffects.stopSoundEffect(payload.soundId);
             }
         });
-         this.eventEmitter.on('character:speakRequested', ({ characterKey, text, voiceConfig, options }) => {
+         this.eventEmitter.on('character:speakRequested', ({ characterKey, text, options }) => {
             if (this.voiceSynthesis) {
                 this.voiceSynthesis.speak(text, characterKey, options);
             }
         });
         // Listener for when chat history loads a session, to update main chat title
-        this.eventEmitter.on('chatSessionLoaded', ({ sessionId, messages }) => {
+        this.eventEmitter.on('chatSessionLoaded', ({ sessionId }) => {
             const sessions = this.chatHistory ? this.chatHistory._getStoredSessions() : []; // Access internal method carefully or add public getter
             const loadedSession = sessions.find(s => s.id === sessionId);
             if(this.ui.chatHeader) {
@@ -753,7 +755,7 @@ class App {
     _handlePreferenceChange(event) {
         if(!event || !event.target) return;
         const target = event.target;
-        let prefKey = target.name || target.id; // Prefer name, fallback to id
+        const prefKey = target.name || target.id; // Prefer name, fallback to id
         const value = target.type === 'checkbox' ? target.checked : target.value;
 
         // "Instant apply" preferences
@@ -890,7 +892,7 @@ class App {
         if(typeof alert === 'function') alert(`Error: ${message}`); 
     }
 
-    _displayNotification({ message, type = 'info', duration = 3000}) {
+    _displayNotification({ message, type = 'info' }) {
         console.log(`Notification (${type}): ${message}`);
         // TODO: Replace with a proper UI notification system
         if(type !== 'error' && typeof alert === 'function') alert(`Info: ${message}`);

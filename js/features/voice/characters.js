@@ -301,3 +301,5 @@ class CharacterManager {
 
 // If not using ES modules:
 // window.CharacterManager = CharacterManager;
+
+window.CharacterManager = CharacterManager;

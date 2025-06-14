@@ -468,3 +468,5 @@ class VoiceSynthesis {
 
 // If not using ES modules:
 // window.VoiceSynthesis = VoiceSynthesis;
+
+window.VoiceSynthesis = VoiceSynthesis;

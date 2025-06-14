@@ -434,3 +434,5 @@ class ChatMessages {
 
 // If not using ES modules:
 // window.ChatMessages = ChatMessages;
+
+window.ChatMessages = ChatMessages;

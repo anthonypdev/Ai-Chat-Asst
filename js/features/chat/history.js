@@ -319,3 +319,5 @@ class ChatHistory {
 
 // If not using ES modules:
 // window.ChatHistory = ChatHistory;
+
+window.ChatHistory = ChatHistory;

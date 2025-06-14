@@ -187,3 +187,5 @@ class MarkdownProcessor {
 
 // If not using ES modules:
 // window.MarkdownProcessor = MarkdownProcessor;
+
+window.MarkdownProcessor = MarkdownProcessor;

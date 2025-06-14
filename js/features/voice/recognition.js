@@ -306,3 +306,5 @@ class VoiceRecognition {
 
 // If not using ES modules:
 // window.VoiceRecognition = VoiceRecognition;
+
+window.VoiceRecognition = VoiceRecognition;

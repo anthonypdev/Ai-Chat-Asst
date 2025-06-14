@@ -82,7 +82,6 @@ class StateManager {
         }
 
         let changed = false;
-        let oldValue;
         const keys = key.split('.');
         let current = this._state;
 
@@ -93,7 +92,7 @@ class StateManager {
             current = current[keys[i]];
         }
 
-        oldValue = current[keys[keys.length - 1]];
+        const oldValue = current[keys[keys.length - 1]];
         if (oldValue !== value) { 
             current[keys[keys.length - 1]] = value;
             changed = true;
