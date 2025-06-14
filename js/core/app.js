@@ -190,11 +190,11 @@ class App {
                 };
                 window.soundEffects = this.soundEffects;
             } catch (error) {
-                console.error("Failed to create AudioProcessor worker:", error);
+                logger.error("Failed to create AudioProcessor worker:", error);
                 this.soundEffects = null;
             }
         } else {
-            console.warn("Web Workers not supported. Sound effects will be limited or disabled.");
+            logger.warn("Web Workers not supported. Sound effects will be limited or disabled.");
             this.soundEffects = null;
         }
 
@@ -212,11 +212,11 @@ class App {
         }
         
         this.isInitialized = true;
-        console.log('✅ App initialized successfully.');
+        logger.app('✅ App initialized successfully.');
 
-        console.log('DEBUG App.init: Scheduling isLoading=false timeout.');
+        logger.app('DEBUG App.init: Scheduling isLoading=false timeout.');
         setTimeout(() => {
-            console.log('DEBUG App.init: setTimeout callback fired. Setting isLoading to false.');
+            logger.app('DEBUG App.init: setTimeout callback fired. Setting isLoading to false.');
             this.stateManager.set('isLoading', false);
         }, 500); // Short delay to allow everything to settle before hiding loader
     }
@@ -373,7 +373,7 @@ class App {
 
     _setupStateSubscriptions() {
         this.stateManager.subscribe('change:isLoading', ({ newValue }) => {
-            console.log(`DEBUG App: 'change:isLoading' event received by App. New value: ${newValue}`);
+            logger.app(`DEBUG App: 'change:isLoading' event received by App. New value: ${newValue}`);
             newValue ? this._showLoadingScreen() : this._hideLoadingScreen();
         });
         this.stateManager.subscribe('change:currentTheme', ({ newValue }) => {
@@ -469,7 +469,7 @@ class App {
 
     _handleLoginSubmit(event) {
         if(event) event.preventDefault();
-        if(!this.ui.apiKeyInput) { console.error("API Key input not found"); return; }
+        if(!this.ui.apiKeyInput) { logger.error("API Key input not found"); return; }
         const apiKey = this.ui.apiKeyInput.value.trim();
 
         if (this.apiService && this.apiService.validateApiKey(apiKey)) {
@@ -560,7 +560,7 @@ class App {
             if (apiResponse.character) character = apiResponse.character; // API might suggest a character override
         } else {
             content = "Sorry, I received an unexpected response from the AI.";
-             console.warn("Unexpected API response format in _processAssistantResponse:", apiResponse);
+             logger.warn("Unexpected API response format in _processAssistantResponse:", apiResponse);
         }
 
         const assistantMessage = {
@@ -594,7 +594,7 @@ class App {
     }
 
     _handleApiError(error, messageId = null) {
-        console.error("API Error in App:", error);
+        logger.error("API Error in App:", error);
         const errorMessage = (error && error.message) ? error.message : "An unknown API error occurred.";
         
         // Emit API error event for typing indicator
@@ -804,7 +804,7 @@ class App {
     }
 
     _showLoadingScreen() {
-        console.log("DEBUG App: _showLoadingScreen called.");
+        logger.app("DEBUG App: _showLoadingScreen called.");
         if (this.ui.loadingOverlay) {
             this.utils.removeClass(this.ui.loadingOverlay, 'hidden');
             this.utils.fadeIn(this.ui.loadingOverlay, 100); // Use a short duration
@@ -813,27 +813,27 @@ class App {
     }
 
     _hideLoadingScreen() {
-        console.log("DEBUG App: _hideLoadingScreen called.");
+        logger.app("DEBUG App: _hideLoadingScreen called.");
         if (this.ui.loadingOverlay) {
-            console.log("DEBUG App: Fading out loadingOverlay.");
+            logger.app("DEBUG App: Fading out loadingOverlay.");
             this.utils.fadeOut(this.ui.loadingOverlay, 500)
                 .then(() => {
-                    console.log("DEBUG App: loadingOverlay fadeOut completed.");
+                    logger.app("DEBUG App: loadingOverlay fadeOut completed.");
                 })
                 .catch(err => {
-                     console.error("DEBUG App: Error during loadingOverlay fadeOut:", err);
+                     logger.error("DEBUG App: Error during loadingOverlay fadeOut:", err);
                 });
         } else {
-            console.warn("DEBUG App: loadingOverlay UI element not found in _hideLoadingScreen.");
+            logger.warn("DEBUG App: loadingOverlay UI element not found in _hideLoadingScreen.");
         }
         document.body.classList.remove('app-loading');
-        console.log("DEBUG App: Removed 'app-loading' from body.");
+        logger.app("DEBUG App: Removed 'app-loading' from body.");
     }
 
     _toggleModal(modalElement, show) {
         const overlay = modalElement && modalElement.classList.contains('modal-overlay') ? modalElement : (modalElement ? modalElement.closest('.modal-overlay') : null);
         if (!overlay) {
-            console.warn("Modal overlay not found for element:", modalElement);
+            logger.warn("Modal overlay not found for element:", modalElement);
             return;
         }
         
@@ -845,7 +845,7 @@ class App {
                 transitionDuration = parseFloat(transitionDurationStyle.replace('s','')) * 1000;
                 if (isNaN(transitionDuration)) transitionDuration = 300;
             } catch (e) {
-                console.warn("Could not parse transition-duration for modal, using default.", e);
+                logger.warn("Could not parse transition-duration for modal, using default.", e);
                 transitionDuration = 300;
             }
         }
@@ -859,7 +859,7 @@ class App {
                 const firstFocusable = this.utils.$$('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])', modalElement || overlay)
                                            .find(el => !el.disabled && el.offsetWidth > 0 && el.offsetHeight > 0 && window.getComputedStyle(el).visibility !== 'hidden');
                 if (firstFocusable) {
-                    try { firstFocusable.focus(); } catch (e) { console.warn("Error focusing modal element:", e); }
+                    try { firstFocusable.focus(); } catch (e) { logger.warn("Error focusing modal element:", e); }
                 }
             });
         } else {
@@ -886,20 +886,20 @@ class App {
     }
 
     _displayError({ message, type = 'general' }) {
-        console.error(`App Error (${type}):`, message);
+        logger.error(`App Error (${type}):`, message);
         this.stateManager.set('lastError', { message, type, timestamp: Date.now() });
         // TODO: Replace with a proper UI notification system (toast, inline error message)
         if(typeof alert === 'function') alert(`Error: ${message}`); 
     }
 
     _displayNotification({ message, type = 'info' }) {
-        console.log(`Notification (${type}): ${message}`);
+        logger.app(`Notification (${type}): ${message}`);
         // TODO: Replace with a proper UI notification system
         if(type !== 'error' && typeof alert === 'function') alert(`Info: ${message}`);
     }
 
     destroy() {
-        console.log('🛑 Destroying App...');
+        logger.app('🛑 Destroying App...');
         if(this._debouncedResizeHandler) window.removeEventListener('resize', this._debouncedResizeHandler);
         document.removeEventListener('visibilitychange', this._handleVisibilityChange);
 
@@ -920,7 +920,7 @@ class App {
 window.addEventListener('error', (event) => {
     const errorMsg = event.error ? (event.error.message || String(event.error)) : event.message;
     const stack = event.error ? event.error.stack : null;
-    console.error('Unhandled global error:', errorMsg, stack, event);
+    logger.error('Unhandled global error:', errorMsg, stack, event);
     if (window.StateManager && typeof StateManager.getInstance === 'function' && StateManager.getInstance()) {
         StateManager.getInstance().set('lastError', {
             message: 'Unhandled global error: ' + errorMsg,
@@ -935,7 +935,7 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
     const reasonMsg = event.reason && event.reason.message ? event.reason.message : String(event.reason);
     const stack = event.reason ? event.reason.stack : null;
-    console.error('Unhandled promise rejection:', reasonMsg, stack, event);
+    logger.error('Unhandled promise rejection:', reasonMsg, stack, event);
      if (window.StateManager && typeof StateManager.getInstance === 'function' && StateManager.getInstance()) {
         StateManager.getInstance().set('lastError', {
             message: 'Unhandled promise rejection: ' + reasonMsg,
@@ -948,14 +948,14 @@ window.addEventListener('unhandledrejection', (event) => {
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.UtilsInstance || !window.StateManager || !window.AppEvents) {
         const criticalErrorMsg = "FATAL: Core Singleton JS files (Utils, StateManager, AppEvents) failed to load or initialize their globals correctly. App cannot start.";
-        console.error(criticalErrorMsg);
+        logger.error(criticalErrorMsg);
         document.body.innerHTML = `<div style="font-family:sans-serif;color:red;padding:20px;">${criticalErrorMsg} Check script order and definitions in index.html.</div>`;
         return;
     }
     const parklandApp = new App();
     window.parklandApp = parklandApp; // Make app instance globally available for debugging or specific integrations
     parklandApp.init().catch(err => {
-        console.error("Fatal error during app initialization sequence:", err.message, err.stack);
+        logger.error("Fatal error during app initialization sequence:", err.message, err.stack);
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
             loadingOverlay.innerHTML = `<div class="loading-text" style="color:red; font-size:16px; padding:20px; text-align:left; white-space:pre-wrap;">Critical Error Initializing Application. Details in console. <br/>Error: ${err.message || String(err)} <br/>Please refresh.</div>`;
