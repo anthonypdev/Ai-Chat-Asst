@@ -432,7 +432,7 @@ body.search-mode .message:not(.search-result-active):hover {
 }
 
 /* High contrast mode */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
     .chat-search-container {
         border-width: 2px;
         background: rgba(0, 0, 0, 0.9);

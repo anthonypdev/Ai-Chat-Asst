@@ -410,7 +410,7 @@
 }
 
 /* High Contrast Mode */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .message-bubble { border-width: 2px; }
   .message.user .message-bubble { background: var(--primary-dark); } /* Solid color */
   .message.assistant .message-bubble { background: var(--white); color: var(--black); border-color: var(--black); }

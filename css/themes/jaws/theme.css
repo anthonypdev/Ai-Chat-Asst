@@ -266,7 +266,7 @@
    }
 }
 
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   [data-theme="jaws"] {
     --primary: #00aaff; /* Brighter blue for high contrast */
     --accent: #ff0000; /* Standard red */
@@ -284,8 +284,7 @@
   }
   [data-theme="jaws"] .brand-name,
   [data-theme="jaws"] .modal-title {
-     -webkit-text-stroke: none; /* Remove stroke for high contrast */
-     text-stroke: none;
+     -webkit-text-stroke: unset; /* Remove stroke for high contrast */
   }
 }
 

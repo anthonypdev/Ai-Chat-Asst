@@ -461,7 +461,7 @@
 }
 
 /* High contrast mode support (Retained) */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .gate-concrete { background: linear-gradient(180deg, #000000 0%, #333333 100%); }
   .gate-logo {
     color: var(--electric-yellow); /* Brighter yellow for contrast */

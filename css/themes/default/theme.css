@@ -345,7 +345,7 @@
 /* ===========================================
    ACCESSIBILITY & PERFORMANCE - DEFAULT THEME
    =========================================== */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   [data-theme="default"] {
     /* High contrast overrides for default theme if needed,
        otherwise uses :root high contrast settings from variables.css */

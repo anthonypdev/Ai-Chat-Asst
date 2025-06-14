@@ -379,11 +379,11 @@ q::after { content: close-quote; }
    RESPONSIVE TYPOGRAPHY ADJUSTMENTS
    ========================================================================== */
 
-@media (max-width: var(--breakpoint-md)) {
+@media (max-width: 768px) {
   /* Slightly reduce heading sizes or margins if needed, relying on clamp() mostly */
 }
 
-@media (max-width: var(--breakpoint-sm)) {
+@media (max-width: 480px) {
   /* Reduce heading sizes further if clamp() isn't enough for aesthetics */
 }
 

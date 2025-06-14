@@ -304,7 +304,7 @@
 }
 
 /* High contrast mode support */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .notification {
     border-width: 2px;
     border-color: var(--text-primary);

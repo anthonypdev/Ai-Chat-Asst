@@ -428,10 +428,10 @@
 @media (max-width: 768px) {
   .btn { min-height: 48px; padding: var(--space-md) var(--space-lg); }
   .btn-sm { min-height: 40px; } .btn-xs { min-height: 36px; }
-  .btn:hover { transform: none translateZ(0); } /* Disable hover transform on touch, keep translateZ for layer */
+  .btn:hover { transform: translateZ(0); } /* Disable hover transform on touch, keep translateZ for layer */
   .btn:active { transform: scale(0.95) translateZ(0); transition: transform 0.1s ease-out; }
 }
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .btn { border-width: 3px; }
   .btn-primary { background: var(--primary); border-color: var(--primary-darker); }
   .btn-secondary { background: var(--bg-elevated); border-color: var(--text-primary); }
@@ -444,7 +444,7 @@
     animation: none !important;
     transition: none !important;
   }
-  .btn:hover, .btn:active { transform: none translateZ(0); }
+  .btn:hover, .btn:active { transform: translateZ(0); }
   .btn::before { display: none; } /* Hide ripple on reduced motion */
 }
 @media print {

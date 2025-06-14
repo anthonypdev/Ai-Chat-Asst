@@ -437,7 +437,7 @@ legend {
 @media (hover: none) and (pointer: coarse) {
   .form-checkbox, .form-radio, .form-toggle { min-height: 44px; }
 }
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   .form-input, .form-textarea, .form-select { border-width: 3px; }
   .form-input:focus, .form-textarea:focus, .form-select:focus { outline: 3px solid var(--primary); outline-offset: 2px; }
   .checkbox-indicator, .radio-indicator, .toggle-indicator { border-width: 3px; }
