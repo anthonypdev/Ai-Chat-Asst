@@ -31,10 +31,7 @@ class ThemeManager {
         this._themeConfig = {
             default: {
                 name: 'Default',
-                cssFiles: [ // Order might matter: theme base, then animations
-                    { id: 'default-main', path: 'css/themes/default/theme.css' },
-                    { id: 'default-animations', path: 'css/themes/default/animations.css' }
-                ],
+                cssFiles: [], // Default theme CSS is already loaded via main.css
                 characterKey: null, // Or your default character if any
                 soundPackKey: 'default'
             },
